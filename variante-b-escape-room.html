@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Room — Operación Escudo Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05080f;
+    --surface: #0d1117;
+    --border: #1c2333;
+    --accent: #58a6ff;
+    --success: #3fb950;
+    --danger: #f85149;
+    --warn: #d29922;
+    --text: #c9d1d9;
+    --muted: #484f58;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; min-height: 100vh; }
+
+  /* NOISE TEXTURE */
+  body::after { content: ''; position: fixed; inset: 0; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; }
+
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* TOP BAR */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .tb-left { display: flex; align-items: center; gap: 1rem; }
+  .tb-badge { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; padding: 0.2rem 0.6rem; border-radius: 3px; }
+  .badge-red { background: rgba(248,81,73,0.15); color: var(--danger); border: 1px solid rgba(248,81,73,0.3); }
+  .badge-blue { background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.2); }
+  .tb-title { font-size: 0.85rem; font-weight: 600; }
+  .tb-right { display: flex; align-items: center; gap: 1.5rem; }
+  .timer-display { font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+  .timer-display.warning { color: var(--warn); animation: pulse 1s infinite; }
+  .timer-display.critical { color: var(--danger); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .team-tag { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+  /* MAIN LAYOUT */
+  .main { display: grid; grid-template-columns: 260px 1fr 280px; flex: 1; min-height: 0; }
+
+  /* LEFT: MISSION LOG */
+  .sidebar-left { background: var(--surface); border-right: 1px solid var(--border); padding: 1.25rem; overflow-y: auto; }
+  .sl-title { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 1rem; }
+  .mission-steps { display: flex; flex-direction: column; gap: 0.5rem; }
+  .step { display: flex; gap: 0.75rem; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border); transition: all 0.3s; cursor: default; }
+  .step.active { border-color: var(--accent); background: rgba(88,166,255,0.05); }
+  .step.done { border-color: var(--success); background: rgba(63,185,80,0.05); }
+  .step.locked { opacity: 0.4; }
+  .step-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step.active .step-num { border-color: var(--accent); color: var(--accent); }
+  .step.done .step-num { border-color: var(--success); color: var(--success); background: rgba(63,185,80,0.1); }
+  .step-info { flex: 1; }
+  .step-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.15rem; }
+  .step-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
+
+  /* CENTER: CHALLENGE AREA */
+  .center { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
+
+  /* RIGHT SIDEBAR — notifications + teams */
+  .sidebar-right { background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Sidebar tab bar */
+  .sb-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .sb-tab { flex: 1; padding: 0.65rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-align: center; cursor: pointer; color: var(--muted); border: none; background: none; transition: all 0.2s; position: relative; }
+  .sb-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .sb-tab:hover:not(.active) { color: var(--text); }
+  .notif-badge { position: absolute; top: 6px; right: 12px; background: var(--danger); color: white; font-family: 'Space Mono', monospace; font-size: 0.55rem; border-radius: 10px; padding: 1px 5px; display: none; align-items: center; justify-content: center; min-width: 16px; }
+
+  /* Sidebar panels */
+  .sb-panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .sb-panel.active { display: flex; }
+
+  /* Notifications feed */
+  .notif-feed { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .notif-placeholder { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); text-align: center; padding: 1.5rem 0.5rem; }
+  .notif-item { padding: 0.6rem 0.75rem; border-radius: 6px; font-size: 0.72rem; line-height: 1.5; border-left: 3px solid var(--border); animation: notifIn 0.35s ease; }
+  @keyframes notifIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .notif-info { background: rgba(88,166,255,0.07); border-left-color: var(--accent); }
+  .notif-warn { background: rgba(210,153,34,0.1); border-left-color: var(--warn); }
+  .notif-alert { background: rgba(248,81,73,0.1); border-left-color: var(--danger); }
+  .notif-time { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-bottom: 0.25rem; }
+
+  /* Teams panel */
+  .teams-panel-inner { flex: 1; overflow-y: auto; padding: 0.75rem; }
+  .sr-title { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
+  .team-status { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ts-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); }
+  .ts-name { font-size: 0.75rem; flex: 1; }
+  .ts-prog { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+  .ts-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .ts-dot.active-team { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .ts-dot.completed { background: var(--success); }
+
+  /* CHALLENGE CARDS */
+  .challenge-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .cc-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .cc-tag { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; }
+  .cc-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .cc-sub { font-size: 0.8rem; color: var(--muted); }
+  .cc-body { padding: 1.25rem; }
+  .cc-footer { padding: 0.75rem 1.25rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+
+  /* Question divider */
+  .q-divider { border: none; border-top: 1px dashed var(--border); margin: 1.25rem 0; }
+  .q-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.6rem; }
+
+  /* EVIDENCE PANEL */
+  .evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+  .evidence-item { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: border-color 0.2s; }
+  .evidence-item:hover { border-color: var(--accent); }
+  .evidence-item.selected { border-color: var(--accent); background: rgba(88,166,255,0.05); }
+  .evidence-item .ei-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+  .evidence-item .ei-value { color: var(--text); font-size: 0.8rem; }
+
+  /* EMAIL VIEWER */
+  .email-mock { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .em-bar { background: #161b22; padding: 0.6rem 1rem; display: flex; gap: 0.4rem; }
+  .em-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .em-body { padding: 1.25rem; font-family: 'Space Mono', monospace; font-size: 0.78rem; line-height: 1.8; }
+  .em-field { color: var(--muted); }
+  .em-field span { color: var(--text); }
+  .em-content { margin-top: 1rem; color: var(--text); border-top: 1px solid var(--border); padding-top: 1rem; }
+  .highlight-red { background: rgba(248,81,73,0.2); color: var(--danger); padding: 0 3px; border-radius: 2px; }
+  .highlight-warn { background: rgba(210,153,34,0.2); color: var(--warn); padding: 0 3px; border-radius: 2px; }
+
+  /* RADIO OPTIONS */
+  .radio-group { display: flex; flex-direction: column; gap: 0.6rem; }
+  .radio-opt { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+  .radio-opt:hover { border-color: var(--accent); background: rgba(88,166,255,0.03); }
+  .radio-opt.selected { border-color: var(--accent); background: rgba(88,166,255,0.07); }
+  .radio-opt.correct { border-color: var(--success); background: rgba(63,185,80,0.07); }
+  .radio-opt.wrong { border-color: var(--danger); background: rgba(248,81,73,0.07); }
+  .radio-circle { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); flex-shrink: 0; margin-top: 1px; transition: all 0.2s; }
+  .radio-opt.selected .radio-circle { border-color: var(--accent); background: var(--accent); }
+  .radio-opt.correct .radio-circle { border-color: var(--success); background: var(--success); }
+  .radio-opt.wrong .radio-circle { border-color: var(--danger); background: var(--danger); }
+  .radio-text { font-size: 0.85rem; line-height: 1.5; }
+
+  /* INPUT */
+  .input-row { display: flex; gap: 0.75rem; }
+  .code-input { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--text); flex: 1; outline: none; transition: border-color 0.2s; letter-spacing: 0.1em; }
+  .code-input:focus { border-color: var(--accent); }
+  .code-input.success { border-color: var(--success); color: var(--success); }
+  .code-input.error { border-color: var(--danger); color: var(--danger); animation: shake 0.3s; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  /* BUTTONS */
+  .btn { padding: 0.6rem 1.25rem; border-radius: 6px; font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-success { background: var(--success); color: var(--bg); }
+  .btn-danger { background: var(--danger); color: white; }
+
+  /* FEEDBACK */
+  .feedback-box { padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.5; }
+  .fb-success { background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.3); color: #3fb950; }
+  .fb-error { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); color: var(--danger); }
+  .fb-info { background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.3); color: var(--accent); }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; }
+  .screen.active.center-screen { align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; }
+
+  /* INTRO */
+  .intro-wrap { max-width: 680px; }
+  .intro-alert { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); color: var(--danger); font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; padding: 0.4rem 1rem; border-radius: 4px; margin-bottom: 2rem; }
+  .intro-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 1rem; }
+  .intro-title .accent { color: var(--accent); }
+  .intro-story { color: var(--muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; border-left: 3px solid var(--danger); }
+  .intro-story strong { color: var(--text); }
+  .intro-objectives { text-align: left; margin-bottom: 2rem; }
+  .obj-title { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
+  .obj-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+  .obj-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent); }
+
+  /* SUCCESS SCREEN */
+  .success-wrap { max-width: 600px; }
+  .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .success-title { font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem; }
+  .success-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2rem; text-align: center; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .stat-num { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
+
+  /* HINT */
+  .hint-btn { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); background: none; border: 1px dashed var(--border); border-radius: 4px; padding: 0.3rem 0.7rem; cursor: pointer; transition: all 0.2s; }
+  .hint-btn:hover { border-color: var(--warn); color: var(--warn); }
+
+  /* CHECKMARK */
+  .check-wrap { display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-family: 'Space Mono', monospace; font-size: 0.75rem; }
+
+  /* ROLE HINTS */
+  .role-hints { margin-top: 1.25rem; border-top: 1px dashed var(--border); padding-top: 1rem; }
+  .rh-header { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.75rem; }
+  .role-hint-item { margin-bottom: 0.4rem; }
+  .role-hint-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 0.5rem 0.75rem; cursor: pointer; color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 0.78rem; font-weight: 500; transition: all 0.2s; }
+  .role-hint-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .role-hint-btn.open { border-color: var(--purple); background: rgba(188,140,255,0.05); color: var(--purple); }
+  .rh-arrow { font-size: 0.65rem; color: var(--muted); }
+  .role-hint-content { display: none; padding: 0.65rem 0.75rem; background: rgba(188,140,255,0.04); border: 1px solid rgba(188,140,255,0.15); border-top: none; border-radius: 0 0 5px 5px; font-size: 0.8rem; color: var(--text); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- INTRO SCREEN -->
+<div class="screen active center-screen" id="screenIntro">
+  <div class="intro-wrap">
+    <div class="intro-alert">⚠ ALERTA DE SEGURIDAD NIVEL CRÍTICO</div>
+    <div class="intro-title">OPERACIÓN<br><span class="accent">ESCUDO DIGITAL</span></div>
+    <div class="intro-story">
+      <strong>06:47am — La empresa fue hackeada.</strong><br><br>
+      El sistema de monitoreo detectó actividad sospechosa en la madrugada. Alguien obtuvo acceso no autorizado a la red interna. Datos de clientes podrían estar comprometidos.<br><br>
+      Su equipo tiene <strong>60 minutos</strong> para identificar el vector de ataque, contener el daño y seguir el protocolo de respuesta antes de que los medios se enteren.
+    </div>
+    <div class="intro-objectives">
+      <div class="obj-title">// OBJETIVOS DE LA MISIÓN</div>
+      <div class="obj-item"><span class="obj-num">01</span> Analizar el email sospechoso e identificar el phishing</div>
+      <div class="obj-item"><span class="obj-num">02</span> Encontrar la contraseña comprometida en los logs</div>
+      <div class="obj-item"><span class="obj-num">03</span> Decidir el protocolo de contención correcto</div>
+      <div class="obj-item"><span class="obj-num">04</span> Redactar el reporte de incidente</div>
+    </div>
+    <div style="display:flex; gap:1rem; justify-content:center;">
+      <button class="btn btn-danger" onclick="startEscape()">INICIAR MISIÓN →</button>
+      <button class="btn btn-ghost" onclick="window.location='facilitador-panel.html'">PANEL FACILITADOR</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen" id="screenGame">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-badge badge-red">INCIDENTE ACTIVO</div>
+      <div class="tb-badge badge-blue">MODO: CONTENCIÓN</div>
+      <div class="tb-title">Operación Escudo Digital</div>
+    </div>
+    <div class="tb-right">
+      <div class="team-tag" id="teamLabel">EQUIPO —</div>
+      <div class="timer-display" id="gameTimer">60:00</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar-left">
+      <div class="sl-title">// PLAN DE MISIÓN</div>
+      <div class="mission-steps">
+        <div class="step active" id="stepEl0">
+          <div class="step-num">1</div>
+          <div class="step-info"><div class="step-name">Análisis de email</div><div class="step-desc">Identificar el phishing inicial</div></div>
+        </div>
+        <div class="step locked" id="stepEl1">
+          <div class="step-num">2</div>
+          <div class="step-info"><div class="step-name">Log de accesos</div><div class="step-desc">Encontrar credencial robada</div></div>
+        </div>
+        <div class="step locked" id="stepEl2">
+          <div class="step-num">3</div>
+          <div class="step-info"><div class="step-name">Protocolo de respuesta</div><div class="step-desc">Decisiones de contención</div></div>
+        </div>
+        <div class="step locked" id="stepEl3">
+          <div class="step-num">4</div>
+          <div class="step-info"><div class="step-name">Reporte de incidente</div><div class="step-desc">Documentar el ataque</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center" id="challengeArea"></div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="sidebar-right">
+      <div class="sb-tabs">
+        <button class="sb-tab active" id="stab-alerts" onclick="switchSbTab('alerts')">
+          ALERTAS
+          <span class="notif-badge" id="notifBadge"></span>
+        </button>
+        <button class="sb-tab" id="stab-teams" onclick="switchSbTab('teams')">EQUIPOS</button>
+      </div>
+
+      <!-- Alerts panel -->
+      <div class="sb-panel active" id="sp-alerts">
+        <div class="notif-feed" id="notifFeed">
+          <div class="notif-placeholder">Sin alertas aún...</div>
+        </div>
+      </div>
+
+      <!-- Teams panel -->
+      <div class="sb-panel" id="sp-teams">
+        <div class="teams-panel-inner">
+          <div class="sr-title">// EQUIPOS</div>
+          <div class="team-status" id="teamStatusList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="screen center-screen" id="screenSuccess">
+  <div class="success-wrap">
+    <div class="success-icon">🏆</div>
+    <div class="success-title">¡MISIÓN COMPLETADA!</div>
+    <div class="success-sub">El equipo identificó el ataque y siguió el protocolo correcto</div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-num" id="statTime">--:--</div><div class="stat-label">Tiempo restante</div></div>
+      <div class="stat-box"><div class="stat-num" id="statScore">100%</div><div class="stat-label">Precisión</div></div>
+      <div class="stat-box"><div class="stat-num" id="statHints">0</div><div class="stat-label">Pistas usadas</div></div>
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:center;">
+      <button class="btn btn-ghost" onclick="resetGame()">NUEVA SESIÓN</button>
+      <button class="btn btn-primary" onclick="window.location='facilitador-panel.html'">VER DEBRIEF →</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let timerInterval = null;
+let seconds = 3600;
+let currentStep = 0;
+let hintsUsed = 0;
+let correctAnswers = 0;
+let totalAnswers = 0;
+let stepsDone = [false, false, false, false];
+let lockedGroups = {};
+let stageCorrect = [0, 0, 0, 0];
+
+// Which radio groups must all be locked before a stage is considered done
+const STAGE_REQUIRED = {
+  0: ['0-0', '0-1', '0-2'],
+  1: ['1-0', '1-1', '1-2'],
+  2: ['2a', '2b', '2c', '2d'],
+};
+
+// ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
+let unreadNotifs = 0;
+let currentSbTab = 'alerts';
+
+const NOTIFICATIONS = {
+  start: [
+    { time: '06:47', text: 'Sistema de detección de intrusiones: ANOMALÍA CRÍTICA en servidor de datos.', type: 'alert' },
+    { time: '06:52', text: 'IT: Tráfico saliente inusual desde la red interna. Investigando origen.', type: 'warn' },
+    { time: '07:01', text: 'Empleado P. Martínez reportó haber recibido un email sospechoso a primera hora.', type: 'info' },
+  ],
+  byStage: {
+    0: [
+      { time: '07:15', text: 'Seguridad: El dominio "micros0ft-ayuda.com" no figura en la lista blanca corporativa.', type: 'warn' },
+      { time: '07:18', text: 'ALERTA: Se detectó acceso al servidor de datos desde las credenciales de p.martinez.', type: 'alert' },
+      { time: '07:22', text: 'Analista: El email fue enviado a toda la lista empleados@empresa.com.', type: 'warn' },
+      { time: '07:28', text: 'Prensa: Canal de noticias preguntó por "rumores de hackeo a la empresa".', type: 'alert' },
+    ],
+    1: [
+      { time: '07:35', text: 'IT confirma: 2.3GB de datos exportados desde el servidor de clientes.', type: 'alert' },
+      { time: '07:40', text: 'Legal: La exportación de datos de clientes activa obligaciones regulatorias.', type: 'warn' },
+      { time: '07:45', text: 'CEO: Solicita informe de situación urgente. "¿Qué pasó exactamente?"', type: 'info' },
+      { time: '07:50', text: 'Otro empleado confirmó recibir el mismo email. No hizo clic. Reportó de inmediato.', type: 'info' },
+    ],
+    2: [
+      { time: '08:00', text: 'Legal: Regulación bancaria — notificación al regulador en máximo 72 horas desde conocimiento.', type: 'warn' },
+      { time: '08:08', text: 'Redes sociales: Clientes reportan "inconvenientes" con sus cuentas en Twitter.', type: 'alert' },
+      { time: '08:15', text: 'IT: Backups verificados. Último respaldo: ayer 23:00hs. Datos recuperables al 97%.', type: 'info' },
+      { time: '08:22', text: 'Comunicaciones: Periodista de TechNews solicita declaración oficial.', type: 'warn' },
+    ],
+    3: [
+      { time: '08:35', text: 'Regulador bancario: "Esperamos su reporte formal del incidente según protocolo."', type: 'alert' },
+      { time: '08:40', text: 'Gerencia: "¿Cuándo podemos comunicar que el incidente fue contenido?"', type: 'info' },
+      { time: '08:48', text: 'IT: Cuenta de p.martinez deshabilitada. Sistema de monitoreo reforzado.', type: 'info' },
+      { time: '08:55', text: 'ALERTA: Otro intento de acceso con credenciales antiguas bloqueado exitosamente.', type: 'warn' },
+    ],
+  },
+};
+
+function switchSbTab(tab) {
+  currentSbTab = tab;
+  ['alerts', 'teams'].forEach(t => {
+    document.getElementById('stab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('sp-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'alerts') {
+    unreadNotifs = 0;
+    document.getElementById('notifBadge').style.display = 'none';
+  }
+}
+
+function pushNotif(n) {
+  const feed = document.getElementById('notifFeed');
+  const placeholder = feed.querySelector('.notif-placeholder');
+  if (placeholder) placeholder.remove();
+
+  const el = document.createElement('div');
+  el.className = 'notif-item notif-' + n.type;
+  el.innerHTML = '<div class="notif-time">' + n.time + '</div>' + n.text;
+  feed.insertBefore(el, feed.firstChild);
+
+  if (currentSbTab !== 'alerts') {
+    unreadNotifs++;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unreadNotifs > 9 ? '9+' : unreadNotifs;
+    badge.style.display = 'flex';
+  }
+}
+
+function loadStageNotifs(stageNum) {
+  const notifs = NOTIFICATIONS.byStage[stageNum];
+  if (!notifs) return;
+  notifs.forEach((n, i) => setTimeout(() => pushNotif(n), 2000 + i * 2500));
+}
+
+// ─── ROLE HINTS ───────────────────────────────────────────────────────────────
+const ROLE_HINTS = {
+  0: {
+    'CISO': 'Los ataques de phishing usan caracteres visualmente similares en dominios (0 por o, I por l). Busquen inconsistencias técnicas en el remitente y la URL del enlace.',
+    'Legal': 'Si un empleado hizo clic en este email, ¿qué obligaciones legales se activan para la empresa? Piensen en protección de datos de clientes.',
+    'Comunicaciones': '¿Cómo alertarían a los demás empleados para que no caigan en el mismo engaño? Redacten mentalmente ese mensaje.',
+    'Operaciones': '¿Qué impacto operativo tendría si varios empleados cayeron en esta trampa al mismo tiempo?',
+    'Analista': 'Examinen cada campo: remitente, asunto, URL del enlace y firma. Hay al menos 4 señales identificables.',
+  },
+  1: {
+    'CISO': 'Una cuenta no puede tener dos sesiones activas simultáneas desde el mismo equipo. Busquen el patrón en los timestamps.',
+    'Legal': 'Identifiquen el momento exacto en que la empresa tomó conocimiento del incidente — eso inicia el plazo regulatorio de notificación.',
+    'Comunicaciones': '¿A quién se notifica primero internamente cuando se confirma una brecha de datos?',
+    'Operaciones': '2.3GB de datos de clientes: ¿cuántos registros de clientes equivale eso aproximadamente?',
+    'Analista': 'Comparen los timestamps: ¿cuánto tiempo estuvo el atacante? ¿Qué hizo exactamente en ese tiempo?',
+  },
+  2: {
+    'CISO': 'El protocolo estándar es: Contener → Erradicar → Recuperar → Comunicar. No saltear pasos ni invertir el orden.',
+    'Legal': 'El regulador bancario debe ser notificado antes que los medios. ¿Cuál es el plazo exacto que marca la regulación?',
+    'Comunicaciones': 'Un comunicado apresurado puede amplificar la crisis. ¿Qué información está lista para comunicar y cuál aún no?',
+    'Operaciones': '¿Qué sistemas críticos pueden seguir operando mientras se contiene el incidente?',
+    'Analista': 'Los backups son el plan B. Verifiquen su integridad antes de asumir que la recuperación total es posible.',
+  },
+  3: {
+    'CISO': 'El reporte técnico debe ser objetivo y factual. Sin especulaciones sobre el atacante ni atribución de responsabilidades prematura.',
+    'Legal': 'El reporte al regulador tiene requisitos mínimos: tipo de datos afectados, cantidad de clientes, medidas adoptadas y plazo desde el conocimiento.',
+    'Comunicaciones': 'El reporte interno es distinto al comunicado externo. El orden importa: primero interno, luego regulador, luego público general.',
+    'Operaciones': 'Documenten el impacto: tiempo de inactividad, sistemas afectados y tiempo estimado de recuperación completa.',
+    'Analista': 'La cadena forense debe documentar cada evidencia con timestamp. Eso protege legalmente a la empresa ante auditorías.',
+  },
+};
+
+function roleHintsHTML(stageNum) {
+  const hints = ROLE_HINTS[stageNum];
+  const roles = [
+    { name: 'CISO', icon: '🔐' },
+    { name: 'Legal', icon: '⚖️' },
+    { name: 'Comunicaciones', icon: '📢' },
+    { name: 'Operaciones', icon: '⚙️' },
+    { name: 'Analista', icon: '🔍' },
+  ];
+  return `
+    <div class="role-hints">
+      <div class="rh-header">// PISTAS POR ROL — gratis, sin penalización</div>
+      ${roles.map(r => `
+        <div class="role-hint-item">
+          <button class="role-hint-btn" onclick="toggleRoleHint(this)">
+            <span>${r.icon} ${r.name}</span>
+            <span class="rh-arrow">▶</span>
+          </button>
+          <div class="role-hint-content">${hints[r.name]}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function toggleRoleHint(btn) {
+  const content = btn.nextElementSibling;
+  const isOpen = content.style.display === 'block';
+  btn.classList.toggle('open', !isOpen);
+  btn.querySelector('.rh-arrow').textContent = isOpen ? '▶' : '▼';
+  content.style.display = isOpen ? 'none' : 'block';
+}
+
+// ─── CHALLENGES ───────────────────────────────────────────────────────────────
+const CHALLENGES = [
+  // STAGE 0: Email analysis — 3 questions
+  () => `
+    <div class="challenge-card">
+      <div class="cc-header">
+        <div>
+          <div class="cc-tag" style="color:var(--danger)">RETO 01 · ANÁLISIS DE EMAIL</div>
+          <div class="cc-title">Identificar el email de phishing</div>
+          <div class="cc-sub">El atacante ingresó a través de un email malicioso. Analicen las evidencias.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="email-mock">
+          <div class="em-bar">
+            <div class="em-dot" style="background:#f85149"></div>
+            <div class="em-dot" style="background:#d29922"></div>
+            <div class="em-dot" style="background:#3fb950"></div>
+          </div>
+          <div class="em-body">
+            <div class="em-field">De: <span><span class="highlight-red">soporte@micros0ft-ayuda.com</span></span></div>
+            <div class="em-field">Para: <span>empleados@empresa.com</span></div>
+            <div class="em-field">Asunto: <span><span class="highlight-warn">URGENTE: Actualización obligatoria de contraseña</span></span></div>
+            <div class="em-field">Fecha: <span>Lunes 07:23am</span></div>
+            <div class="em-content">
+              Estimado empleado,<br><br>
+              Su cuenta ha sido <span class="highlight-red">comprometida</span>. Debe actualizar su contraseña inmediatamente haciendo clic en el siguiente enlace:<br><br>
+              <span class="highlight-red">http://empresa-segura.xyz/reset-password</span><br><br>
+              Si no lo hace en las próximas <span class="highlight-warn">2 horas</span>, su cuenta será suspendida.<br><br>
+              Atentamente,<br>
+              Equipo de Seguridad Microsoft
+            </div>
+          </div>
+        </div>
+
+        <hr class="q-divider">
+        <div class="q-label">PREGUNTA 1 DE 3</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">¿Cuántas señales de phishing pueden identificar? Seleccionen la respuesta correcta:</div>
+        <div class="radio-group" id="radioGroup0-0">
+          <div class="radio-opt" onclick="selectRadio('0-0', 0, false)"><div class="radio-circle"></div><div class="radio-text">Solo 1 señal: el dominio del remitente es sospechoso</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-0', 1, false)"><div class="radio-circle"></div><div class="radio-text">2 señales: dominio falso y urgencia artificial</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-0', 2, true)"><div class="radio-circle"></div><div class="radio-text">Al menos 4 señales: dominio falso ("0" en lugar de "o"), urgencia, URL externa sospechosa y Microsoft no solicita contraseñas por email</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-0', 3, false)"><div class="radio-circle"></div><div class="radio-text">El email parece legítimo, no hay señales claras</div></div>
+        </div>
+
+        <hr class="q-divider">
+        <div class="q-label">PREGUNTA 2 DE 3</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">¿Cuál de estas señales es más efectiva para engañar a los empleados?</div>
+        <div class="radio-group" id="radioGroup0-1">
+          <div class="radio-opt" onclick="selectRadio('0-1', 0, false)"><div class="radio-circle"></div><div class="radio-text">A) El nombre del remitente "Microsoft"</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-1', 1, true)"><div class="radio-circle"></div><div class="radio-text">B) La urgencia "2 horas o suspenden tu cuenta"</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-1', 2, false)"><div class="radio-circle"></div><div class="radio-text">C) El asunto en mayúsculas</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-1', 3, false)"><div class="radio-circle"></div><div class="radio-text">D) Que llegó un lunes</div></div>
+        </div>
+
+        <hr class="q-divider">
+        <div class="q-label">PREGUNTA 3 DE 3</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">¿Qué debería haber hecho p.martinez al recibir ese email?</div>
+        <div class="radio-group" id="radioGroup0-2">
+          <div class="radio-opt" onclick="selectRadio('0-2', 0, false)"><div class="radio-circle"></div><div class="radio-text">A) Cambiar contraseña siguiendo el enlace</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-2', 1, false)"><div class="radio-circle"></div><div class="radio-text">B) Responder al email preguntando si es legítimo</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-2', 2, false)"><div class="radio-circle"></div><div class="radio-text">C) Ignorarlo y borrarlo</div></div>
+          <div class="radio-opt" onclick="selectRadio('0-2', 3, true)"><div class="radio-circle"></div><div class="radio-text">D) Reportarlo a IT sin hacer clic en ningún enlace</div></div>
+        </div>
+
+        <div id="stageFeedback" style="margin-top:1rem;"></div>
+        ${roleHintsHTML(0)}
+      </div>
+      <div class="cc-footer">
+        <button class="hint-btn" onclick="showHint('El dominio usa un cero (0) en lugar de la letra o. Cuenten todas las señales.')">PISTA (-50 pts)</button>
+      </div>
+    </div>
+  `,
+
+  // STAGE 1: Log analysis — 3 questions
+  () => `
+    <div class="challenge-card">
+      <div class="cc-header">
+        <div>
+          <div class="cc-tag" style="color:var(--warn)">RETO 02 · ANÁLISIS DE LOGS</div>
+          <div class="cc-title">Encontrar la credencial comprometida</div>
+          <div class="cc-sub">Revisen los logs de acceso de esa mañana. Algo no cuadra.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:'Space Mono',monospace;font-size:0.72rem;line-height:2;overflow-x:auto;">
+          <div style="color:var(--muted)">// LOG DE ACCESOS — 2024-01-15</div>
+          <div>07:01 — <span style="color:var(--success)">LOGIN OK</span> · usuario: m.garcia · IP: 192.168.1.45 · Oficina</div>
+          <div>07:14 — <span style="color:var(--success)">LOGIN OK</span> · usuario: j.rodriguez · IP: 192.168.1.87 · Oficina</div>
+          <div>07:23 — <span style="color:var(--success)">LOGIN OK</span> · usuario: a.lopez · IP: 192.168.1.22 · Oficina</div>
+          <div>07:31 — <span style="color:var(--warn)">LOGIN FAIL</span> · usuario: p.martinez · IP: 192.168.1.90</div>
+          <div>07:31 — <span style="color:var(--warn)">LOGIN FAIL</span> · usuario: p.martinez · IP: 192.168.1.90</div>
+          <div>07:32 — <span style="color:var(--success)">LOGIN OK</span> · usuario: p.martinez · IP: 192.168.1.90 · Oficina</div>
+          <div>07:33 — <span style="color:var(--danger)">ACCESS: /servidor/datos-clientes/2024</span> · usuario: p.martinez</div>
+          <div>07:33 — <span style="color:var(--danger)">EXPORT 2.3GB</span> · usuario: p.martinez · destino: IP 45.33.32.156</div>
+          <div>07:35 — <span style="color:var(--danger)">LOGOUT</span> · usuario: p.martinez</div>
+          <div>07:41 — <span style="color:var(--success)">LOGIN OK</span> · usuario: p.martinez · IP: 192.168.1.90 · Oficina</div>
+          <div style="color:var(--warn)">// ⚠ Dos sesiones simultáneas detectadas para p.martinez</div>
+        </div>
+
+        <hr class="q-divider">
+        <div class="q-label">PREGUNTA 1 DE 3</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">¿Qué conclusión sacan del log?</div>
+        <div class="radio-group" id="radioGroup1-0">
+          <div class="radio-opt" onclick="selectRadio('1-0', 0, false)"><div class="radio-circle"></div><div class="radio-text">p.martinez olvidó su contraseña y la tuvo que ingresar varias veces</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-0', 1, true)"><div class="radio-circle"></div><div class="radio-text">La cuenta de p.martinez fue comprometida: un atacante ingresó, extrajo 2.3GB de datos de clientes y se fue antes de que el usuario real iniciara sesión</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-0', 2, false)"><div class="radio-circle"></div><div class="radio-text">El sistema tuvo un error técnico con los intentos fallidos</div></div>
+        </div>
+
+        <hr class="q-divider">
+        <div class="q-label">PREGUNTA 2 DE 3</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">¿A qué hora exacta se exfiltraron los datos?</div>
+        <div class="radio-group" id="radioGroup1-1">
+          <div class="radio-opt" onclick="selectRadio('1-1', 0, false)"><div class="radio-circle"></div><div class="radio-text">A) 07:23am (cuando llegó el email)</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-1', 1, false)"><div class="radio-circle"></div><div class="radio-text">B) 07:31am (intentos fallidos)</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-1', 2, true)"><div class="radio-circle"></div><div class="radio-text">C) 07:33am (línea EXPORT del log)</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-1', 3, false)"><div class="radio-circle"></div><div class="radio-text">D) 07:41am (segundo login de p.martinez)</div></div>
+        </div>
+
+        <hr class="q-divider">
+        <div class="q-label">PREGUNTA 3 DE 3</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">¿Cuánto tiempo tuvo acceso el atacante al sistema?</div>
+        <div class="radio-group" id="radioGroup1-2">
+          <div class="radio-opt" onclick="selectRadio('1-2', 0, false)"><div class="radio-circle"></div><div class="radio-text">A) Aproximadamente 30 minutos</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-2', 1, true)"><div class="radio-circle"></div><div class="radio-text">B) Aproximadamente 3 minutos (07:32 login → 07:35 logout)</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-2', 2, false)"><div class="radio-circle"></div><div class="radio-text">C) Aproximadamente 1 hora</div></div>
+          <div class="radio-opt" onclick="selectRadio('1-2', 3, false)"><div class="radio-circle"></div><div class="radio-text">D) Aproximadamente 10 minutos</div></div>
+        </div>
+
+        <div id="stageFeedback" style="margin-top:1rem;"></div>
+        ${roleHintsHTML(1)}
+      </div>
+      <div class="cc-footer">
+        <button class="hint-btn" onclick="showHint('Observen la hora del EXPORT y compárenla con el LOGIN de las 07:41. ¿Puede una persona estar en dos lugares a la vez?')">PISTA (-50 pts)</button>
+      </div>
+    </div>
+  `,
+
+  // STAGE 2: Response protocol — 4 decisions
+  () => `
+    <div class="challenge-card">
+      <div class="cc-header">
+        <div>
+          <div class="cc-tag" style="color:var(--purple)">RETO 03 · PROTOCOLO DE RESPUESTA</div>
+          <div class="cc-title">Decisiones de contención</div>
+          <div class="cc-sub">Son las 08:15am. El incidente está en curso. Deben tomar 4 decisiones críticas.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">Decisión 1: ¿Qué hacen con la cuenta de p.martinez?</div>
+            <div class="radio-group" id="radioGroup2a">
+              <div class="radio-opt" onclick="selectRadio('2a',0,false)"><div class="radio-circle"></div><div class="radio-text">La dejan activa para no alarmar al atacante</div></div>
+              <div class="radio-opt" onclick="selectRadio('2a',1,true)"><div class="radio-circle"></div><div class="radio-text">La deshabilitan inmediatamente y fuerzan reset de contraseña</div></div>
+              <div class="radio-opt" onclick="selectRadio('2a',2,false)"><div class="radio-circle"></div><div class="radio-text">Esperan confirmación del usuario antes de actuar</div></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">Decisión 2: Los datos de 2.3GB de clientes fueron exportados. ¿A quién notifican primero?</div>
+            <div class="radio-group" id="radioGroup2b">
+              <div class="radio-opt" onclick="selectRadio('2b',0,false)"><div class="radio-circle"></div><div class="radio-text">A los clientes afectados directamente</div></div>
+              <div class="radio-opt" onclick="selectRadio('2b',1,false)"><div class="radio-circle"></div><div class="radio-text">A los medios para ser transparentes</div></div>
+              <div class="radio-opt" onclick="selectRadio('2b',2,true)"><div class="radio-circle"></div><div class="radio-text">Al equipo legal y de dirección, luego seguir el protocolo regulatorio</div></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">Decisión 3: ¿Deben pagar algún rescate?</div>
+            <div class="radio-group" id="radioGroup2c">
+              <div class="radio-opt" onclick="selectRadio('2c',0,false)"><div class="radio-circle"></div><div class="radio-text">Sí, para recuperar los datos rápidamente</div></div>
+              <div class="radio-opt" onclick="selectRadio('2c',1,true)"><div class="radio-circle"></div><div class="radio-text">No, nunca pagar. Activar plan de recuperación desde backups</div></div>
+              <div class="radio-opt" onclick="selectRadio('2c',2,false)"><div class="radio-circle"></div><div class="radio-text">Depende del monto solicitado</div></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">Decisión 4: ¿Cómo comunicás el incidente al resto del personal?</div>
+            <div class="radio-group" id="radioGroup2d">
+              <div class="radio-opt" onclick="selectRadio('2d',0,false)"><div class="radio-circle"></div><div class="radio-text">A) No decir nada hasta resolverlo</div></div>
+              <div class="radio-opt" onclick="selectRadio('2d',1,false)"><div class="radio-circle"></div><div class="radio-text">B) Enviar email masivo con todos los detalles</div></div>
+              <div class="radio-opt" onclick="selectRadio('2d',2,true)"><div class="radio-circle"></div><div class="radio-text">C) Informar a los líderes de área con datos concretos y qué no deben hacer</div></div>
+              <div class="radio-opt" onclick="selectRadio('2d',3,false)"><div class="radio-circle"></div><div class="radio-text">D) Publicar en la intranet de la empresa</div></div>
+            </div>
+          </div>
+        </div>
+        <div id="stageFeedback" style="margin-top:1rem;"></div>
+        ${roleHintsHTML(2)}
+      </div>
+      <div class="cc-footer">
+        <button class="hint-btn" onclick="showHint('En incidentes: contener primero, escalar internamente, nunca pagar ransoms.')">PISTA (-50 pts)</button>
+      </div>
+    </div>
+  `,
+
+  // STAGE 3: Incident report
+  () => `
+    <div class="challenge-card">
+      <div class="cc-header">
+        <div>
+          <div class="cc-tag" style="color:var(--success)">RETO 04 · REPORTE DE INCIDENTE</div>
+          <div class="cc-title">Completar el reporte oficial</div>
+          <div class="cc-sub">El protocolo exige documentar el incidente. Ingresen el código de clasificación correcto.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1.25rem;font-size:0.85rem;line-height:1.8;">
+          <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.75rem;">FORMULARIO DE INCIDENTE DE SEGURIDAD</div>
+          <div><span style="color:var(--muted)">Fecha:</span> 2024-01-15 · <span style="color:var(--muted)">Hora detección:</span> 07:33am</div>
+          <div><span style="color:var(--muted)">Vector de ataque:</span> <span style="color:var(--accent)">Phishing por email</span></div>
+          <div><span style="color:var(--muted)">Cuenta comprometida:</span> <span style="color:var(--danger)">p.martinez</span></div>
+          <div><span style="color:var(--muted)">Datos exfiltrados:</span> <span style="color:var(--danger)">2.3GB · datos-clientes/2024</span></div>
+          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+            <span style="color:var(--muted)">Pregunta regulatoria:</span> Hubo una fuga de datos de clientes. Las regulaciones bancarias exigen notificar al regulador. ¿En cuántas horas como máximo deben hacerlo?
+          </div>
+        </div>
+        <div class="input-row">
+          <input class="code-input" id="codeInput" placeholder="Escribí el número de horas (ej: 24)" maxlength="3">
+          <button class="btn btn-primary" onclick="checkCode()">CONFIRMAR</button>
+        </div>
+        <div id="codeFeedback" style="margin-top:0.75rem;"></div>
+        ${roleHintsHTML(3)}
+      </div>
+      <div class="cc-footer">
+        <button class="hint-btn" onclick="showHint('Es el mismo plazo estándar que se usa en regulaciones de protección de datos en Europa y muchos países de América Latina.')">PISTA (-50 pts)</button>
+      </div>
+    </div>
+  `,
+];
+
+// ─── TEAMS ────────────────────────────────────────────────────────────────────
+const TEAMS_DATA = [
+  { name: 'Equipo 1', progress: 0, active: true },
+  { name: 'Equipo 2', progress: 0, active: false },
+  { name: 'Equipo 3', progress: 0, active: false },
+  { name: 'Equipo 4', progress: 0, active: false },
+  { name: 'Equipo 5', progress: 0, active: false },
+  { name: 'Equipo 6', progress: 0, active: false },
+];
+
+// ─── GAME FLOW ────────────────────────────────────────────────────────────────
+function startEscape() {
+  document.getElementById('screenIntro').classList.remove('active');
+  document.getElementById('screenGame').classList.add('active');
+  initTeamStatus();
+  renderStep(0);
+  startTimer();
+  simulateOtherTeams();
+
+  // Push initial notifications with short stagger
+  NOTIFICATIONS.start.forEach((n, i) => setTimeout(() => pushNotif(n), 800 + i * 1800));
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    seconds--;
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    const el = document.getElementById('gameTimer');
+    el.textContent = `${m}:${s}`;
+    el.className = 'timer-display' + (seconds < 600 ? ' warning' : '') + (seconds < 180 ? ' critical' : '');
+    if (seconds <= 0) { clearInterval(timerInterval); }
+  }, 1000);
+}
+
+function initTeamStatus() {
+  document.getElementById('teamStatusList').innerHTML = TEAMS_DATA.map((t, i) => `
+    <div class="ts-row" id="tsRow${i}">
+      <div class="ts-dot ${t.active ? 'active-team' : ''}" id="tsDot${i}"></div>
+      <div class="ts-name">${t.name}</div>
+      <div class="ts-prog" id="tsP${i}">0/4</div>
+    </div>
+  `).join('');
+}
+
+function simulateOtherTeams() {
+  TEAMS_DATA.forEach((t, i) => {
+    if (i === 0) return;
+    const baseDelay = 90000 + i * 25000;
+    setTimeout(() => { t.progress = 1; const p = document.getElementById('tsP'+i); if(p) p.textContent='1/4'; }, baseDelay * 1/4 + Math.random() * 15000);
+    setTimeout(() => { t.progress = 2; const p = document.getElementById('tsP'+i); if(p) p.textContent='2/4'; }, baseDelay * 2/4 + Math.random() * 15000);
+    setTimeout(() => { t.progress = 3; const p = document.getElementById('tsP'+i); if(p) p.textContent='3/4'; }, baseDelay * 3/4 + Math.random() * 15000);
+    setTimeout(() => { t.progress = 4; const p = document.getElementById('tsP'+i); if(p) p.textContent='4/4'; const d = document.getElementById('tsDot'+i); if(d) d.className='ts-dot completed'; }, baseDelay + Math.random() * 15000);
+  });
+}
+
+function renderStep(n) {
+  document.getElementById('challengeArea').innerHTML = CHALLENGES[n]();
+  lockedGroups = {};
+  loadStageNotifs(n);
+}
+
+// ─── RADIO SELECTION ──────────────────────────────────────────────────────────
+function selectRadio(groupKey, idx, isCorrect) {
+  if (lockedGroups[groupKey]) return;
+
+  const group = document.getElementById('radioGroup' + groupKey);
+  if (!group) return;
+  const opts = group.querySelectorAll('.radio-opt');
+
+  // Stage 2 decisions: lock on ANY answer
+  if (typeof groupKey === 'string' && groupKey.startsWith('2')) {
+    lockedGroups[groupKey] = true;
+    opts.forEach(o => { o.style.pointerEvents = 'none'; });
+    opts[idx].classList.add(isCorrect ? 'correct' : 'wrong');
+    if (!isCorrect) {
+      opts.forEach(o => {
+        if (o.getAttribute('onclick') && o.getAttribute('onclick').includes(',true)')) {
+          o.classList.add('correct');
+        }
+      });
+    }
+    totalAnswers++;
+    if (isCorrect) { correctAnswers++; stageCorrect[2]++; }
+    checkStageDone(2);
+    return;
+  }
+
+  // Stages 0 and 1: retry on wrong, lock on correct
+  const stageNum = parseInt(groupKey.charAt(0));
+
+  if (isCorrect) {
+    lockedGroups[groupKey] = true;
+    opts.forEach(o => { o.classList.remove('wrong'); o.style.pointerEvents = 'none'; });
+    opts[idx].classList.add('correct');
+    correctAnswers++;
+    totalAnswers++;
+    stageCorrect[stageNum]++;
+    checkStageDone(stageNum);
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[idx].style.pointerEvents = 'none';
+    totalAnswers++;
+  }
+}
+
+function checkStageDone(stageNum) {
+  const required = STAGE_REQUIRED[stageNum];
+  if (!required) return;
+  const allDone = required.every(k => lockedGroups[k]);
+  if (!allDone) return;
+
+  const fb = document.getElementById('stageFeedback');
+  if (!fb || fb.dataset.done === 'true') return;
+  fb.dataset.done = 'true';
+
+  if (stageNum === 2) {
+    const correctCount = stageCorrect[2];
+    const total = required.length;
+    if (correctCount === total) {
+      fb.innerHTML = '<div class="feedback-box fb-success">✓ Protocolo correcto en los 4 puntos. Deshabilitar la cuenta, escalar internamente, nunca pagar rescates y comunicar controladamente.</div>';
+    } else {
+      fb.innerHTML = `<div class="feedback-box fb-info">⚠ ${correctCount}/${total} decisiones correctas. El facilitador repasará el protocolo óptimo en el debrief.</div>`;
+    }
+  } else {
+    fb.innerHTML = '<div class="feedback-box fb-success">✓ ¡Todas las preguntas de esta etapa respondidas correctamente! Avanzando...</div>';
+  }
+
+  setTimeout(() => completeStep(stageNum), 1800);
+}
+
+// ─── CODE CHECK (Stage 3) ─────────────────────────────────────────────────────
+function checkCode() {
+  const val = document.getElementById('codeInput').value.trim();
+  const input = document.getElementById('codeInput');
+  const fb = document.getElementById('codeFeedback');
+  if (val === '72') {
+    input.classList.add('success');
+    input.classList.remove('error');
+    fb.innerHTML = '<div class="feedback-box fb-success">✓ Correcto. 72 horas es el plazo máximo para notificar al regulador ante una brecha de datos de clientes. El reporte fue enviado al equipo legal.</div>';
+    correctAnswers++;
+    setTimeout(() => completeStep(3), 1500);
+  } else {
+    input.classList.add('error');
+    input.classList.remove('success');
+    fb.innerHTML = '<div class="feedback-box fb-error">✗ Incorrecto. Pensá: ¿cuántas horas tienen las empresas para notificar al regulador cuando hay una fuga de datos?</div>';
+    setTimeout(() => input.classList.remove('error'), 500);
+  }
+}
+
+// ─── STEP COMPLETION ──────────────────────────────────────────────────────────
+function completeStep(n) {
+  stepsDone[n] = true;
+  const el = document.getElementById(`stepEl${n}`);
+  el.classList.remove('active', 'locked');
+  el.classList.add('done');
+  el.querySelector('.step-num').textContent = '✓';
+
+  TEAMS_DATA[0].progress = n + 1;
+  const progEl = document.getElementById('tsP0');
+  if (progEl) progEl.textContent = `${n+1}/4`;
+  if (n + 1 === 4) { const dot = document.getElementById('tsDot0'); if (dot) dot.className = 'ts-dot completed'; }
+
+  currentStep = n + 1;
+  if (currentStep >= 4) {
+    setTimeout(showSuccess, 800);
+    return;
+  }
+
+  const next = document.getElementById(`stepEl${currentStep}`);
+  next.classList.remove('locked');
+  next.classList.add('active');
+  setTimeout(() => renderStep(currentStep), 600);
+}
+
+function showHint(msg) {
+  hintsUsed++;
+  alert('💡 PISTA: ' + msg);
+}
+
+function showSuccess() {
+  clearInterval(timerInterval);
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  document.getElementById('statTime').textContent = `${m}:${s}`;
+  document.getElementById('statScore').textContent = `${Math.round((correctAnswers / Math.max(totalAnswers, 1)) * 100)}%`;
+  document.getElementById('statHints').textContent = hintsUsed;
+  document.getElementById('screenGame').classList.remove('active');
+  document.getElementById('screenSuccess').classList.add('active');
+}
+
+function resetGame() {
+  clearInterval(timerInterval);
+  seconds = 3600;
+  currentStep = 0;
+  hintsUsed = 0;
+  correctAnswers = 0;
+  totalAnswers = 0;
+  stepsDone = [false, false, false, false];
+  stageCorrect = [0, 0, 0, 0];
+  lockedGroups = {};
+  unreadNotifs = 0;
+  currentSbTab = 'alerts';
+  TEAMS_DATA.forEach(t => { t.progress = 0; });
+
+  // Reset sidebar tabs
+  document.getElementById('stab-alerts').classList.add('active');
+  document.getElementById('stab-teams').classList.remove('active');
+  document.getElementById('sp-alerts').classList.add('active');
+  document.getElementById('sp-teams').classList.remove('active');
+  document.getElementById('notifBadge').style.display = 'none';
+  document.getElementById('notifFeed').innerHTML = '<div class="notif-placeholder">Sin alertas aún...</div>';
+
+  document.getElementById('screenSuccess').classList.remove('active');
+  document.getElementById('screenGame').classList.remove('active');
+  document.getElementById('screenIntro').classList.add('active');
+}
+</script>
+</body>
+</html>

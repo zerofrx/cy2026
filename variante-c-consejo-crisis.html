@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consejo de Crisis — Variante C</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f5f0;
+    --surface: #ffffff;
+    --border: #e2ddd6;
+    --text: #1a1512;
+    --muted: #8a7d70;
+    --accent: #c0392b;
+    --accent-light: #fdf0ef;
+    --accent-border: #f4c0bb;
+    --gold: #b8860b;
+    --gold-light: #fdf9ef;
+    --success: #1a6b3a;
+    --success-light: #edf7f1;
+    --info: #1a4a8a;
+    --info-light: #eef3fc;
+    --dark: #1a1512;
+    --tier-best: #1a6b3a;
+    --tier-best-bg: #edf7f1;
+    --tier-good: #1a4a8a;
+    --tier-good-bg: #eef3fc;
+    --tier-ok: #b8860b;
+    --tier-ok-bg: #fdf9ef;
+    --tier-poor: #8a7d70;
+    --tier-poor-bg: #f5f0ea;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* TOP BAR */
+  .topbar { background: var(--dark); color: #e8e0d5; display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 2rem; }
+  .tb-brand { font-family: 'Playfair Display', serif; font-size: 1rem; letter-spacing: 0.05em; }
+  .tb-brand span { color: var(--accent); }
+  .tb-meta { display: flex; align-items: center; gap: 1.5rem; font-size: 0.75rem; color: #8a7d70; font-family: 'DM Mono', monospace; }
+  .tb-timer { font-size: 1rem; font-weight: 700; color: #e8e0d5; }
+  .tb-timer.warn { color: #e6a817; }
+  .tb-timer.crit { color: var(--accent); animation: blink 0.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.5} }
+
+  /* INTRO */
+  .intro-layout { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
+  .intro-left { background: var(--dark); color: #e8e0d5; padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; }
+  .il-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 1.5rem; }
+  .il-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.1; margin-bottom: 1.5rem; }
+  .il-desc { font-size: 0.95rem; line-height: 1.8; color: #a09080; margin-bottom: 2.5rem; }
+  .intro-right { background: var(--surface); padding: 3rem; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+  .ir-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 1.5rem; }
+  .scenario-preview { background: var(--accent-light); border: 1px solid var(--accent-border); border-left: 3px solid var(--accent); border-radius: 4px; padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.7; }
+  .sp-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 0.5rem; }
+  .roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem; }
+  .role-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; }
+  .role-title { font-size: 0.75rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+  .role-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
+  .btn { padding: 0.75rem 2rem; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-dark { background: var(--dark); color: #e8e0d5; }
+  .btn-dark:hover { background: #2c2520; transform: translateY(-1px); }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--text); }
+
+  /* GAME LAYOUT */
+  .game-layout { flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 0; min-height: 0; }
+
+  /* LEFT: MAIN CONTENT */
+  .game-main { padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* RIGHT: SIDEBAR */
+  .game-sidebar { background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .sb-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .sb-tab { flex: 1; padding: 0.6rem 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-align: center; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .sb-tab.active { color: var(--dark); border-bottom-color: var(--dark); }
+  .sb-panel { display: none; flex: 1; overflow-y: auto; padding: 1.25rem; flex-direction: column; gap: 1.25rem; }
+  .sb-panel.active { display: flex; }
+  .sb-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; text-transform: uppercase; }
+
+  /* Scores */
+  .team-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+  .team-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; }
+  .tr-name { flex: 1; font-size: 0.8rem; font-weight: 500; }
+  .tr-score { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--info); font-weight: 700; }
+  .tr-decided { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--success); }
+  .consequences-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .cons-item { padding: 0.75rem; border-radius: 6px; font-size: 0.8rem; line-height: 1.5; }
+  .cons-best { background: var(--tier-best-bg); border-left: 3px solid var(--tier-best); color: var(--tier-best); }
+  .cons-good { background: var(--tier-good-bg); border-left: 3px solid var(--tier-good); color: var(--tier-good); }
+  .cons-ok { background: var(--tier-ok-bg); border-left: 3px solid var(--tier-ok); color: var(--tier-ok); }
+  .cons-poor { background: var(--tier-poor-bg); border-left: 3px solid var(--tier-poor); color: var(--tier-poor); }
+  .round-indicator { display: flex; gap: 0.5rem; align-items: center; }
+  .ri-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .ri-dot.done { background: var(--success); }
+  .ri-dot.active { background: var(--accent); }
+  .score-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .sm-box { background: var(--bg); border-radius: 6px; padding: 0.75rem; text-align: center; }
+  .sm-val { font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: 700; }
+  .sm-label { font-size: 0.65rem; color: var(--muted); margin-top: 0.15rem; }
+
+  /* NOTIFICATIONS PANEL */
+  .notif-feed { display: flex; flex-direction: column; gap: 0.5rem; }
+  .notif-item { display: flex; gap: 0.75rem; padding: 0.75rem; border-radius: 6px; border: 1px solid; font-size: 0.78rem; line-height: 1.5; animation: notifIn 0.4s ease; }
+  @keyframes notifIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .notif-info { background: var(--info-light); border-color: #b8cef0; color: var(--info); }
+  .notif-warn { background: var(--gold-light); border-color: #e8d5a0; color: var(--gold); }
+  .notif-alert { background: var(--accent-light); border-color: var(--accent-border); color: var(--accent); }
+  .notif-time { font-family: 'DM Mono', monospace; font-size: 0.6rem; flex-shrink: 0; opacity: 0.8; margin-top: 2px; }
+  .notif-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; margin-top: 5px; }
+  .notif-unread { position: relative; }
+  .notif-badge { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; font-size: 0.55rem; color: white; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; }
+
+  /* INCIDENT CARD */
+  .incident-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .ic-status-bar { background: var(--accent); color: white; padding: 0.5rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; }
+  .ic-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); animation: pulse2 1s infinite; }
+  @keyframes pulse2 { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+  .ic-body { padding: 1.5rem; }
+  .ic-round { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
+  .ic-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.75rem; }
+  .ic-narrative { font-size: 0.9rem; line-height: 1.8; color: var(--muted); margin-bottom: 1.25rem; }
+  .ic-update { background: var(--gold-light); border: 1px solid #e8d5a0; border-left: 3px solid var(--gold); border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--gold); }
+  .ic-update-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+
+  /* DECISION CARD */
+  .decision-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .dc-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .dc-question { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+  .dc-body { padding: 1.25rem 1.5rem; }
+  .decision-opts { display: flex; flex-direction: column; gap: 0.6rem; }
+  .dec-opt { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.25s; }
+  .dec-opt:hover { border-color: var(--text); background: var(--bg); }
+  .dec-opt.selected { border-color: var(--dark); background: var(--dark); color: #e8e0d5; }
+  .dec-opt.selected .do-key { border-color: rgba(255,255,255,0.3); color: #e8e0d5; }
+  .dec-opt.selected .do-label { color: #a09080; }
+  /* Tier reveal styles */
+  .dec-opt.tier-best { border-color: var(--tier-best); background: var(--tier-best-bg); color: var(--tier-best); }
+  .dec-opt.tier-best .do-label { color: var(--tier-best); opacity: 0.8; }
+  .dec-opt.tier-good { border-color: var(--tier-good); background: var(--tier-good-bg); color: var(--tier-good); }
+  .dec-opt.tier-good .do-label { color: var(--tier-good); opacity: 0.8; }
+  .dec-opt.tier-ok { border-color: var(--tier-ok); background: var(--tier-ok-bg); color: var(--tier-ok); }
+  .dec-opt.tier-ok .do-label { color: var(--tier-ok); opacity: 0.8; }
+  .dec-opt.tier-poor { border-color: var(--tier-poor); background: var(--tier-poor-bg); color: var(--tier-poor); }
+  .dec-opt.tier-poor .do-label { color: var(--tier-poor); opacity: 0.8; }
+  .do-key { font-family: 'DM Mono', monospace; font-size: 0.65rem; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .do-content { flex: 1; }
+  .do-text { font-size: 0.9rem; font-weight: 500; line-height: 1.4; margin-bottom: 0.2rem; }
+  .do-label { font-size: 0.75rem; color: var(--muted); }
+  .do-points { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; display: none; }
+  .dc-footer { padding: 0.75rem 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .impact-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.6rem; border-radius: 3px; }
+  .impact-high { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-border); }
+  .impact-med { background: var(--gold-light); color: var(--gold); border: 1px solid #e8d5a0; }
+
+  /* CONSEQUENCE REVEAL */
+  .consequence-reveal { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cr-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+  .cr-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; flex: 1; }
+  .cr-pts { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; }
+  .cr-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .cr-item { padding: 1rem; border-radius: 6px; }
+  .cr-item-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .cr-item-text { font-size: 0.85rem; line-height: 1.5; }
+  .cr-tier-best { background: var(--tier-best-bg); color: var(--tier-best); }
+  .cr-tier-good { background: var(--tier-good-bg); color: var(--tier-good); }
+  .cr-tier-ok { background: var(--tier-ok-bg); color: var(--tier-ok); }
+  .cr-tier-poor { background: var(--tier-poor-bg); color: var(--tier-poor); }
+  .cr-optimal { background: var(--tier-best-bg); color: var(--tier-best); }
+
+  /* FINAL */
+  .final-screen { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
+  .fl { background: var(--dark); color: #e8e0d5; padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; }
+  .fl-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--success); margin-bottom: 1rem; }
+  .fl-title { font-family: 'Playfair Display', serif; font-size: 3rem; line-height: 1.1; margin-bottom: 1rem; }
+  .fl-sub { color: #8a7d70; font-size: 0.95rem; line-height: 1.7; margin-bottom: 2.5rem; }
+  .score-big { font-family: 'DM Mono', monospace; font-size: 4rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem; }
+  .score-big-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: #8a7d70; margin-bottom: 2rem; }
+  .fr { background: var(--surface); padding: 3rem; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+  .ranking-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .rank-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 6px; }
+  .rank-pos { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); width: 20px; }
+  .rank-name { flex: 1; font-weight: 500; }
+  .rank-score { font-family: 'DM Mono', monospace; font-size: 0.9rem; color: var(--info); font-weight: 700; }
+  .rank-row:first-child { border-color: var(--gold); background: var(--gold-light); }
+  .rank-row:first-child .rank-pos { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div class="screen active" id="screenIntro">
+  <div class="topbar">
+    <div class="tb-brand">CONSEJO DE <span>CRISIS</span> · VARIANTE C</div>
+    <div class="tb-meta"><span>MODO FACILITADOR</span><span>6 EQUIPOS · 30 PERSONAS</span></div>
+  </div>
+  <div class="intro-layout">
+    <div class="intro-left">
+      <div class="il-eyebrow">// SIMULACRO DE RESPUESTA A INCIDENTES</div>
+      <div class="il-title">¿Tomarían las decisiones correctas bajo presión?</div>
+      <div class="il-desc">Cada equipo es el Comité de Crisis de la empresa. En los próximos 90 minutos, enfrentarán un incidente de seguridad que evoluciona en tiempo real. Cada decisión tiene consecuencias — y no siempre hay una sola respuesta correcta.</div>
+    </div>
+    <div class="intro-right">
+      <div class="ir-title">El escenario de hoy</div>
+      <div class="scenario-preview">
+        <div class="sp-label">// BRIEFING CONFIDENCIAL</div>
+        Son las 10:15am del lunes. El equipo de monitoreo acaba de detectar actividad inusual en los servidores. Un empleado reportó haber recibido un email extraño a primera hora. Los registros muestran accesos desde ubicaciones desconocidas. El CEO está en vuelo y no responde. El teléfono del área de prensa empieza a sonar.
+      </div>
+      <div class="ir-title" style="margin-bottom:0.75rem;">Roles del equipo</div>
+      <div class="roles-grid">
+        <div class="role-card"><div class="role-title">CISO (líder)</div><div class="role-desc">Toma las decisiones técnicas finales</div></div>
+        <div class="role-card"><div class="role-title">Legal</div><div class="role-desc">Evalúa riesgos regulatorios y notificaciones</div></div>
+        <div class="role-card"><div class="role-title">Comunicaciones</div><div class="role-desc">Maneja mensajes internos y externos</div></div>
+        <div class="role-card"><div class="role-title">Operaciones</div><div class="role-desc">Decide continuidad del negocio</div></div>
+        <div class="role-card" style="grid-column:span 2"><div class="role-title">Analista de seguridad</div><div class="role-desc">Investiga y provee evidencia técnica al equipo</div></div>
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-dark" onclick="startCrisis()">INICIAR CRISIS →</button>
+        <button class="btn btn-outline" onclick="window.location='facilitador-panel.html'">Panel facilitador</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="screenGame">
+  <div class="topbar">
+    <div class="tb-brand">CONSEJO DE <span>CRISIS</span> — INCIDENTE EN CURSO</div>
+    <div class="tb-meta">
+      <span id="roundLabel">RONDA 1 DE 4</span>
+      <span class="tb-timer" id="gameTimer">90:00</span>
+    </div>
+  </div>
+  <div class="game-layout">
+    <div class="game-main" id="gameMain"></div>
+
+    <!-- SIDEBAR -->
+    <div class="game-sidebar">
+      <div class="sb-tabs">
+        <div class="sb-tab active" id="stab-info" onclick="switchSbTab('info')">SITUACIÓN</div>
+        <div class="sb-tab notif-unread" id="stab-notif" onclick="switchSbTab('notif')">
+          ALERTAS
+          <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+        </div>
+        <div class="sb-tab" id="stab-scores" onclick="switchSbTab('scores')">EQUIPOS</div>
+      </div>
+
+      <!-- PANEL: SITUACIÓN -->
+      <div class="sb-panel active" id="sp-info">
+        <div>
+          <div class="sb-label">Progreso de la crisis</div>
+          <div class="round-indicator" id="roundIndicator"></div>
+        </div>
+        <div>
+          <div class="sb-label">Métricas del equipo</div>
+          <div class="score-metrics">
+            <div class="sm-box"><div class="sm-val" id="metScore" style="color:var(--info)">0</div><div class="sm-label">Puntos totales</div></div>
+            <div class="sm-box"><div class="sm-val" id="metBest" style="color:var(--tier-best)">0</div><div class="sm-label">Decisiones óptimas</div></div>
+            <div class="sm-box"><div class="sm-val" id="metGood" style="color:var(--tier-good)">0</div><div class="sm-label">Buenas decisiones</div></div>
+            <div class="sm-box"><div class="sm-val" id="metPoor" style="color:var(--tier-poor)">0</div><div class="sm-label">Oportunidades perdidas</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="sb-label">Historial de decisiones</div>
+          <div class="consequences-list" id="consequencesList"><div style="font-size:0.8rem;color:var(--muted)">Aún no hay decisiones tomadas.</div></div>
+        </div>
+      </div>
+
+      <!-- PANEL: ALERTAS -->
+      <div class="sb-panel" id="sp-notif">
+        <div>
+          <div class="sb-label">Centro de notificaciones</div>
+          <div class="notif-feed" id="notifFeed"></div>
+        </div>
+      </div>
+
+      <!-- PANEL: EQUIPOS -->
+      <div class="sb-panel" id="sp-scores">
+        <div>
+          <div class="sb-label">Equipos en sala</div>
+          <div class="team-rows" id="teamRows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="screen" id="screenFinal">
+  <div class="topbar">
+    <div class="tb-brand">CONSEJO DE <span>CRISIS</span> · RESULTADO FINAL</div>
+    <div class="tb-meta"><span>SESIÓN COMPLETADA</span></div>
+  </div>
+  <div class="final-screen">
+    <div class="fl">
+      <div class="fl-eyebrow">// RESULTADO DE GESTIÓN</div>
+      <div class="fl-title">Crisis<br>gestionada</div>
+      <div class="fl-sub">El simulacro finalizó. No hubo una sola "respuesta correcta" — cada decisión tuvo consecuencias distintas. A continuación, los resultados comparativos de todos los equipos.</div>
+      <div class="score-big" id="finalScoreNum">0</div>
+      <div class="score-big-label">PUNTOS TOTALES · TU EQUIPO</div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-outline" style="border-color:rgba(255,255,255,0.2);color:#e8e0d5;" onclick="resetGame()">Nueva sesión</button>
+        <button class="btn btn-accent" onclick="window.location='facilitador-panel.html'">Ver debrief completo →</button>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="ir-title" style="margin-bottom:1.25rem;">Ranking de equipos</div>
+      <div class="ranking-list" id="rankingList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let timerSecs = 5400;
+let timerInt = null;
+let currentRound = 0;
+let bestDec = 0;
+let goodDec = 0;
+let poorDec = 0;
+let totalScore = 0;
+let consequences = [];
+let decisionsThisRound = {};
+let unreadNotifs = 0;
+let currentSbTab = 'info';
+
+const TEAMS_CRISIS = [
+  { name: 'Equipo 1', score: 0, decided: false, active: true },
+  { name: 'Equipo 2', score: 0, decided: false, active: false },
+  { name: 'Equipo 3', score: 0, decided: false, active: false },
+  { name: 'Equipo 4', score: 0, decided: false, active: false },
+  { name: 'Equipo 5', score: 0, decided: false, active: false },
+  { name: 'Equipo 6', score: 0, decided: false, active: false },
+];
+
+// TIER system: 'best' = decisión óptima, 'good' = buena decisión,
+//              'ok' = decisión parcial, 'poor' = oportunidad perdida
+const TIER_CONFIG = {
+  best: { label: '⭐⭐⭐ Decisión óptima', color: 'var(--tier-best)', cssClass: 'tier-best', consClass: 'cons-best', crClass: 'cr-tier-best' },
+  good: { label: '⭐⭐ Buena decisión',    color: 'var(--tier-good)', cssClass: 'tier-good', consClass: 'cons-good', crClass: 'cr-tier-good' },
+  ok:   { label: '⭐ Decisión parcial',    color: 'var(--tier-ok)',   cssClass: 'tier-ok',   consClass: 'cons-ok',   crClass: 'cr-tier-ok'   },
+  poor: { label: '◻ Oportunidad perdida', color: 'var(--tier-poor)', cssClass: 'tier-poor', consClass: 'cons-poor', crClass: 'cr-tier-poor' },
+};
+
+const ROUNDS = [
+  {
+    status: 'INCIDENTE DETECTADO · HORA 0',
+    title: 'Primera respuesta',
+    narrative: 'El sistema de alertas se activó hace 12 minutos. Un empleado reportó un email sospechoso que recibió esta mañana. Los registros muestran intentos fallidos de acceso seguidos de un ingreso exitoso a las 07:32am desde una ubicación desconocida fuera del país. El acceso duró 4 minutos.',
+    update: null,
+    question: '¿Cuál es la primera acción que toma el Comité de Crisis?',
+    options: [
+      {
+        text: 'Activar el Plan de Respuesta a Incidentes y aislar los sistemas afectados',
+        label: 'Proactiva · Activa los protocolos del banco de inmediato',
+        tier: 'best', points: 800,
+        consequence: 'El aislamiento temprano redujo el alcance del acceso no autorizado en un 60%. El equipo ganó tiempo valioso.'
+      },
+      {
+        text: 'Investigar internamente antes de tomar medidas, para evitar falsos positivos',
+        label: 'Cautelosa · Verifica antes de actuar',
+        tier: 'good', points: 450,
+        consequence: 'La investigación previa evitó un falso positivo, pero costó 20 minutos adicionales de exposición potencial.'
+      },
+      {
+        text: 'Notificar a los clientes inmediatamente sobre el posible incidente',
+        label: 'Transparente · Prioriza la comunicación externa',
+        tier: 'ok', points: 200,
+        consequence: 'La notificación fue prematura: no se conocía el alcance real. Generó inquietud innecesaria sin datos concretos para los clientes.'
+      },
+      {
+        text: 'Esperar al CEO para tomar decisiones — es una situación de alta responsabilidad',
+        label: 'Conservadora · Escala la decisión hacia arriba',
+        tier: 'poor', points: 50,
+        consequence: 'El CEO estaba en vuelo y tardó 45 minutos en responder. La demora amplió el tiempo de exposición del sistema.'
+      },
+    ],
+    impact: 'ALTO'
+  },
+  {
+    status: 'CONTENCIÓN EN CURSO · HORA +30MIN',
+    title: 'La cuenta comprometida',
+    narrative: 'El análisis de registros confirmó que la cuenta del empleado P. Martínez fue comprometida mediante phishing. Se exportaron datos de clientes. El atacante ya no está en el sistema, pero los datos ya salieron.',
+    update: '⚡ NUEVA INFORMACIÓN: IT confirmó que se descargaron datos de 8.500 clientes — nombres, emails y documentos de identidad. La regulación bancaria y de protección de datos exige notificación al regulador en un máximo de 72 horas.',
+    question: '¿Cómo manejan la comunicación con los clientes afectados?',
+    options: [
+      {
+        text: 'Notificar a todos los clientes en las próximas 48 horas con un mensaje claro y qué deben hacer',
+        label: 'Transparente · Cumple plazo regulatorio con margen',
+        tier: 'best', points: 800,
+        consequence: 'La transparencia proactiva y el margen de tiempo permitieron preparar un mensaje claro. Redujo el impacto reputacional y cumplió la regulación.'
+      },
+      {
+        text: 'Notificar dentro de las 72 horas solo a los clientes con mayor riesgo identificado',
+        label: 'Segmentada · Prioriza los más expuestos',
+        tier: 'good', points: 500,
+        consequence: 'Notificación dentro del plazo legal. La segmentación priorizó los casos más críticos, aunque algunos clientes se enteraron más tarde.'
+      },
+      {
+        text: 'Esperar a tener toda la información antes de notificar para evitar alarmar sin datos completos',
+        label: 'Precavida · Evita comunicación incompleta',
+        tier: 'ok', points: 200,
+        consequence: 'La espera superó el plazo de 72 horas. Riesgo de sanción regulatoria y pérdida de confianza al comunicar tarde.'
+      },
+      {
+        text: 'No notificar a los clientes para proteger la reputación del banco mientras se resuelve internamente',
+        label: 'Discreta · Prioriza la gestión interna primero',
+        tier: 'poor', points: 0,
+        consequence: 'No notificar incumple la regulación de protección de datos. Expone al banco a multas y daño reputacional mucho mayor si se descubre externamente.'
+      },
+    ],
+    impact: 'ALTO'
+  },
+  {
+    status: 'ANÁLISIS DE CAUSA · HORA +2H',
+    title: 'El vector de ataque',
+    narrative: 'El equipo de análisis encontró el email de phishing original. Era un mensaje muy convincente que simulaba ser de Microsoft, pidiendo actualización de contraseña. El empleado ingresó sus datos en un sitio falso idéntico al real.',
+    update: '⚡ NUEVA INFORMACIÓN: Se identificaron otros 3 empleados que recibieron el mismo email y podrían haber ingresado sus credenciales. Sus cuentas aún no fueron verificadas.',
+    question: '¿Qué medida de protección implementan de inmediato?',
+    options: [
+      {
+        text: 'Forzar cambio de contraseña en toda la empresa y activar doble verificación para todos',
+        label: 'Amplia · Protege a todos los empleados de una vez',
+        tier: 'best', points: 900,
+        consequence: 'Medida amplia y efectiva. El cambio masivo de contraseñas más el doble factor cierran cualquier acceso no autorizado activo o potencial.'
+      },
+      {
+        text: 'Revisar y bloquear preventivamente las 4 cuentas sospechosas identificadas',
+        label: 'Focalizada · Actúa sobre los casos conocidos',
+        tier: 'good', points: 500,
+        consequence: 'Las 4 cuentas fueron protegidas. Eficiente y menos disruptivo, aunque no cubre posibles afectados aún no identificados.'
+      },
+      {
+        text: 'Bloquear temporalmente todos los accesos externos hasta revisar cada cuenta manualmente',
+        label: 'Conservadora · Prioriza la seguridad sobre la operación',
+        tier: 'ok', points: 250,
+        consequence: 'El bloqueo total detuvo cualquier acceso externo, pero afectó operaciones críticas por varias horas. Medida segura pero costosa operacionalmente.'
+      },
+      {
+        text: 'Cambiar solo la contraseña de P. Martínez y monitorear el sistema durante las próximas horas',
+        label: 'Mínima · Actúa solo sobre el caso confirmado',
+        tier: 'poor', points: 100,
+        consequence: 'Solo se protegió la cuenta confirmada. Los otros 3 empleados potencialmente afectados quedaron expuestos durante horas adicionales.'
+      },
+    ],
+    impact: 'ALTO'
+  },
+  {
+    status: 'CIERRE Y APRENDIZAJE · HORA +24H',
+    title: 'Lecciones aprendidas',
+    narrative: 'El incidente fue contenido. El reporte de análisis está completo. El banco manejó la crisis, pero el directorio quiere garantías de que esto no volverá a suceder.',
+    update: '⚡ NUEVA INFORMACIÓN: El CEO pregunta al comité: "¿Qué cambiamos estructuralmente para que esto no se repita?" Tienen 5 minutos para presentar una propuesta.',
+    question: '¿Cuál es el plan preventivo que presentan al directorio?',
+    options: [
+      {
+        text: 'Programa continuo de concientización + simulacros periódicos + doble verificación obligatoria para todos',
+        label: 'Integral · Aborda el factor humano y tecnológico',
+        tier: 'best', points: 1000,
+        consequence: 'Plan completo que ataca la raíz del problema. La combinación de educación continua, práctica y tecnología es la defensa más efectiva contra phishing.'
+      },
+      {
+        text: 'Capacitación obligatoria anual sobre seguridad para todos los empleados',
+        label: 'Formativa · Invierte en educación del personal',
+        tier: 'good', points: 550,
+        consequence: 'La capacitación anual es un buen paso, pero sin práctica regular y tecnología de respaldo, el aprendizaje se diluye con el tiempo.'
+      },
+      {
+        text: 'Actualizar los sistemas de seguridad tecnológica y comprar soluciones más avanzadas',
+        label: 'Tecnológica · Mejora las herramientas del banco',
+        tier: 'ok', points: 250,
+        consequence: 'Las herramientas tecnológicas ayudan, pero el ataque entró por un error humano. Sin educación, la tecnología sola no es suficiente.'
+      },
+      {
+        text: 'Implementar sanciones para empleados que cometan errores de seguridad en el futuro',
+        label: 'Disciplinaria · Genera consecuencias claras',
+        tier: 'poor', points: 50,
+        consequence: 'Las sanciones generan miedo a reportar errores, lo cual es el peor resultado posible. Una cultura de seguridad necesita que los empleados reporten incidentes, no que los oculten.'
+      },
+    ],
+    impact: 'MEDIO'
+  }
+];
+
+// Notificaciones por ronda — aparecen como alertas en el panel lateral
+const NOTIFICATIONS = {
+  start: [
+    { time: '10:15', text: 'Sistema de alertas activado. Se detectó actividad inusual en los servidores del banco.', type: 'alert' },
+    { time: '10:17', text: 'IT reporta intentos fallidos de inicio de sesión en múltiples cuentas desde la madrugada.', type: 'warn' },
+    { time: '10:19', text: 'Un empleado del área de Créditos reportó haber recibido un email extraño esta mañana.', type: 'info' },
+  ],
+  byRound: [
+    // Round 1
+    [
+      { time: '10:23', text: 'Prensa: un periodista de Canal 13 llamó preguntando por "rumores de un hackeo al banco".', type: 'alert' },
+      { time: '10:28', text: '2 empleados más reportaron haber recibido el mismo email sospechoso antes de las 8am.', type: 'warn' },
+      { time: '10:31', text: 'El sistema de monitoreo detectó una descarga inusual de datos ocurrida a las 07:33am.', type: 'alert' },
+    ],
+    // Round 2
+    [
+      { time: '11:02', text: 'Legal confirma: la regulación bancaria y de protección de datos exige notificar al regulador en máximo 72 horas desde que se conoció la brecha.', type: 'warn' },
+      { time: '11:08', text: 'IT identificó el alcance: datos de 8.500 clientes descargados — nombres, emails y documentos de identidad.', type: 'alert' },
+      { time: '11:20', text: 'CEO aterrizó y está disponible por teléfono. Pide un resumen ejecutivo inmediato.', type: 'info' },
+      { time: '11:35', text: 'Redes sociales: clientes empiezan a preguntar sobre "problemas de seguridad" tras ver una publicación anónima en Twitter.', type: 'warn' },
+    ],
+    // Round 3
+    [
+      { time: '12:05', text: 'Análisis forense confirmó el origen: un email de phishing que simulaba ser de Microsoft. Altamente convincente.', type: 'warn' },
+      { time: '12:15', text: 'Se identificaron otros 3 empleados que recibieron el mismo email. No se sabe si ingresaron sus datos.', type: 'alert' },
+      { time: '12:28', text: 'Portal de noticias financieras publicó una nota sobre un "incidente de ciberseguridad en entidad bancaria local".', type: 'alert' },
+      { time: '12:40', text: 'El ente regulador bancario tomó conocimiento del incidente y solicitó un informe preliminar.', type: 'warn' },
+    ],
+    // Round 4
+    [
+      { time: '10:05 (día 2)', text: 'CEO convocó al comité para presentar las lecciones aprendidas ante el directorio completo esta tarde.', type: 'info' },
+      { time: '10:30 (día 2)', text: 'Clientes afectados empezaron a recibir las comunicaciones del banco. Respuesta inicial positiva por la transparencia.', type: 'info' },
+      { time: '11:00 (día 2)', text: 'El regulador bancario inició una auditoría formal del incidente. Solicitan acceso a los registros de respuesta.', type: 'alert' },
+      { time: '11:45 (día 2)', text: 'Nota de prensa del banco publicada. Cobertura mediática moderada — la respuesta proactiva redujo el impacto negativo.', type: 'info' },
+    ],
+  ]
+};
+
+// ─── SIDEBAR TABS ────────────────────────────────────────────────────────────
+function switchSbTab(tab) {
+  currentSbTab = tab;
+  ['info', 'notif', 'scores'].forEach(t => {
+    document.getElementById(`stab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`sp-${t}`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'notif') {
+    unreadNotifs = 0;
+    document.getElementById('notifBadge').style.display = 'none';
+  }
+}
+
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+function pushNotif(notif) {
+  const feed = document.getElementById('notifFeed');
+  const el = document.createElement('div');
+  el.className = `notif-item notif-${notif.type}`;
+  el.innerHTML = `<div class="notif-dot"></div><div style="flex:1"><div class="notif-time">${notif.time}</div>${notif.text}</div>`;
+  feed.insertBefore(el, feed.firstChild);
+
+  if (currentSbTab !== 'notif') {
+    unreadNotifs++;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unreadNotifs;
+    badge.style.display = 'flex';
+  }
+}
+
+function loadNotifs(notifArray, delay = 0) {
+  notifArray.forEach((n, i) => {
+    setTimeout(() => pushNotif(n), delay + i * 1200);
+  });
+}
+
+// ─── GAME INIT ────────────────────────────────────────────────────────────────
+function startCrisis() {
+  document.getElementById('screenIntro').classList.remove('active');
+  document.getElementById('screenGame').classList.add('active');
+  initSidebar();
+  renderRound(0);
+  startTimer();
+  simulateOtherTeams();
+  // Load initial notifications
+  loadNotifs(NOTIFICATIONS.start, 800);
+}
+
+function startTimer() {
+  timerInt = setInterval(() => {
+    timerSecs--;
+    const m = Math.floor(timerSecs / 60).toString().padStart(2, '0');
+    const s = (timerSecs % 60).toString().padStart(2, '0');
+    const el = document.getElementById('gameTimer');
+    el.textContent = `${m}:${s}`;
+    if (timerSecs < 1200) el.className = 'tb-timer warn';
+    if (timerSecs < 300) el.className = 'tb-timer crit';
+    if (timerSecs <= 0) { clearInterval(timerInt); showFinal(); }
+  }, 1000);
+}
+
+function initSidebar() {
+  const ri = document.getElementById('roundIndicator');
+  ri.innerHTML = ROUNDS.map((_, i) =>
+    `<div class="ri-dot" id="riDot${i}"></div><span style="font-size:0.7rem;color:var(--muted)">R${i+1}</span>`
+  ).join('');
+  document.getElementById('riDot0').classList.add('active');
+
+  document.getElementById('teamRows').innerHTML = TEAMS_CRISIS.map((t, i) => `
+    <div class="team-row" id="tRow${i}">
+      <div class="tr-name">${t.name}</div>
+      <div class="tr-decided" id="tDec${i}" style="display:none">✓ Decidió</div>
+      <div class="tr-score" id="tScore${i}">0 pts</div>
+    </div>
+  `).join('');
+}
+
+// ─── ROUND RENDER ─────────────────────────────────────────────────────────────
+function renderRound(n) {
+  currentRound = n;
+  decisionsThisRound = {};
+  document.getElementById('roundLabel').textContent = `RONDA ${n+1} DE ${ROUNDS.length}`;
+  const r = ROUNDS[n];
+
+  document.getElementById('gameMain').innerHTML = `
+    <div class="incident-card">
+      <div class="ic-status-bar"><div class="ic-dot"></div>${r.status}</div>
+      <div class="ic-body">
+        <div class="ic-round">RONDA ${n+1} · ${r.impact === 'ALTO' ? '⚠ IMPACTO ALTO' : '◈ IMPACTO MEDIO'}</div>
+        <div class="ic-title">${r.title}</div>
+        <div class="ic-narrative">${r.narrative}</div>
+        ${r.update ? `<div class="ic-update"><div class="ic-update-label">// NUEVA INFORMACIÓN</div>${r.update}</div>` : ''}
+      </div>
+    </div>
+    <div class="decision-card">
+      <div class="dc-header">
+        <div class="dc-question">${r.question}</div>
+        <span class="impact-badge ${r.impact === 'ALTO' ? 'impact-high' : 'impact-med'}">${r.impact}</span>
+      </div>
+      <div class="dc-body">
+        <div class="decision-opts">
+          ${r.options.map((o, i) => `
+            <div class="dec-opt" id="decOpt${i}" onclick="selectDecision(${n}, ${i})">
+              <div class="do-key">${['A','B','C','D'][i]}</div>
+              <div class="do-content">
+                <div class="do-text">${o.text}</div>
+                <div class="do-label">${o.label}</div>
+              </div>
+              <div class="do-points" id="decPts${i}">+${o.points}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="dc-footer">
+        <div style="font-size:0.8rem;color:var(--muted)">Discutan en equipo — cada opción tiene un impacto diferente</div>
+        <button class="btn btn-dark" id="confirmBtn" onclick="confirmDecision(${n})" disabled style="opacity:0.4;cursor:default">Confirmar decisión →</button>
+      </div>
+    </div>
+    <div id="revealArea"></div>
+  `;
+
+  TEAMS_CRISIS.forEach(t => { t.decided = false; });
+  document.querySelectorAll('[id^=tDec]').forEach(el => el.style.display = 'none');
+
+  // Push round-specific notifications with a delay
+  if (NOTIFICATIONS.byRound[n]) {
+    loadNotifs(NOTIFICATIONS.byRound[n], 3000);
+  }
+}
+
+function selectDecision(round, idx) {
+  if (decisionsThisRound._confirmed) return;
+  document.querySelectorAll('.dec-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById(`decOpt${idx}`).classList.add('selected');
+  decisionsThisRound._selected = idx;
+  const btn = document.getElementById('confirmBtn');
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+  btn.disabled = false;
+}
+
+function confirmDecision(round) {
+  const sel = decisionsThisRound._selected;
+  if (sel === undefined) return;
+  decisionsThisRound._confirmed = true;
+
+  const r = ROUNDS[round];
+  const opt = r.options[sel];
+  const tier = TIER_CONFIG[opt.tier];
+
+  // Reveal all option tiers
+  document.querySelectorAll('.dec-opt').forEach((el, i) => {
+    el.onclick = null;
+    el.classList.remove('selected');
+    const t = TIER_CONFIG[r.options[i].tier];
+    el.classList.add(t.cssClass);
+    const ptsEl = document.getElementById(`decPts${i}`);
+    ptsEl.textContent = `+${r.options[i].points} pts`;
+    ptsEl.style.display = 'block';
+    ptsEl.style.color = t.color;
+    // Update label to show tier
+    el.querySelector('.do-label').textContent = t.label + ' · ' + r.options[i].label;
+  });
+
+  // Update metrics
+  totalScore += opt.points;
+  document.getElementById('metScore').textContent = totalScore;
+
+  if (opt.tier === 'best') { bestDec++; document.getElementById('metBest').textContent = bestDec; }
+  else if (opt.tier === 'good') { goodDec++; document.getElementById('metGood').textContent = goodDec; }
+  else if (opt.tier === 'poor' || opt.tier === 'ok') {
+    if (opt.tier === 'poor') { poorDec++; document.getElementById('metPoor').textContent = poorDec; }
+  }
+
+  TEAMS_CRISIS[0].score = totalScore;
+  document.getElementById('tScore0').textContent = `${totalScore} pts`;
+  TEAMS_CRISIS[0].decided = true;
+  document.getElementById('tDec0').style.display = 'block';
+
+  // Add to consequence history
+  consequences.unshift({ tier: opt.tier, text: `R${round+1}: ${opt.consequence}` });
+  const cl = document.getElementById('consequencesList');
+  cl.innerHTML = consequences.map(c => {
+    const cfg = TIER_CONFIG[c.tier];
+    return `<div class="cons-item ${cfg.consClass}">${c.text}</div>`;
+  }).join('');
+
+  // Best option text
+  const bestOpt = r.options.find(o => o.tier === 'best');
+
+  document.getElementById('revealArea').innerHTML = `
+    <div class="consequence-reveal">
+      <div class="cr-header">
+        <div style="font-size:1.4rem">${opt.tier === 'best' ? '⭐' : opt.tier === 'good' ? '👍' : opt.tier === 'ok' ? '⚠️' : '💡'}</div>
+        <div class="cr-title" style="color:${tier.color}">${tier.label}</div>
+        <div class="cr-pts" style="color:${tier.color}">+${opt.points} pts</div>
+      </div>
+      <div class="cr-body">
+        <div class="cr-item ${tier.crClass}">
+          <div class="cr-item-label">CONSECUENCIA DE SU DECISIÓN</div>
+          <div class="cr-item-text">${opt.consequence}</div>
+        </div>
+        <div class="cr-item cr-optimal">
+          <div class="cr-item-label">DECISIÓN ÓPTIMA (+${bestOpt.points} pts)</div>
+          <div class="cr-item-text">${bestOpt.text}</div>
+        </div>
+      </div>
+      <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+        ${round < ROUNDS.length - 1
+          ? `<button class="btn btn-dark" onclick="nextRound()">Siguiente ronda →</button>`
+          : `<button class="btn btn-accent" onclick="showFinal()">Ver resultado final →</button>`}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('confirmBtn').disabled = true;
+  document.getElementById('confirmBtn').style.opacity = '0.4';
+}
+
+function nextRound() {
+  const prev = document.getElementById(`riDot${currentRound}`);
+  prev.classList.remove('active');
+  prev.classList.add('done');
+  const next = document.getElementById(`riDot${currentRound + 1}`);
+  if (next) next.classList.add('active');
+  renderRound(currentRound + 1);
+}
+
+function simulateOtherTeams() {
+  TEAMS_CRISIS.forEach((t, i) => {
+    if (i === 0) return;
+    let roundSim = 0;
+    const sim = setInterval(() => {
+      if (roundSim >= ROUNDS.length) { clearInterval(sim); return; }
+      setTimeout(() => {
+        // Simulate tiered scoring for other teams
+        const tierRoll = Math.random();
+        const pts = tierRoll > 0.6 ? 700 + Math.floor(Math.random() * 200)
+                  : tierRoll > 0.3 ? 400 + Math.floor(Math.random() * 200)
+                  : 100 + Math.floor(Math.random() * 200);
+        t.score += pts;
+        t.decided = true;
+        const el = document.getElementById(`tScore${i}`);
+        if (el) el.textContent = `${t.score} pts`;
+        const decEl = document.getElementById(`tDec${i}`);
+        if (decEl) decEl.style.display = 'block';
+        roundSim++;
+        setTimeout(() => {
+          const decEl2 = document.getElementById(`tDec${i}`);
+          if (decEl2) decEl2.style.display = 'none';
+        }, 3000);
+      }, 55000 + i * 12000 + Math.random() * 25000);
+    }, 5000);
+  });
+}
+
+function showFinal() {
+  clearInterval(timerInt);
+  TEAMS_CRISIS.forEach((t, i) => {
+    if (i > 0) t.score = Math.floor(Math.random() * 2200) + 400;
+  });
+  TEAMS_CRISIS[0].score = totalScore;
+  const sorted = [...TEAMS_CRISIS].sort((a, b) => b.score - a.score);
+
+  document.getElementById('finalScoreNum').textContent = totalScore.toLocaleString();
+  document.getElementById('rankingList').innerHTML = sorted.map((t, i) => `
+    <div class="rank-row">
+      <div class="rank-pos">${String(i+1).padStart(2,'0')}</div>
+      <div class="rank-name">${t.name}</div>
+      <div class="rank-score">${t.score.toLocaleString()} pts</div>
+    </div>
+  `).join('');
+
+  document.getElementById('screenGame').classList.remove('active');
+  document.getElementById('screenFinal').classList.add('active');
+}
+
+function resetGame() {
+  clearInterval(timerInt);
+  timerSecs = 5400;
+  currentRound = 0;
+  bestDec = 0; goodDec = 0; poorDec = 0; totalScore = 0;
+  consequences = []; decisionsThisRound = {};
+  unreadNotifs = 0;
+  TEAMS_CRISIS.forEach(t => { t.score = 0; t.decided = false; });
+  document.getElementById('notifFeed').innerHTML = '';
+  document.getElementById('notifBadge').style.display = 'none';
+  document.getElementById('screenFinal').classList.remove('active');
+  document.getElementById('screenGame').classList.remove('active');
+  document.getElementById('screenIntro').classList.add('active');
+}
+</script>
+</body>
+</html>

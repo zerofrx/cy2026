@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Facilitador — Control de Sesión</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #161b27;
+    --surface2: #1c2333;
+    --border: #21293a;
+    --text: #cdd9e5;
+    --muted: #545d68;
+    --green: #2ea043;
+    --green-l: #3fb950;
+    --blue: #388bfd;
+    --yellow: #d29922;
+    --red: #da3633;
+    --purple: #8957e5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; }
+
+  /* TOP */
+  .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem; padding: 1rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .h-brand { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--blue); }
+  .h-status { display: flex; align-items: center; gap: 1rem; }
+  .status-pill { display: flex; align-items: center; gap: 0.4rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; padding: 0.3rem 0.7rem; border-radius: 20px; }
+  .pill-green { background: rgba(46,160,67,0.15); border: 1px solid rgba(63,185,80,0.3); color: var(--green-l); }
+  .pill-yellow { background: rgba(210,153,34,0.15); border: 1px solid rgba(210,153,34,0.3); color: var(--yellow); }
+  .pill-red { background: rgba(218,54,51,0.15); border: 1px solid rgba(218,54,51,0.3); color: var(--red); }
+  .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .h-controls { display: flex; gap: 0.5rem; }
+  .btn { padding: 0.4rem 1rem; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-blue { background: var(--blue); color: white; }
+  .btn-blue:hover { opacity: 0.85; }
+  .btn-green { background: var(--green); color: white; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--blue); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.75rem; }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 240px 1fr 280px; min-height: calc(100vh - 57px); }
+
+  /* LEFT NAV */
+  .left-nav { background: var(--surface); border-right: 1px solid var(--border); padding: 1rem; }
+  .nav-section { margin-bottom: 1.5rem; }
+  .nav-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.5rem; padding: 0 0.5rem; }
+  .nav-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; margin-bottom: 0.15rem; }
+  .nav-item:hover { background: var(--surface2); }
+  .nav-item.active { background: rgba(56,139,253,0.1); color: var(--blue); border: 1px solid rgba(56,139,253,0.2); }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-a { background: var(--green-l); }
+  .dot-b { background: var(--blue); }
+  .dot-c { background: var(--purple); }
+  .dot-f { background: var(--yellow); }
+
+  /* MAIN */
+  .main { overflow-y: auto; }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .tab { padding: 0.75rem 1.25rem; font-size: 0.8rem; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); transition: all 0.2s; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em; }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .tab:hover { color: var(--text); }
+
+  .tab-content { display: none; padding: 1.5rem; }
+  .tab-content.active { display: block; }
+
+  /* VARIANTE CARDS */
+  .var-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .var-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .vc-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .vc-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+  .vc-body { padding: 1rem; }
+  .vc-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .vc-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.75rem; }
+  .vc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .vc-stat { background: var(--bg); border-radius: 4px; padding: 0.4rem 0.6rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+  .vc-stat span { color: var(--text); font-weight: 600; }
+
+  /* SESSION CONTROL */
+  .session-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+  .sc-header { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .sc-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); }
+  .sc-body { padding: 1.25rem; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item { display: flex; gap: 1rem; padding: 0.75rem 0; position: relative; }
+  .tl-item:not(:last-child)::before { content: ''; position: absolute; left: 15px; top: 40px; bottom: -5px; width: 1px; background: var(--border); }
+  .tl-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem; border: 1px solid; }
+  .tl-dot-done { background: rgba(46,160,67,0.15); border-color: var(--green-l); color: var(--green-l); }
+  .tl-dot-active { background: rgba(56,139,253,0.15); border-color: var(--blue); color: var(--blue); animation: tlPulse 2s infinite; }
+  .tl-dot-next { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+  @keyframes tlPulse { 0%,100%{box-shadow:0 0 0 0 rgba(56,139,253,0.3)} 50%{box-shadow:0 0 0 6px rgba(56,139,253,0)} }
+  .tl-content { flex: 1; padding-top: 4px; }
+  .tl-name { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.15rem; }
+  .tl-sub { font-size: 0.75rem; color: var(--muted); }
+  .tl-time { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  /* TEAM GRID */
+  .team-monitor { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .tm-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
+  .tm-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+  .tm-indicator { width: 8px; height: 8px; border-radius: 50%; }
+  .tm-online { background: var(--green-l); box-shadow: 0 0 6px var(--green-l); }
+  .tm-row { display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 0.2rem; }
+  .tm-key { color: var(--muted); }
+  .tm-val { font-family: 'IBM Plex Mono', monospace; }
+
+  /* SCRIPT */
+  .script-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-size: 0.82rem; line-height: 1.8; color: var(--text); }
+  .script-note { display: flex; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.78rem; }
+  .note-facilitador { background: rgba(210,153,34,0.1); border-left: 2px solid var(--yellow); color: var(--yellow); }
+  .note-pantalla { background: rgba(56,139,253,0.1); border-left: 2px solid var(--blue); color: var(--blue); }
+  .note-equipos { background: rgba(46,160,67,0.1); border-left: 2px solid var(--green-l); color: var(--green-l); }
+  .note-tiempo { background: rgba(137,87,229,0.1); border-left: 2px solid var(--purple); color: var(--purple); }
+  .note-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; flex-shrink: 0; padding-top: 1px; }
+  .note-text { flex: 1; }
+
+  /* TIMER CONTROL */
+  .timer-control { display: flex; align-items: center; gap: 1rem; }
+  .timer-big { font-family: 'IBM Plex Mono', monospace; font-size: 2.5rem; font-weight: 600; color: var(--blue); min-width: 120px; }
+  .timer-big.warn { color: var(--yellow); }
+  .timer-big.crit { color: var(--red); }
+  .timer-btns { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  /* QUICK ACTIONS */
+  .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .qa-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; text-align: left; }
+  .qa-btn:hover { border-color: var(--blue); }
+  .qa-title { font-weight: 500; margin-bottom: 0.15rem; }
+  .qa-sub { font-size: 0.7rem; color: var(--muted); }
+
+  /* RIGHT SIDEBAR */
+  .right-sidebar { background: var(--surface); border-left: 1px solid var(--border); padding: 1rem; overflow-y: auto; }
+  .rs-section { margin-bottom: 1.5rem; }
+  .rs-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
+
+  /* ALERT LOG */
+  .alert-log { display: flex; flex-direction: column; gap: 0.4rem; }
+  .alert-item { padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; display: flex; gap: 0.5rem; }
+  .ai-time { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); flex-shrink: 0; }
+  .alert-info { background: rgba(56,139,253,0.08); border: 1px solid rgba(56,139,253,0.15); }
+  .alert-warn { background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.15); }
+  .alert-ok { background: rgba(46,160,67,0.08); border: 1px solid rgba(46,160,67,0.15); }
+
+  /* CHEAT SHEET */
+  .cheat-item { padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem; }
+  .cheat-item:last-child { border: none; }
+  .cheat-q { color: var(--muted); font-size: 0.7rem; margin-bottom: 0.2rem; }
+  .cheat-a { color: var(--green-l); font-weight: 500; }
+
+  /* OPEN BUTTONS */
+  .open-btn { display: block; width: 100%; padding: 0.75rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--text); text-align: left; margin-bottom: 0.5rem; transition: all 0.2s; }
+  .open-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .open-btn span { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-brand">// PANEL DE FACILITADOR</div>
+  <div class="h-status">
+    <div class="status-pill pill-green"><div class="pill-dot"></div>SESIÓN ACTIVA</div>
+    <div class="status-pill pill-yellow"><div class="pill-dot"></div>6 EQUIPOS CONECTADOS</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted)">DEMO · CIBERSEGURIDAD CORPORATIVA</div>
+  </div>
+  <div class="h-controls">
+    <button class="btn btn-ghost btn-sm" onclick="addLog('Pausa solicitada por facilitador', 'warn')">⏸ Pausar</button>
+    <button class="btn btn-blue btn-sm" onclick="addLog('Sesión reiniciada por facilitador', 'info')">↺ Reiniciar</button>
+    <button class="btn btn-green btn-sm">⬛ Finalizar sesión</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT NAV -->
+  <div class="left-nav">
+    <div class="nav-section">
+      <div class="nav-label">VARIANTES</div>
+      <div class="nav-item active" onclick="switchTab('overview')"><div class="nav-dot" style="background:var(--blue)"></div>Vista general</div>
+      <div class="nav-item" onclick="openVariante('a')"><div class="nav-dot dot-a"></div>Variante A — Cazadores</div>
+      <div class="nav-item" onclick="openVariante('b')"><div class="nav-dot dot-b"></div>Variante B — Escape Room</div>
+      <div class="nav-item" onclick="openVariante('c')"><div class="nav-dot dot-c"></div>Variante C — Crisis</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">FACILITADOR</div>
+      <div class="nav-item" onclick="switchTab('script')"><div class="nav-dot dot-f"></div>Guión de sesión</div>
+      <div class="nav-item" onclick="switchTab('teams')"><div class="nav-dot" style="background:var(--purple)"></div>Monitor de equipos</div>
+      <div class="nav-item" onclick="switchTab('answers')"><div class="nav-dot" style="background:var(--red)"></div>Respuestas correctas</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">SESIÓN</div>
+      <div style="padding:0.75rem;background:var(--bg);border-radius:6px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;">TIEMPO RESTANTE</div>
+        <div class="timer-big" id="mainTimer">90:00</div>
+        <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
+          <button class="btn btn-ghost btn-sm" id="timerBtn" onclick="toggleTimer()">▶ Iniciar</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetTimer()">↺</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('overview')" id="tab-overview">OVERVIEW</div>
+      <div class="tab" onclick="switchTab('script')" id="tab-script">GUIÓN</div>
+      <div class="tab" onclick="switchTab('teams')" id="tab-teams">EQUIPOS</div>
+      <div class="tab" onclick="switchTab('answers')" id="tab-answers">RESPUESTAS</div>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div class="tab-content active" id="tc-overview">
+      <div class="var-grid">
+        <div class="var-card">
+          <div class="vc-header"><div class="vc-name">VARIANTE A</div><div class="status-pill pill-green btn-sm"><div class="pill-dot"></div>LISTO</div></div>
+          <div class="vc-body">
+            <div class="vc-title">Cazadores de amenazas</div>
+            <div class="vc-desc">Quiz competitivo en tiempo real. Facilitador presenta casos, equipos responden desde laptops.</div>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+              <div class="vc-stat">Preguntas: <span>8</span></div>
+              <div class="vc-stat">Tiempo: <span>75 min</span></div>
+              <div class="vc-stat">Dificultad: <span>Media</span></div>
+            </div>
+            <div class="vc-actions">
+              <button class="btn btn-green btn-sm" onclick="openVariante('a')">Abrir juego →</button>
+            </div>
+          </div>
+        </div>
+        <div class="var-card">
+          <div class="vc-header"><div class="vc-name">VARIANTE B</div><div class="status-pill pill-green btn-sm"><div class="pill-dot"></div>LISTO</div></div>
+          <div class="vc-body">
+            <div class="vc-title">Escape room digital</div>
+            <div class="vc-desc">Retos encadenados. Cada equipo resuelve el incidente desde su laptop en paralelo.</div>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+              <div class="vc-stat">Retos: <span>4</span></div>
+              <div class="vc-stat">Tiempo: <span>60 min</span></div>
+              <div class="vc-stat">Dificultad: <span>Alta</span></div>
+            </div>
+            <div class="vc-actions">
+              <button class="btn btn-blue btn-sm" onclick="openVariante('b')">Abrir juego →</button>
+            </div>
+          </div>
+        </div>
+        <div class="var-card">
+          <div class="vc-header"><div class="vc-name">VARIANTE C</div><div class="status-pill pill-green btn-sm"><div class="pill-dot"></div>LISTO</div></div>
+          <div class="vc-body">
+            <div class="vc-title">Consejo de crisis</div>
+            <div class="vc-desc">Decisiones estratégicas con consecuencias. El facilitador proyecta el incidente y evoluciona.</div>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+              <div class="vc-stat">Rondas: <span>4</span></div>
+              <div class="vc-stat">Tiempo: <span>90 min</span></div>
+              <div class="vc-stat">Dificultad: <span>Alta</span></div>
+            </div>
+            <div class="vc-actions">
+              <button class="btn btn-sm" style="background:var(--purple);color:white;" onclick="openVariante('c')">Abrir juego →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">FLUJO DE LA SESIÓN</div><div style="font-size:0.75rem;color:var(--muted)">1h 30min total recomendado</div></div>
+        <div class="sc-body">
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot tl-dot-done">✓</div>
+              <div class="tl-content"><div class="tl-name">Bienvenida y formación de equipos</div><div class="tl-sub">Presentar el facilitador, reglas y equipos</div></div>
+              <div class="tl-time">10 min</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot tl-dot-active">▶</div>
+              <div class="tl-content"><div class="tl-name">Elegir variante y ejecutar el juego</div><div class="tl-sub">Una variante por sesión, todos los equipos juntos</div></div>
+              <div class="tl-time">60–75 min</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot tl-dot-next">3</div>
+              <div class="tl-content"><div class="tl-name">Debrief guiado</div><div class="tl-sub">Revelar respuestas, discutir casos reales, Q&A</div></div>
+              <div class="tl-time">15 min</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot tl-dot-next">4</div>
+              <div class="tl-content"><div class="tl-name">Cierre y compromisos</div><div class="tl-sub">Qué cambiará cada equipo en su trabajo diario</div></div>
+              <div class="tl-time">10 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">ACCIONES RÁPIDAS</div></div>
+        <div class="sc-body">
+          <div class="quick-actions">
+            <div class="qa-btn" onclick="addLog('Pista enviada a todos los equipos','info')">
+              <div class="qa-title">Enviar pista global</div>
+              <div class="qa-sub">Proyectar ayuda para todos los equipos</div>
+            </div>
+            <div class="qa-btn" onclick="addLog('Extensión de tiempo: +5 minutos','warn')">
+              <div class="qa-title">+5 min de tiempo</div>
+              <div class="qa-sub">Extender si los equipos necesitan más tiempo</div>
+            </div>
+            <div class="qa-btn" onclick="addLog('Debrief iniciado por facilitador','ok')">
+              <div class="qa-title">Iniciar debrief</div>
+              <div class="qa-sub">Detener juego y mostrar respuestas correctas</div>
+            </div>
+            <div class="qa-btn" onclick="addLog('Ranking proyectado en pantalla','info')">
+              <div class="qa-title">Proyectar ranking</div>
+              <div class="qa-sub">Mostrar puntajes en pantalla principal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPT TAB -->
+    <div class="tab-content" id="tc-script">
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">GUIÓN DEL FACILITADOR — APERTURA</div></div>
+        <div class="sc-body">
+          <div class="script-note note-facilitador"><div class="note-label">FACILITADOR</div><div class="note-text">Pararse frente a la sala. Esperar silencio completo antes de hablar.</div></div>
+          <div class="script-note note-pantalla"><div class="note-label">PANTALLA</div><div class="note-text">Proyectar pantalla de lobby de la variante elegida.</div></div>
+          <div class="script-box">
+            "Bienvenidos. En los próximos 90 minutos van a ser el equipo de ciberseguridad de una empresa real que está bajo ataque.
+            <br><br>
+            No hay respuestas 'de manual' aquí. Las decisiones que tomen van a tener consecuencias reales dentro del juego — exactamente como ocurre en el mundo real.
+            <br><br>
+            Cada grupo de 5 personas es un equipo. Tienen que deliberar y llegar a un consenso antes de responder. Un solo clic por equipo — el del vocero que cada grupo designe ahora."
+          </div>
+          <div class="script-note note-equipos"><div class="note-label">EQUIPOS</div><div class="note-text">Dar 2 minutos para que cada equipo elija su vocero y se presente con un nombre.</div></div>
+          <div class="script-note note-tiempo"><div class="note-label">TIEMPO</div><div class="note-text">Esta sección: 10 minutos máximo.</div></div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">GUIÓN — DURANTE EL JUEGO</div></div>
+        <div class="sc-body">
+          <div class="script-note note-facilitador"><div class="note-label">FACILITADOR</div><div class="note-text">Circular por la sala. Escuchar los debates de cada equipo sin interferir.</div></div>
+          <div class="script-box">
+            Frases útiles durante el juego:
+            <br><br>
+            "¿El equipo X ya deliberó? Tienen 30 segundos..."
+            <br>
+            "Recuerden: no hay respuesta obvia. Debatan."
+            <br>
+            "Si no están de acuerdo internamente, el vocero decide."
+            <br>
+            "No lean las opciones en voz alta — eso le da ventaja a otros equipos."
+          </div>
+          <div class="script-note note-pantalla"><div class="note-label">PANTALLA</div><div class="note-text">Al revelar respuestas: esperar que todos lean antes de explicar. No leer en voz alta.</div></div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">GUIÓN — DEBRIEF (15 min)</div></div>
+        <div class="sc-body">
+          <div class="script-box">
+            "¿Alguien quiere defender por qué eligió [opción incorrecta]? Escucho..."
+            <br><br>
+            "[Dejar hablar 1-2 personas]"
+            <br><br>
+            "En la vida real, el 34% de los empleados hace clic en emails de phishing. No porque sean descuidados — sino porque los atacantes son muy buenos. La diferencia es saber qué buscar."
+            <br><br>
+            "¿Qué van a cambiar la semana que viene en su trabajo diario? [Dirigirse a cada equipo]"
+          </div>
+          <div class="script-note note-facilitador"><div class="note-label">FACILITADOR</div><div class="note-text">Terminar siempre con un compromiso concreto de cada equipo. Eso genera retención del aprendizaje.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAMS TAB -->
+    <div class="tab-content" id="tc-teams">
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">MONITOR DE EQUIPOS EN TIEMPO REAL</div></div>
+        <div class="sc-body">
+          <div class="team-monitor">
+            <div class="tm-card">
+              <div class="tm-name"><div class="tm-indicator tm-online"></div>Equipo 1</div>
+              <div class="tm-row"><div class="tm-key">Progreso</div><div class="tm-val">2/8 resp.</div></div>
+              <div class="tm-row"><div class="tm-key">Precisión</div><div class="tm-val" style="color:var(--green-l)">100%</div></div>
+              <div class="tm-row"><div class="tm-key">Puntaje</div><div class="tm-val">1,800 pts</div></div>
+              <div class="tm-row"><div class="tm-key">Estado</div><div class="tm-val" style="color:var(--blue)">Deliberando</div></div>
+            </div>
+            <div class="tm-card">
+              <div class="tm-name"><div class="tm-indicator tm-online"></div>Equipo 2</div>
+              <div class="tm-row"><div class="tm-key">Progreso</div><div class="tm-val">2/8 resp.</div></div>
+              <div class="tm-row"><div class="tm-key">Precisión</div><div class="tm-val" style="color:var(--yellow)">50%</div></div>
+              <div class="tm-row"><div class="tm-key">Puntaje</div><div class="tm-val">900 pts</div></div>
+              <div class="tm-row"><div class="tm-key">Estado</div><div class="tm-val" style="color:var(--green-l)">Respondió</div></div>
+            </div>
+            <div class="tm-card">
+              <div class="tm-name"><div class="tm-indicator tm-online"></div>Equipo 3</div>
+              <div class="tm-row"><div class="tm-key">Progreso</div><div class="tm-val">3/8 resp.</div></div>
+              <div class="tm-row"><div class="tm-key">Precisión</div><div class="tm-val" style="color:var(--green-l)">67%</div></div>
+              <div class="tm-row"><div class="tm-key">Puntaje</div><div class="tm-val">2,100 pts</div></div>
+              <div class="tm-row"><div class="tm-key">Estado</div><div class="tm-val" style="color:var(--green-l)">Respondió</div></div>
+            </div>
+            <div class="tm-card">
+              <div class="tm-name"><div class="tm-indicator tm-online"></div>Equipo 4</div>
+              <div class="tm-row"><div class="tm-key">Progreso</div><div class="tm-val">2/8 resp.</div></div>
+              <div class="tm-row"><div class="tm-key">Precisión</div><div class="tm-val" style="color:var(--red)">0%</div></div>
+              <div class="tm-row"><div class="tm-key">Puntaje</div><div class="tm-val">0 pts</div></div>
+              <div class="tm-row"><div class="tm-key">Estado</div><div class="tm-val" style="color:var(--yellow)">Atrasado</div></div>
+            </div>
+            <div class="tm-card">
+              <div class="tm-name"><div class="tm-indicator tm-online"></div>Equipo 5</div>
+              <div class="tm-row"><div class="tm-key">Progreso</div><div class="tm-val">3/8 resp.</div></div>
+              <div class="tm-row"><div class="tm-key">Precisión</div><div class="tm-val" style="color:var(--green-l)">100%</div></div>
+              <div class="tm-row"><div class="tm-key">Puntaje</div><div class="tm-val">2,400 pts</div></div>
+              <div class="tm-row"><div class="tm-key">Estado</div><div class="tm-val" style="color:var(--blue)">Deliberando</div></div>
+            </div>
+            <div class="tm-card">
+              <div class="tm-name"><div class="tm-indicator tm-online"></div>Equipo 6</div>
+              <div class="tm-row"><div class="tm-key">Progreso</div><div class="tm-val">2/8 resp.</div></div>
+              <div class="tm-row"><div class="tm-key">Precisión</div><div class="tm-val" style="color:var(--yellow)">50%</div></div>
+              <div class="tm-row"><div class="tm-key">Puntaje</div><div class="tm-val">900 pts</div></div>
+              <div class="tm-row"><div class="tm-key">Estado</div><div class="tm-val" style="color:var(--green-l)">Respondió</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANSWERS TAB -->
+    <div class="tab-content" id="tc-answers">
+      <div class="session-card">
+        <div class="sc-header"><div class="sc-title">RESPUESTAS CORRECTAS — REFERENCIA DEL FACILITADOR</div></div>
+        <div class="sc-body">
+          <div class="cheat-item">
+            <div class="cheat-q">P1 — Email CEO pidiendo transferencia urgente</div>
+            <div class="cheat-a">✓ B: Verificar llamando directamente al CEO. (BEC attack — Business Email Compromise)</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P2 — Compañero pide tu contraseña</div>
+            <div class="cheat-a">✓ B: Derivar a IT para reset. Las credenciales son intransferibles.</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P3 — Pendrive en el estacionamiento</div>
+            <div class="cheat-a">✓ B: Entregar a IT sin conectar. Classic baiting attack.</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P4 — Archivos bloqueados / mensaje de pago</div>
+            <div class="cheat-a">✓ B: Desconectar de la red y avisar a IT. Nunca pagar — no garantiza recuperar nada y financia a los delincuentes.</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P5 — Llamada de "soporte Microsoft"</div>
+            <div class="cheat-a">✓ B: Colgar y reportar. Microsoft nunca llama proactivamente.</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P6 — Trabajo desde cafetería / WiFi público</div>
+            <div class="cheat-a">✓ B: Activar VPN del banco antes de conectarse. Las redes públicas pueden estar intervenidas — la VPN crea un canal protegido.</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P7 — Email interno falso pidiendo credenciales</div>
+            <div class="cheat-a">✓ B: Llamar directamente a Sistemas para verificar. El banco NUNCA pide usuario y contraseña por email.</div>
+          </div>
+          <div class="cheat-item">
+            <div class="cheat-q">P8 — Datos en pizarra</div>
+            <div class="cheat-a">✓ B: Borrar completamente. Los datos físicos son tan críticos como los digitales.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="right-sidebar">
+    <div class="rs-section">
+      <div class="rs-title">ABRIR VARIANTE</div>
+      <button class="open-btn" onclick="openVariante('a')">Variante A — Cazadores <span>quiz en vivo</span></button>
+      <button class="open-btn" onclick="openVariante('b')">Variante B — Escape Room <span>retos encadenados</span></button>
+      <button class="open-btn" onclick="openVariante('c')">Variante C — Crisis <span>decisiones estratégicas</span></button>
+    </div>
+
+    <div class="rs-section">
+      <div class="rs-title">LOG DE ACTIVIDAD</div>
+      <div class="alert-log" id="alertLog">
+        <div class="alert-item alert-ok"><div class="ai-time">09:00</div><div>Panel iniciado correctamente</div></div>
+        <div class="alert-item alert-info"><div class="ai-time">09:02</div><div>6 equipos registrados y listos</div></div>
+        <div class="alert-item alert-info"><div class="ai-time">09:05</div><div>Variantes A, B y C disponibles</div></div>
+      </div>
+    </div>
+
+    <div class="rs-section">
+      <div class="rs-title">RECORDATORIOS CLAVE</div>
+      <div style="font-size:0.78rem;line-height:1.7;color:var(--muted);">
+        <div style="margin-bottom:0.5rem;">◈ Proyector siempre visible para todos</div>
+        <div style="margin-bottom:0.5rem;">◈ Un vocero por equipo para responder</div>
+        <div style="margin-bottom:0.5rem;">◈ No revelar respuestas antes de que todos elijan</div>
+        <div style="margin-bottom:0.5rem;">◈ Permitir debate entre equipos en el debrief</div>
+        <div>◈ Terminar con compromisos concretos</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let timerRunning = false;
+let timerSecs = 5400;
+let timerInterval = null;
+
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerBtn').textContent = '▶ Iniciar';
+    addLog('Timer pausado', 'warn');
+  } else {
+    timerRunning = true;
+    document.getElementById('timerBtn').textContent = '⏸ Pausar';
+    addLog('Timer iniciado', 'ok');
+    timerInterval = setInterval(() => {
+      timerSecs--;
+      if (timerSecs <= 0) { clearInterval(timerInterval); timerRunning = false; return; }
+      const m = Math.floor(timerSecs / 60).toString().padStart(2, '0');
+      const s = (timerSecs % 60).toString().padStart(2, '0');
+      const el = document.getElementById('mainTimer');
+      el.textContent = `${m}:${s}`;
+      el.className = 'timer-big' + (timerSecs < 1200 ? ' warn' : '') + (timerSecs < 300 ? ' crit' : '');
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSecs = 5400;
+  document.getElementById('mainTimer').textContent = '90:00';
+  document.getElementById('mainTimer').className = 'timer-big';
+  document.getElementById('timerBtn').textContent = '▶ Iniciar';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tc-${tab}`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+}
+
+function openVariante(v) {
+  const urls = { a: 'variante-a-cazadores.html', b: 'variante-b-escape-room.html', c: 'variante-c-consejo-crisis.html' };
+  addLog(`Abriendo Variante ${v.toUpperCase()}`, 'info');
+  window.open(urls[v], '_blank');
+}
+
+function addLog(msg, type) {
+  const log = document.getElementById('alertLog');
+  const now = new Date();
+  const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  const item = document.createElement('div');
+  item.className = `alert-item alert-${type}`;
+  item.innerHTML = `<div class="ai-time">${time}</div><div>${msg}</div>`;
+  log.insertBefore(item, log.firstChild);
+  if (log.children.length > 10) log.removeChild(log.lastChild);
+}
+</script>
+</body>
+</html>
