@@ -25,7 +25,9 @@
 
   /* TOP */
   .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem; padding: 1rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
-  .h-brand { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--blue); }
+  .h-brand { display: flex; align-items: center; gap: 0.75rem; }
+  .h-brand img { height: 28px; width: auto; }
+  .h-brand-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(--blue); }
   .h-status { display: flex; align-items: center; gap: 1rem; }
   .status-pill { display: flex; align-items: center; gap: 0.4rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; padding: 0.3rem 0.7rem; border-radius: 20px; }
   .pill-green { background: rgba(46,160,67,0.15); border: 1px solid rgba(63,185,80,0.3); color: var(--green-l); }
@@ -159,12 +161,299 @@
   .open-btn { display: block; width: 100%; padding: 0.75rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--text); text-align: left; margin-bottom: 0.5rem; transition: all 0.2s; }
   .open-btn:hover { border-color: var(--blue); color: var(--blue); }
   .open-btn span { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+
+  /* WELCOME SCREEN */
+  #welcome-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  #welcome-screen.hidden { display: none; }
+
+  .ws-logo {
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 20px rgba(56,139,253,0.3));
+    animation: wsBreath 4s ease-in-out infinite;
+  }
+  .ws-logo img { width: clamp(100px, 16vw, 140px); height: auto; display: block; }
+  @keyframes wsBreath { 0%,100%{filter:drop-shadow(0 0 12px rgba(56,139,253,0.2))} 50%{filter:drop-shadow(0 0 28px rgba(56,139,253,0.5))} }
+
+  .ws-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--blue); margin-bottom: 0.5rem;
+  }
+  .ws-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 600;
+    color: var(--text); margin-bottom: 0.4rem; text-align: center;
+  }
+  .ws-sub {
+    font-size: 0.85rem; color: var(--muted); text-align: center;
+    margin-bottom: 2rem; letter-spacing: 0.03em;
+  }
+
+  .ws-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+    width: 100%; max-width: 780px; margin-bottom: 1.5rem;
+  }
+  @media(max-width: 640px) { .ws-grid { grid-template-columns: 1fr; } }
+
+  .ws-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem;
+  }
+  .ws-card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 1rem;
+  }
+
+  /* Checklist */
+  .ws-check-list { display: flex; flex-direction: column; gap: 0.55rem; }
+  .ws-check-item {
+    display: flex; align-items: center; gap: 0.65rem;
+    cursor: pointer; user-select: none; font-size: 0.82rem;
+    padding: 0.4rem 0.6rem; border-radius: 5px;
+    transition: background 0.15s;
+  }
+  .ws-check-item:hover { background: var(--surface2); }
+  .ws-check-item input[type="checkbox"] { display: none; }
+  .ws-check-box {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; font-size: 0.65rem;
+  }
+  .ws-check-item.checked .ws-check-box {
+    background: var(--green); border-color: var(--green-l); color: white;
+  }
+  .ws-check-item.checked .ws-check-label { color: var(--muted); text-decoration: line-through; }
+  .ws-check-label { flex: 1; }
+  .ws-check-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; color: var(--muted); margin-top: 0.75rem;
+    text-align: right;
+  }
+
+  /* Session fields */
+  .ws-field { margin-bottom: 0.9rem; }
+  .ws-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted);
+    display: block; margin-bottom: 0.4rem; text-transform: uppercase;
+  }
+  .ws-input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.55rem 0.75rem; color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .ws-input:focus { border-color: var(--blue); }
+
+  .ws-variant-row { display: flex; gap: 0.5rem; }
+  .ws-var-btn {
+    flex: 1; padding: 0.5rem 0.25rem; border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--border);
+    background: var(--bg); color: var(--muted); transition: all 0.2s; text-align: center;
+  }
+  .ws-var-btn:hover { border-color: var(--blue); color: var(--text); }
+  .ws-var-btn.selected { background: rgba(56,139,253,0.12); border-color: var(--blue); color: var(--blue); }
+
+  /* Info card */
+  .ws-info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.45rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+  .ws-info-row:last-child { border: none; padding-bottom: 0; }
+  .ws-info-key { color: var(--muted); }
+  .ws-info-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem; color: var(--text);
+  }
+  .ws-info-val.green { color: var(--green-l); }
+  .ws-info-val.blue { color: var(--blue); }
+
+  /* Launch button */
+  .ws-launch-wrap { width: 100%; max-width: 780px; }
+  .ws-launch {
+    width: 100%; padding: 1rem;
+    background: linear-gradient(135deg, #1a3a6b, var(--blue));
+    color: white; border: none; border-radius: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;
+    font-weight: 600; letter-spacing: 0.1em; cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 0 30px rgba(56,139,253,0.25);
+  }
+  .ws-launch:hover { box-shadow: 0 0 45px rgba(56,139,253,0.5); transform: translateY(-2px); }
+  .ws-launch:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .ws-launch-note {
+    text-align: center; font-size: 0.7rem; color: var(--muted);
+    margin-top: 0.6rem; font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Scanline overlay */
+  #welcome-screen::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+    background-image: repeating-linear-gradient(0deg, rgba(56,139,253,0.015) 0px, transparent 1px, transparent 3px);
+    background-size: 100% 4px;
+  }
 </style>
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════════
+     WELCOME / PRE-SESSION SCREEN
+══════════════════════════════════════════════════ -->
+<div id="welcome-screen">
+
+  <div class="ws-logo">
+    <img src="Recursos/ICONO.png" alt="BASA" />
+  </div>
+
+  <div class="ws-badge">// PANEL DE FACILITADOR</div>
+  <div class="ws-title">CyberWar Challenge 2026</div>
+  <div class="ws-sub">Verifica la configuración antes de iniciar la sesión</div>
+
+  <div class="ws-grid">
+
+    <!-- CHECKLIST PRE-SESIÓN -->
+    <div class="ws-card">
+      <div class="ws-card-title">Checklist pre-sesión</div>
+      <div class="ws-check-list" id="checkList">
+        <label class="ws-check-item" onclick="toggleCheck(this)">
+          <input type="checkbox"><div class="ws-check-box"></div>
+          <span class="ws-check-label">Proyector / pantalla encendida y visible</span>
+        </label>
+        <label class="ws-check-item" onclick="toggleCheck(this)">
+          <input type="checkbox"><div class="ws-check-box"></div>
+          <span class="ws-check-label">Navegador en pantalla completa (F11)</span>
+        </label>
+        <label class="ws-check-item" onclick="toggleCheck(this)">
+          <input type="checkbox"><div class="ws-check-box"></div>
+          <span class="ws-check-label">6 grupos formados, 5 integrantes cada uno</span>
+        </label>
+        <label class="ws-check-item" onclick="toggleCheck(this)">
+          <input type="checkbox"><div class="ws-check-box"></div>
+          <span class="ws-check-label">Vocero designado por cada equipo</span>
+        </label>
+        <label class="ws-check-item" onclick="toggleCheck(this)">
+          <input type="checkbox"><div class="ws-check-box"></div>
+          <span class="ws-check-label">Variante seleccionada (A, B o C)</span>
+        </label>
+        <label class="ws-check-item" onclick="toggleCheck(this)">
+          <input type="checkbox"><div class="ws-check-box"></div>
+          <span class="ws-check-label">Guión del facilitador revisado</span>
+        </label>
+      </div>
+      <div class="ws-check-count" id="checkCount">0 / 6 completados</div>
+    </div>
+
+    <!-- DATOS DE SESIÓN -->
+    <div class="ws-card">
+      <div class="ws-card-title">Datos de sesión</div>
+
+      <div class="ws-field">
+        <label class="ws-label" for="ws-facilitador">Nombre del facilitador</label>
+        <input class="ws-input" id="ws-facilitador" type="text" placeholder="Tu nombre completo" />
+      </div>
+
+      <div class="ws-field">
+        <label class="ws-label" for="ws-org">Organización / grupo</label>
+        <input class="ws-input" id="ws-org" type="text" placeholder="Ej. Banco BASA — Riesgo TI" />
+      </div>
+
+      <div class="ws-field">
+        <label class="ws-label">Variante a utilizar</label>
+        <div class="ws-variant-row">
+          <div class="ws-var-btn selected" id="varBtn-a" onclick="selectVar('a')">A<br><span style="font-size:0.55rem;font-weight:400;color:inherit">Cazadores</span></div>
+          <div class="ws-var-btn" id="varBtn-b" onclick="selectVar('b')">B<br><span style="font-size:0.55rem;font-weight:400;color:inherit">Escape Room</span></div>
+          <div class="ws-var-btn" id="varBtn-c" onclick="selectVar('c')">C<br><span style="font-size:0.55rem;font-weight:400;color:inherit">Crisis</span></div>
+          <div class="ws-var-btn" id="varBtn-d" onclick="selectVar('d')">D<br><span style="font-size:0.55rem;font-weight:400;color:inherit">BASA·War</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO DEL SISTEMA -->
+    <div class="ws-card">
+      <div class="ws-card-title">Estado del sistema</div>
+      <div class="ws-info-row">
+        <span class="ws-info-key">Variantes disponibles</span>
+        <span class="ws-info-val green">4 / 4 LISTAS</span>
+      </div>
+      <div class="ws-info-row">
+        <span class="ws-info-key">Capacidad</span>
+        <span class="ws-info-val blue">6 equipos · 30 part.</span>
+      </div>
+      <div class="ws-info-row">
+        <span class="ws-info-key">Duración estimada</span>
+        <span class="ws-info-val">75 – 90 min</span>
+      </div>
+      <div class="ws-info-row">
+        <span class="ws-info-key">Timer predeterminado</span>
+        <span class="ws-info-val">90:00 min</span>
+      </div>
+      <div class="ws-info-row">
+        <span class="ws-info-key">Respuestas cargadas</span>
+        <span class="ws-info-val green">8 / 8 OK</span>
+      </div>
+      <div class="ws-info-row">
+        <span class="ws-info-key">Guión</span>
+        <span class="ws-info-val green">DISPONIBLE</span>
+      </div>
+    </div>
+
+    <!-- RECORDATORIOS RÁPIDOS -->
+    <div class="ws-card">
+      <div class="ws-card-title">Recordatorios clave</div>
+      <div style="display:flex;flex-direction:column;gap:0.55rem;font-size:0.8rem;color:var(--muted);">
+        <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+          <span style="color:var(--blue);flex-shrink:0">◈</span>
+          <span>Un <strong style="color:var(--text)">solo clic por equipo</strong> — el vocero responde por todos</span>
+        </div>
+        <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+          <span style="color:var(--blue);flex-shrink:0">◈</span>
+          <span>No revelar respuestas <strong style="color:var(--text)">antes</strong> de que todos los equipos elijan</span>
+        </div>
+        <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+          <span style="color:var(--blue);flex-shrink:0">◈</span>
+          <span>El <strong style="color:var(--text)">debrief</strong> es la parte más importante — reservar 15 min</span>
+        </div>
+        <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+          <span style="color:var(--blue);flex-shrink:0">◈</span>
+          <span>Terminar con <strong style="color:var(--text)">compromisos concretos</strong> de cada equipo</span>
+        </div>
+        <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+          <span style="color:var(--yellow);flex-shrink:0">◈</span>
+          <span>Este panel <strong style="color:var(--text)">no es visible</strong> para los participantes — úsalo en tu laptop</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ws-launch-wrap">
+    <button class="ws-launch" id="ws-launch-btn" onclick="launchPanel()">
+      INGRESAR AL PANEL DE CONTROL →
+    </button>
+    <div class="ws-launch-note" id="ws-launch-note">Completa el checklist para habilitar el acceso</div>
+  </div>
+
+</div>
+
+<!-- PANEL PRINCIPAL (oculto hasta lanzar) -->
+<div id="main-panel" style="display:none;">
+
 <div class="header">
-  <div class="h-brand">// PANEL DE FACILITADOR</div>
+  <div class="h-brand">
+    <img src="Recursos/ICONO.png" alt="BASA" />
+    <span class="h-brand-label" id="h-brand-label">// PANEL DE FACILITADOR</span>
+  </div>
   <div class="h-status">
     <div class="status-pill pill-green"><div class="pill-dot"></div>SESIÓN ACTIVA</div>
     <div class="status-pill pill-yellow"><div class="pill-dot"></div>6 EQUIPOS CONECTADOS</div>
@@ -173,6 +462,7 @@
   <div class="h-controls">
     <button class="btn btn-ghost btn-sm" onclick="addLog('Pausa solicitada por facilitador', 'warn')">⏸ Pausar</button>
     <button class="btn btn-blue btn-sm" onclick="addLog('Sesión reiniciada por facilitador', 'info')">↺ Reiniciar</button>
+    <button class="btn btn-ghost btn-sm" onclick="goToWelcome()">⌂ Inicio</button>
     <button class="btn btn-green btn-sm">⬛ Finalizar sesión</button>
   </div>
 </div>
@@ -499,7 +789,9 @@
     </div>
   </div>
 
-</div>
+</div><!-- /.layout -->
+
+</div><!-- /#main-panel -->
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -591,6 +883,75 @@ function addLog(msg, type) {
   item.innerHTML = `<div class="ai-time">${time}</div><div>${msg}</div>`;
   log.insertBefore(item, log.firstChild);
   if (log.children.length > 10) log.removeChild(log.lastChild);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WELCOME SCREEN FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+
+// Alterna el estado checked de un ítem del checklist.
+// Actualiza el contador y habilita/deshabilita el botón de lanzar.
+function toggleCheck(label) {
+  label.classList.toggle('checked');
+  const box = label.querySelector('.ws-check-box');
+  const isChecked = label.classList.contains('checked');
+  box.textContent = isChecked ? '✓' : '';
+  updateCheckCount();
+}
+
+// Actualiza el contador del checklist y cambia el estado del botón de lanzar.
+function updateCheckCount() {
+  const total = document.querySelectorAll('#checkList .ws-check-item').length;
+  const done = document.querySelectorAll('#checkList .ws-check-item.checked').length;
+  document.getElementById('checkCount').textContent = `${done} / ${total} completados`;
+  const btn = document.getElementById('ws-launch-btn');
+  const note = document.getElementById('ws-launch-note');
+  if (done === total) {
+    btn.disabled = false;
+    note.textContent = '✓ Todo listo — puedes iniciar la sesión';
+    note.style.color = 'var(--green-l)';
+  } else {
+    btn.disabled = false; // permitir entrar igual, solo es aviso
+    note.textContent = `${total - done} ítem(s) pendientes en el checklist`;
+    note.style.color = 'var(--muted)';
+  }
+}
+
+// Selecciona la variante activa en los botones del welcome screen.
+let selectedVar = 'a';
+function selectVar(v) {
+  selectedVar = v;
+  ['a','b','c','d'].forEach(x => {
+    document.getElementById(`varBtn-${x}`).classList.toggle('selected', x === v);
+  });
+}
+
+// Oculta el panel principal y vuelve al welcome screen.
+function goToWelcome() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById('timerBtn').textContent = '▶ Iniciar';
+  document.getElementById('main-panel').style.display = 'none';
+  document.getElementById('welcome-screen').classList.remove('hidden');
+}
+
+// Oculta el welcome screen y muestra el panel principal.
+// Registra en el log el nombre del facilitador y la variante elegida.
+function launchPanel() {
+  const facilitador = document.getElementById('ws-facilitador').value.trim() || 'Facilitador';
+  const org = document.getElementById('ws-org').value.trim();
+  document.getElementById('welcome-screen').classList.add('hidden');
+  document.getElementById('main-panel').style.display = 'block';
+  // Actualizar header con datos de sesión
+  const varName = { a: 'Cazadores', b: 'Escape Room', c: 'Crisis', d: 'BASA·War' }[selectedVar];
+  document.getElementById('h-brand-label').textContent = `// ${facilitador.toUpperCase()} — PANEL FACILITADOR`;
+  if (org) {
+    document.querySelector('.h-status').querySelector('div:last-child').textContent =
+      `${org} · VAR. ${selectedVar.toUpperCase()}`;
+  }
+  addLog(`Sesión iniciada — Variante ${selectedVar.toUpperCase()}: ${varName}`, 'ok');
+  if (facilitador !== 'Facilitador') addLog(`Facilitador: ${facilitador}`, 'info');
+  if (org) addLog(`Org: ${org}`, 'info');
 }
 </script>
 </body>
