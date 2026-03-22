@@ -26,9 +26,9 @@
 
   /* HEADER */
   header { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; border-bottom:1px solid var(--border); background:rgba(0,255,135,0.03); position:relative; z-index:10; }
-  .logo { font-size:0.7rem; letter-spacing:0.2em; color:var(--green); font-family:'Syne Mono',monospace; }
-  .session-info { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--muted); }
-  .mode-badge { font-family:'Syne Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; padding:0.2rem 0.6rem; border-radius:3px; }
+  .logo { font-size:0.9rem; letter-spacing:0.2em; color:var(--green); font-family:'Syne Mono',monospace; }
+  .session-info { font-family:'Syne Mono',monospace; font-size:0.9rem; color:var(--muted); }
+  .mode-badge { font-family:'Syne Mono',monospace; font-size:0.8rem; letter-spacing:0.15em; padding:0.3rem 0.7rem; border-radius:3px; }
   .mode-fac { background:rgba(0,255,135,0.15); color:var(--green); border:1px solid rgba(0,255,135,0.3); }
   .mode-team { background:rgba(79,195,247,0.15); color:var(--blue); border:1px solid rgba(79,195,247,0.3); }
 
@@ -43,19 +43,19 @@
   /* ── LOBBY ── */
   .lobby-title { font-size:clamp(2.5rem,6vw,5rem); font-weight:800; line-height:1; text-align:center; margin-bottom:0.5rem; }
   .lobby-title span { color:var(--green); }
-  .lobby-sub { color:var(--muted); text-align:center; font-size:1rem; margin-bottom:0.5rem; letter-spacing:0.05em; }
-  .lobby-desc { color:var(--muted); text-align:center; font-size:0.8rem; margin-bottom:2.5rem; max-width:600px; line-height:1.6; }
+  .lobby-sub { color:var(--muted); text-align:center; font-size:1.15rem; margin-bottom:0.5rem; letter-spacing:0.05em; }
+  .lobby-desc { color:var(--muted); text-align:center; font-size:1rem; margin-bottom:2.5rem; max-width:700px; line-height:1.7; }
   .teams-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:0.75rem; width:100%; max-width:900px; margin-bottom:2.5rem; }
   .team-card-lobby { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem 0.5rem; text-align:center; transition:all 0.3s; position:relative; overflow:hidden; }
   .team-card-lobby::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--green); transform:scaleX(0); transition:transform 0.3s; }
   .team-card-lobby.ready::before { transform:scaleX(1); }
   .team-card-lobby.ready { border-color:var(--green); }
-  .tc-name { font-size:0.6rem; letter-spacing:0.15em; color:var(--muted); margin-bottom:0.4rem; }
-  .tc-emoji { font-size:1.5rem; }
-  .tc-label { font-size:0.7rem; font-weight:700; color:var(--text); margin-top:0.2rem; }
+  .tc-name { font-size:0.8rem; letter-spacing:0.15em; color:var(--muted); margin-bottom:0.4rem; }
+  .tc-emoji { font-size:2rem; }
+  .tc-label { font-size:0.9rem; font-weight:700; color:var(--text); margin-top:0.2rem; }
 
   /* ── BUTTONS ── */
-  .btn { background:var(--green); color:var(--dark); border:none; padding:0.85rem 2.5rem; font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; letter-spacing:0.1em; border-radius:4px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
+  .btn { background:var(--green); color:var(--dark); border:none; padding:1rem 2.5rem; font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:0.1em; border-radius:4px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
   .btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,255,135,0.3); }
   .btn:active { transform:translateY(0); }
   .btn:disabled { opacity:0.3; cursor:default; transform:none; box-shadow:none; }
@@ -64,14 +64,14 @@
   .btn-danger { background:var(--danger); color:white; }
   .btn-warn { background:var(--warn); color:var(--dark); }
   .btn-blue { background:var(--blue); color:var(--dark); }
-  .btn-sm { padding:0.5rem 1.2rem; font-size:0.75rem; }
+  .btn-sm { padding:0.6rem 1.4rem; font-size:0.9rem; }
 
   /* ── ROUND SCREEN ── */
   .round-layout { width:100%; max-width:1200px; display:flex; flex-direction:column; gap:1.5rem; align-items:center; }
   .round-header { width:100%; display:flex; justify-content:space-between; align-items:center; }
-  .round-counter { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--muted); letter-spacing:0.1em; }
+  .round-counter { font-family:'Syne Mono',monospace; font-size:1rem; color:var(--muted); letter-spacing:0.1em; }
   .round-score-strip { display:flex; gap:0.75rem; flex-wrap:wrap; }
-  .rs-team { font-family:'Syne Mono',monospace; font-size:0.65rem; color:var(--muted); }
+  .rs-team { font-family:'Syne Mono',monospace; font-size:0.85rem; color:var(--muted); }
   .rs-team span { color:var(--green); font-weight:700; }
 
   /* ── ATTACK CARD ── */
@@ -81,25 +81,25 @@
   .attack-face { backface-visibility:hidden; border-radius:14px; overflow:hidden; }
   .attack-back { position:absolute; inset:0; background:var(--card); border:2px solid var(--green); border-radius:14px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
   .attack-back-icon { font-size:4rem; opacity:0.3; }
-  .attack-back-label { font-family:'Syne Mono',monospace; font-size:0.8rem; color:var(--green); letter-spacing:0.2em; opacity:0.5; }
+  .attack-back-label { font-family:'Syne Mono',monospace; font-size:1rem; color:var(--green); letter-spacing:0.2em; opacity:0.5; }
   .attack-front { transform:rotateY(180deg); background:var(--card); border:2px solid var(--danger); }
   .af-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-  .af-type { font-family:'Syne Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; color:var(--danger); }
-  .af-diff { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--warn); }
+  .af-type { font-family:'Syne Mono',monospace; font-size:0.85rem; letter-spacing:0.15em; color:var(--danger); }
+  .af-diff { font-family:'Syne Mono',monospace; font-size:0.9rem; color:var(--warn); }
   .af-body { padding:1.5rem; text-align:center; }
-  .af-emoji { font-size:3.5rem; margin-bottom:0.75rem; }
-  .af-name { font-size:1.6rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; }
-  .af-desc { font-size:0.9rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem; }
-  .af-context { font-family:'Syne Mono',monospace; font-size:0.72rem; color:var(--muted); padding:0.5rem 1rem; background:rgba(0,255,135,0.03); border:1px dashed var(--border); border-radius:6px; }
+  .af-emoji { font-size:4rem; margin-bottom:0.75rem; }
+  .af-name { font-size:1.9rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; }
+  .af-desc { font-size:1.1rem; color:var(--muted); line-height:1.7; margin-bottom:0.75rem; }
+  .af-context { font-family:'Syne Mono',monospace; font-size:0.9rem; color:var(--muted); padding:0.6rem 1rem; background:rgba(0,255,135,0.03); border:1px dashed var(--border); border-radius:6px; }
   .af-footer { padding:0.75rem 1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-  .af-pts { font-family:'Syne Mono',monospace; font-size:1rem; font-weight:700; color:var(--green); }
+  .af-pts { font-family:'Syne Mono',monospace; font-size:1.15rem; font-weight:700; color:var(--green); }
 
   /* ── TIMER ── */
-  .timer-ring { position:relative; width:72px; height:72px; }
-  .timer-ring svg { transform:rotate(-90deg); }
+  .timer-ring { position:relative; width:90px; height:90px; }
+  .timer-ring svg { transform:rotate(-90deg); width:90px; height:90px; }
   .timer-ring circle { fill:none; stroke:var(--border); stroke-width:4; }
-  .timer-ring .progress { stroke:var(--green); stroke-width:4; stroke-dasharray:188; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear,stroke 0.3s; stroke-linecap:round; }
-  .timer-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne Mono',monospace; font-size:1.2rem; font-weight:700; color:var(--green); }
+  .timer-ring .progress { stroke:var(--green); stroke-width:4; stroke-dasharray:239; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear,stroke 0.3s; stroke-linecap:round; }
+  .timer-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne Mono',monospace; font-size:1.1rem; font-weight:700; color:var(--green); }
 
   /* ── TEAM PANELS (facilitator round view) ── */
   .teams-bar { display:grid; grid-template-columns:repeat(6,1fr); gap:0.6rem; width:100%; }
@@ -108,14 +108,14 @@
   .team-panel.selected { border-color:var(--green); background:rgba(0,255,135,0.08); }
   .team-panel.locked { cursor:default; }
   .team-panel.locked:hover { border-color:var(--green); }
-  .tp-emoji { font-size:1.2rem; }
-  .tp-name { font-family:'Syne Mono',monospace; font-size:0.55rem; color:var(--muted); letter-spacing:0.1em; margin:0.2rem 0; }
-  .tp-score { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--green); font-weight:700; }
-  .tp-status { font-size:0.6rem; color:var(--muted); margin-top:0.25rem; font-family:'Syne Mono',monospace; }
+  .tp-emoji { font-size:1.5rem; }
+  .tp-name { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--muted); letter-spacing:0.1em; margin:0.2rem 0; }
+  .tp-score { font-family:'Syne Mono',monospace; font-size:0.9rem; color:var(--green); font-weight:700; }
+  .tp-status { font-size:0.8rem; color:var(--muted); margin-top:0.25rem; font-family:'Syne Mono',monospace; }
   .tp-status.ready { color:var(--green); }
   .tp-tools { display:flex; gap:0.2rem; justify-content:center; margin-top:0.3rem; flex-wrap:wrap; }
-  .tp-tool-icon { font-size:0.65rem; background:rgba(79,195,247,0.15); border:1px solid rgba(79,195,247,0.3); border-radius:3px; padding:0.1rem 0.25rem; }
-  .tp-played-card { font-size:0.55rem; color:var(--green); font-family:'Syne Mono',monospace; margin-top:0.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tp-tool-icon { font-size:0.8rem; background:rgba(79,195,247,0.15); border:1px solid rgba(79,195,247,0.3); border-radius:3px; padding:0.15rem 0.3rem; }
+  .tp-played-card { font-size:0.75rem; color:var(--green); font-family:'Syne Mono',monospace; margin-top:0.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   /* ── FACILITATOR CONTROLS ── */
   .fac-controls { display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; justify-content:center; }
@@ -123,110 +123,110 @@
   /* ── MODAL ── */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:100; align-items:center; justify-content:center; padding:1rem; }
   .modal-overlay.active { display:flex; }
-  .modal-box { background:var(--card); border:1px solid var(--border); border-radius:12px; max-width:700px; width:100%; max-height:90vh; overflow-y:auto; }
+  .modal-box { background:var(--card); border:1px solid var(--border); border-radius:12px; max-width:800px; width:100%; max-height:90vh; overflow-y:auto; }
   .modal-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-  .modal-title { font-size:1rem; font-weight:700; }
-  .modal-close { background:none; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; }
+  .modal-title { font-size:1.2rem; font-weight:700; }
+  .modal-close { background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer; }
   .modal-close:hover { color:var(--text); }
   .modal-body { padding:1.5rem; }
 
   /* ── HAND OF CARDS ── */
-  .hand-section-title { font-family:'Syne Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; color:var(--muted); margin-bottom:0.75rem; }
-  .hand-grid { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.25rem; }
-  .hand-card { background:var(--dark); border:2px solid var(--green); border-radius:8px; padding:0.75rem; width:140px; cursor:pointer; transition:all 0.2s; text-align:center; position:relative; }
+  .hand-section-title { font-family:'Syne Mono',monospace; font-size:0.8rem; letter-spacing:0.15em; color:var(--muted); margin-bottom:0.75rem; }
+  .hand-grid { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+  .hand-card { background:var(--dark); border:2px solid var(--green); border-radius:8px; padding:1rem; width:165px; cursor:pointer; transition:all 0.2s; text-align:center; position:relative; }
   .hand-card:hover { transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,255,135,0.2); border-color:#66ffaa; }
   .hand-card.tool-card { border-color:var(--blue); }
   .hand-card.tool-card:hover { box-shadow:0 6px 20px rgba(79,195,247,0.2); border-color:#90d5f7; }
   .hand-card.used { opacity:0.25; cursor:default; pointer-events:none; border-style:dashed; }
-  .hand-card.used::after { content:'USADA'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne Mono',monospace; font-size:0.6rem; letter-spacing:0.2em; color:var(--muted); background:rgba(10,14,10,0.7); border-radius:6px; }
-  .hc-emoji { font-size:1.8rem; margin-bottom:0.4rem; }
-  .hc-name { font-size:0.72rem; font-weight:700; color:var(--text); line-height:1.3; }
-  .hc-desc { font-size:0.6rem; color:var(--muted); margin-top:0.3rem; line-height:1.4; }
-  .pass-btn { width:100%; padding:0.75rem; background:rgba(255,68,68,0.1); border:1px dashed var(--danger); border-radius:8px; color:var(--danger); font-family:'Syne Mono',monospace; font-size:0.75rem; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; }
+  .hand-card.used::after { content:'USADA'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne Mono',monospace; font-size:0.8rem; letter-spacing:0.2em; color:var(--muted); background:rgba(10,14,10,0.7); border-radius:6px; }
+  .hc-emoji { font-size:2.2rem; margin-bottom:0.4rem; }
+  .hc-name { font-size:0.9rem; font-weight:700; color:var(--text); line-height:1.3; }
+  .hc-desc { font-size:0.8rem; color:var(--muted); margin-top:0.3rem; line-height:1.5; }
+  .pass-btn { width:100%; padding:0.85rem; background:rgba(255,68,68,0.1); border:1px dashed var(--danger); border-radius:8px; color:var(--danger); font-family:'Syne Mono',monospace; font-size:0.95rem; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; }
   .pass-btn:hover { background:rgba(255,68,68,0.2); }
 
   /* ── EVENT CARD ── */
-  .event-card { background:var(--dark); border:2px solid var(--warn); border-radius:10px; padding:1rem; cursor:pointer; transition:all 0.2s; text-align:center; width:200px; }
+  .event-card { background:var(--dark); border:2px solid var(--warn); border-radius:10px; padding:1.25rem; cursor:pointer; transition:all 0.2s; text-align:center; width:220px; }
   .event-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(255,179,0,0.2); }
   .event-card.used { opacity:0.2; pointer-events:none; border-style:dashed; }
-  .ec-emoji { font-size:2rem; margin-bottom:0.3rem; }
-  .ec-name { font-size:0.8rem; font-weight:700; color:var(--warn); margin-bottom:0.2rem; }
-  .ec-desc { font-size:0.65rem; color:var(--muted); line-height:1.4; }
+  .ec-emoji { font-size:2.5rem; margin-bottom:0.3rem; }
+  .ec-name { font-size:1rem; font-weight:700; color:var(--warn); margin-bottom:0.2rem; }
+  .ec-desc { font-size:0.85rem; color:var(--muted); line-height:1.5; }
 
   /* ── REVEAL SCREEN ── */
   .reveal-layout { width:100%; max-width:1000px; }
   .reveal-attack-mini { background:var(--card); border:1px solid var(--danger); border-radius:8px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; }
-  .ram-emoji { font-size:1.5rem; }
-  .ram-name { font-weight:700; font-size:0.95rem; }
-  .ram-correct { font-family:'Syne Mono',monospace; font-size:0.65rem; color:var(--green); }
+  .ram-emoji { font-size:2rem; }
+  .ram-name { font-weight:700; font-size:1.15rem; }
+  .ram-correct { font-family:'Syne Mono',monospace; font-size:0.85rem; color:var(--green); }
   .results-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:1.25rem; }
   .result-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:0.75rem; text-align:center; transition:all 0.3s; }
   .result-card.rc-correct { border-color:var(--green); background:rgba(0,255,135,0.05); }
   .result-card.rc-wrong { border-color:var(--danger); background:rgba(255,68,68,0.03); }
   .result-card.rc-tool { border-color:var(--blue); background:rgba(79,195,247,0.03); }
   .result-card.rc-pass { border-color:var(--muted); }
-  .rc-team-name { font-size:0.75rem; font-weight:700; margin-bottom:0.3rem; }
-  .rc-played { font-size:1.5rem; margin-bottom:0.2rem; }
-  .rc-played-name { font-size:0.65rem; color:var(--muted); font-family:'Syne Mono',monospace; margin-bottom:0.3rem; }
-  .rc-points { font-family:'Syne Mono',monospace; font-size:0.9rem; font-weight:700; }
-  .rc-breakdown { font-family:'Syne Mono',monospace; font-size:0.55rem; color:var(--muted); line-height:1.6; margin-top:0.2rem; }
+  .rc-team-name { font-size:0.95rem; font-weight:700; margin-bottom:0.3rem; }
+  .rc-played { font-size:2rem; margin-bottom:0.2rem; }
+  .rc-played-name { font-size:0.85rem; color:var(--muted); font-family:'Syne Mono',monospace; margin-bottom:0.3rem; }
+  .rc-points { font-family:'Syne Mono',monospace; font-size:1.1rem; font-weight:700; }
+  .rc-breakdown { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--muted); line-height:1.6; margin-top:0.2rem; }
   .explanation-box { background:var(--card); border:1px solid var(--green); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem; }
-  .eb-title { font-size:1rem; font-weight:700; color:var(--green); margin-bottom:0.5rem; }
-  .eb-text { font-size:0.85rem; color:var(--muted); line-height:1.7; }
+  .eb-title { font-size:1.2rem; font-weight:700; color:var(--green); margin-bottom:0.5rem; }
+  .eb-text { font-size:1.05rem; color:var(--muted); line-height:1.8; }
   .mini-ranking { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.5rem; }
-  .mr-row { display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.75rem; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.8rem; }
+  .mr-row { display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.75rem; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:1rem; }
   .mr-row:first-child { border-color:var(--green); background:rgba(0,255,135,0.04); }
-  .mr-pos { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--muted); width:20px; }
+  .mr-pos { font-family:'Syne Mono',monospace; font-size:0.9rem; color:var(--muted); width:24px; }
   .mr-row:first-child .mr-pos { color:var(--green); }
   .mr-name { flex:1; font-weight:600; }
   .mr-bar-wrap { flex:2; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
   .mr-bar { height:100%; background:var(--green); border-radius:3px; transition:width 0.8s ease; }
-  .mr-pts { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--green); font-weight:700; min-width:60px; text-align:right; }
+  .mr-pts { font-family:'Syne Mono',monospace; font-size:0.95rem; color:var(--green); font-weight:700; min-width:70px; text-align:right; }
 
   /* ── FINAL SCOREBOARD ── */
-  .score-title { font-size:2.5rem; font-weight:800; text-align:center; margin-bottom:0.5rem; }
+  .score-title { font-size:3rem; font-weight:800; text-align:center; margin-bottom:0.5rem; }
   .score-title span { color:var(--green); }
-  .score-sub { color:var(--muted); text-align:center; font-family:'Syne Mono',monospace; font-size:0.75rem; letter-spacing:0.15em; margin-bottom:2.5rem; }
+  .score-sub { color:var(--muted); text-align:center; font-family:'Syne Mono',monospace; font-size:0.95rem; letter-spacing:0.15em; margin-bottom:2.5rem; }
   .score-list { width:100%; max-width:650px; display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2.5rem; }
   .score-row { display:flex; align-items:center; gap:1.5rem; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem 1.5rem; transition:all 0.3s; }
   .score-row:first-child { border-color:var(--green); background:rgba(0,255,135,0.05); }
-  .score-pos { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--muted); width:20px; }
+  .score-pos { font-family:'Syne Mono',monospace; font-size:0.95rem; color:var(--muted); width:24px; }
   .score-row:first-child .score-pos { color:var(--green); }
-  .score-name { flex:1; font-weight:700; font-size:1rem; }
+  .score-name { flex:1; font-weight:700; font-size:1.2rem; }
   .score-bar-wrap { flex:2; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
   .score-bar { height:100%; background:var(--green); border-radius:3px; transition:width 1s ease; }
-  .score-pts { font-family:'Syne Mono',monospace; font-size:0.85rem; color:var(--green); font-weight:700; min-width:70px; text-align:right; }
+  .score-pts { font-family:'Syne Mono',monospace; font-size:1.05rem; color:var(--green); font-weight:700; min-width:80px; text-align:right; }
 
   /* ── TEAM MODE ── */
   .team-select-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:500px; margin-bottom:2rem; }
   .ts-card { background:var(--card); border:2px solid var(--border); border-radius:10px; padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s; }
   .ts-card:hover { border-color:var(--green); transform:translateY(-3px); }
-  .ts-emoji { font-size:2rem; margin-bottom:0.3rem; }
-  .ts-name { font-weight:700; font-size:0.9rem; }
+  .ts-emoji { font-size:2.5rem; margin-bottom:0.3rem; }
+  .ts-name { font-weight:700; font-size:1.1rem; }
 
   .team-play-layout { width:100%; max-width:900px; }
   .team-attack-mini { background:var(--card); border:1px solid var(--danger); border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.5rem; }
   .tam-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; }
-  .tam-round { font-family:'Syne Mono',monospace; font-size:0.65rem; color:var(--muted); letter-spacing:0.1em; }
-  .tam-type { font-family:'Syne Mono',monospace; font-size:0.6rem; color:var(--danger); letter-spacing:0.15em; }
+  .tam-round { font-family:'Syne Mono',monospace; font-size:0.85rem; color:var(--muted); letter-spacing:0.1em; }
+  .tam-type { font-family:'Syne Mono',monospace; font-size:0.8rem; color:var(--danger); letter-spacing:0.15em; }
   .tam-body { display:flex; align-items:center; gap:1rem; }
-  .tam-emoji { font-size:2.5rem; flex-shrink:0; }
+  .tam-emoji { font-size:3rem; flex-shrink:0; }
   .tam-info { flex:1; }
-  .tam-name { font-size:1.2rem; font-weight:800; margin-bottom:0.3rem; }
-  .tam-desc { font-size:0.8rem; color:var(--muted); line-height:1.5; }
+  .tam-name { font-size:1.5rem; font-weight:800; margin-bottom:0.3rem; }
+  .tam-desc { font-size:1rem; color:var(--muted); line-height:1.6; }
 
   .team-hand-area { margin-bottom:1.5rem; }
   .team-tools-area { background:var(--card); border:1px solid rgba(79,195,247,0.2); border-radius:10px; padding:1rem; margin-bottom:1.5rem; }
-  .tta-title { font-family:'Syne Mono',monospace; font-size:0.6rem; color:var(--blue); letter-spacing:0.15em; margin-bottom:0.5rem; }
+  .tta-title { font-family:'Syne Mono',monospace; font-size:0.8rem; color:var(--blue); letter-spacing:0.15em; margin-bottom:0.5rem; }
   .active-tools-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
-  .at-chip { font-size:0.7rem; background:rgba(79,195,247,0.1); border:1px solid rgba(79,195,247,0.25); color:var(--blue); padding:0.3rem 0.6rem; border-radius:4px; font-family:'Syne Mono',monospace; }
+  .at-chip { font-size:0.9rem; background:rgba(79,195,247,0.1); border:1px solid rgba(79,195,247,0.25); color:var(--blue); padding:0.35rem 0.7rem; border-radius:4px; font-family:'Syne Mono',monospace; }
   .at-chip.empty { color:var(--muted); border-color:var(--border); background:none; }
 
   .team-wait-msg { text-align:center; }
-  .twm-icon { font-size:3rem; margin-bottom:1rem; }
-  .twm-title { font-size:1.3rem; font-weight:700; color:var(--green); margin-bottom:0.5rem; }
-  .twm-card { font-size:0.9rem; color:var(--muted); margin-bottom:0.3rem; }
-  .twm-sub { font-size:0.75rem; color:var(--muted); }
+  .twm-icon { font-size:3.5rem; margin-bottom:1rem; }
+  .twm-title { font-size:1.6rem; font-weight:700; color:var(--green); margin-bottom:0.5rem; }
+  .twm-card { font-size:1.1rem; color:var(--muted); margin-bottom:0.3rem; }
+  .twm-sub { font-size:0.95rem; color:var(--muted); }
 
   /* ── GLITCH ── */
   @keyframes glitch { 0%,100%{clip-path:inset(0 0 98% 0)} 25%{clip-path:inset(30% 0 50% 0)} 75%{clip-path:inset(70% 0 10% 0)} }
@@ -245,8 +245,29 @@
 
   /* ── EVENT BANNER ── */
   .event-banner { background:rgba(255,179,0,0.1); border:1px solid var(--warn); border-radius:8px; padding:0.75rem 1rem; text-align:center; width:100%; margin-bottom:0.75rem; }
-  .event-banner-text { font-size:0.8rem; color:var(--warn); }
+  .event-banner-text { font-size:1rem; color:var(--warn); }
   .event-banner-name { font-weight:700; }
+
+  /* ── CARD TRACKER ── */
+  .card-tracker { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1rem; width:100%; margin-top:0.75rem; }
+  .ct-title { font-family:'Syne Mono',monospace; font-size:0.85rem; letter-spacing:0.15em; color:var(--green); margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; }
+  .ct-section { margin-bottom:0.75rem; }
+  .ct-section:last-child { margin-bottom:0; }
+  .ct-label { font-family:'Syne Mono',monospace; font-size:0.75rem; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.4rem; }
+  .ct-cards { display:flex; gap:0.4rem; flex-wrap:wrap; }
+  .ct-chip { font-size:0.8rem; padding:0.3rem 0.6rem; border-radius:4px; font-family:'Syne Mono',monospace; border:1px solid; white-space:nowrap; }
+  .ct-chip.available { color:var(--green); border-color:rgba(0,255,135,0.3); background:rgba(0,255,135,0.08); }
+  .ct-chip.used { color:var(--muted); border-color:var(--border); background:rgba(255,255,255,0.02); text-decoration:line-through; opacity:0.5; }
+  .ct-chip.active-tool { color:var(--blue); border-color:rgba(79,195,247,0.3); background:rgba(79,195,247,0.08); }
+  .ct-chip.pending-tool { color:var(--blue); border-color:rgba(79,195,247,0.2); background:none; opacity:0.6; }
+
+  /* ── LOBBY TEAM SELECT ── */
+  .lobby-team-select { margin-bottom:2rem; }
+  .lobby-team-select .teams-grid .team-card-lobby { cursor:pointer; }
+  .lobby-team-select .teams-grid .team-card-lobby:hover { border-color:var(--green); background:rgba(0,255,135,0.05); }
+  .lobby-team-select .teams-grid .team-card-lobby.chosen { border-color:var(--green); background:rgba(0,255,135,0.1); box-shadow:0 0 20px rgba(0,255,135,0.15); }
+  .lobby-team-select .teams-grid .team-card-lobby.chosen::before { transform:scaleX(1); }
+  .chosen-label { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--green); letter-spacing:0.15em; margin-top:0.3rem; }
 
   /* ── RESPONSIVE ── */
   @media(max-width:768px) {
@@ -263,7 +284,7 @@
   <div class="logo">// CAZADORES DE AMENAZAS — JUEGO DE CARTAS</div>
   <div style="display:flex;align-items:center;gap:1rem;">
     <div class="mode-badge mode-fac" id="modeBadge">FACILITADOR</div>
-    <div class="session-info" id="sessionInfo">6 EQUIPOS · 8 RONDAS</div>
+    <div class="session-info" id="sessionInfo">6 EQUIPOS · 10 RONDAS</div>
   </div>
 </header>
 <div class="progress-strip"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -271,11 +292,14 @@
 <!-- ═══ LOBBY ═══ -->
 <div class="screen active" id="screenLobby">
   <div class="lobby-title glitch" data-text="CAZADORES DE">CAZADORES DE<br><span>AMENAZAS</span></div>
-  <div class="lobby-sub">JUEGO DE CARTAS DE CIBERSEGURIDAD · 1 FACILITADOR · 6 EQUIPOS</div>
-  <div class="lobby-desc">Cada equipo recibe una mano de cartas de defensa y herramientas. En cada ronda se revela una amenaza y deben elegir la mejor carta para contrarrestarla. Las herramientas se acumulan entre rondas dando ventaja compuesta.</div>
-  <div class="teams-grid" id="teamsGrid"></div>
+  <div class="lobby-sub">CRISIS EN BANCO NACIONAL · 10 RONDAS · 6 EQUIPOS</div>
+  <div class="lobby-desc">Un grupo de ciberdelincuentes lanza un ataque coordinado contra Banco Nacional. Durante 10 rondas vivirán la crisis desde adentro: desde el primer intento de intrusión hasta la recuperación. Cada equipo tiene cartas de defensa y herramientas para proteger al banco. ¿Podrán frenar el ataque?</div>
+  <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--green);letter-spacing:0.1em;margin-bottom:0.75rem;">// ELEGÍ QUÉ EQUIPO QUERÉS EMULAR</div>
+  <div class="lobby-team-select">
+    <div class="teams-grid" id="teamsGrid"></div>
+  </div>
   <div style="display:flex;gap:1rem;">
-    <button class="btn" onclick="startGame()">INICIAR PARTIDA</button>
+    <button class="btn" id="btnStart" onclick="startGame()" disabled>ELEGÍ UN EQUIPO PARA COMENZAR</button>
   </div>
 </div>
 
@@ -293,17 +317,19 @@
       <div class="attack-card-zone" id="attackCardZone"></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
         <div class="timer-ring">
-          <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="30"/>
-            <circle class="progress" cx="36" cy="36" r="30" id="timerCircle"/>
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="38"/>
+            <circle class="progress" cx="45" cy="45" r="38" id="timerCircle"/>
           </svg>
-          <div class="timer-num" id="timerNum">45</div>
+          <div class="timer-num" id="timerNum">5:00</div>
         </div>
-        <div style="font-family:'Syne Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;" id="teamReadyCount">0/6 LISTOS</div>
+        <div style="font-family:'Syne Mono',monospace;font-size:0.8rem;color:var(--muted);letter-spacing:0.1em;" id="teamReadyCount">0/6 LISTOS</div>
       </div>
     </div>
 
     <div class="teams-bar" id="teamsBar"></div>
+
+    <div class="card-tracker" id="cardTracker"></div>
 
     <div class="fac-controls" id="facControls">
       <button class="btn" id="btnReveal" onclick="revealRound()" disabled>REVELAR RESULTADOS</button>
@@ -370,7 +396,7 @@
 // MODO FACILITADOR:
 // startGame() → startRound()
 //   ├─ Renderiza carta de ataque con animación de volteo
-//   ├─ Arranca timer de 45 segundos
+//   ├─ Arranca timer de 300 segundos
 //   ├─ Muestra paneles de equipos (clic → modal de selección de carta)
 //   └─ Facilitador selecciona carta de cada equipo
 //       selectCardForTeam(teamIdx, cardId, cardType)
@@ -380,8 +406,8 @@
 //   ├─ Calcula puntos: defensa correcta + bonus herramientas + velocidad
 //   ├─ Muestra resultados por equipo + explicación educativa
 //   └─ Botón "Siguiente Ronda" → nextRound()
-//       → Si ronda < 8: startRound()
-//       → Si ronda = 8: showFinalScore()
+//       → Si ronda < 10: startRound()
+//       → Si ronda = 10: showFinalScore()
 //
 // MODO EQUIPO:
 // El equipo ve su mano, selecciona cartas, y avanza rondas manualmente
@@ -389,118 +415,148 @@
 // ═══════════════════════════════════════════════════════════════
 
 // ─── DATOS: CARTAS DE ATAQUE ──────────────────────────────────
-// Las 8 amenazas originales convertidas en cartas con metadatos
-// de juego. Cada carta define qué defensas la contrarrestan y
-// qué herramientas dan bonus automático.
+// 10 amenazas que cuentan la historia de una crisis de
+// ciberseguridad coordinada contra Banco Nacional. Cada ronda
+// es un capítulo que escala la situación.
 const ATTACK_CARDS = [
+  // ── CAPÍTULO 1: RECONOCIMIENTO (Rondas 1-3) ──
   {
-    id: 'bec-ceo', name: 'CEO Impostor', type: 'BEC', emoji: '👔',
-    difficulty: 3, points: 1000,
-    context: 'Email recibido a las 11:47pm · Asunto: URGENTE',
-    description: 'Tu empresa recibe un email del "CEO" pidiendo transferir $50,000 urgente. El email viene de ceo@empresa-corp.net.',
-    explanation: 'El dominio "empresa-corp.net" no es el oficial. Siempre verificar por canal alternativo (llamada directa) antes de cualquier transferencia. Esto se llama BEC (Business Email Compromise).',
-    validDefense: ['verificar-canal'],
-    relevantTools: ['mfa', 'capacitacion'],
+    id: 'r1-tailgating', name: 'El Técnico del Aire', type: 'ACCESO FÍSICO', emoji: '🚪',
+    difficulty: 1, points: 800,
+    context: 'LUNES 8:00am · Sucursal Centro · Un técnico con chaleco naranja espera en la puerta',
+    description: 'Un hombre con chaleco de "Mantenimiento HVAC" te pide que le abras la puerta trasera de la sucursal. Dice que viene a revisar el aire acondicionado, pero no tiene cita agendada ni credencial del banco.',
+    explanation: 'Este fue el primer movimiento de los atacantes: acceder físicamente al edificio para plantar dispositivos. Tu carta "Pedir autorización a seguridad" es la defensa correcta — toda visita debe ser verificada por seguridad, sin importar lo legítimo que parezca. El Control de acceso físico bloquea este tipo de intrusión.',
+    validDefense: ['pedir-autorizacion'],
+    relevantTools: ['control-acceso', 'capacitacion'],
   },
   {
-    id: 'password', name: 'El Compañero Urgente', type: 'CONTRASEÑAS', emoji: '🔑',
-    difficulty: 2, points: 800,
-    context: 'Situación en oficina · Compañero de confianza',
-    description: 'Un compañero te pide tu contraseña del sistema porque "olvidó la suya y necesita el archivo urgente".',
-    explanation: 'Nunca compartir contraseñas, ni con personas de confianza. Las credenciales son personales e intransferibles. IT puede resetear su acceso en minutos.',
-    validDefense: ['reportar-it'],
-    relevantTools: ['password-fuerte', 'mfa'],
-  },
-  {
-    id: 'usb', name: 'Pendrive Misterioso', type: 'USB MALICIOSO', emoji: '💾',
+    id: 'r2-usb-trampa', name: 'El Pendrive del Estacionamiento', type: 'USB MALICIOSO', emoji: '💾',
     difficulty: 2, points: 900,
-    context: 'Lunes por la mañana · Pendrive cerca de la entrada',
-    description: 'Encontrás un pendrive en el estacionamiento de la empresa con la etiqueta "Sueldos 2024".',
-    explanation: 'Los pendrives abandonados son un ataque clásico de ingeniería social. Pueden contener malware que se ejecuta automáticamente. Siempre entregarlo a IT.',
+    context: 'LUNES 8:30am · Estacionamiento del banco · Pendrive con etiqueta "Bonos Q1 2026 - RRHH"',
+    description: 'Llegás al banco y encontrás un pendrive en el estacionamiento con una etiqueta que dice "Bonos Q1 2026 - RRHH - CONFIDENCIAL". La curiosidad es fuerte — ¿serán los montos de los bonos?',
+    explanation: 'Los atacantes dejaron pendrives con malware en el estacionamiento la noche anterior (esto se llama "baiting"). Tu carta "No conectar el dispositivo" te protege: entregalo a IT sin conectarlo. Si lo conectás, el malware se instala automáticamente. Un Antivirus actualizado podría detectarlo.',
     validDefense: ['no-conectar'],
     relevantTools: ['antivirus', 'capacitacion'],
   },
   {
-    id: 'ransomware', name: 'Secuestro Digital', type: 'RANSOMWARE', emoji: '🔒',
-    difficulty: 4, points: 1000,
-    context: 'Son las 9:00am · Reunión importante en 2 horas',
-    description: 'Tu computadora muestra: "Tus archivos están bloqueados. Tenés 48 horas para pagar o los perdés para siempre".',
-    explanation: 'Desconectar de la red evita que el ransomware se propague. Nunca pagar — no garantiza recuperar archivos y financia delincuentes. IT tiene protocolos de recuperación.',
-    validDefense: ['desconectar-red', 'actualizar-config'],
-    relevantTools: ['backup', 'antivirus'],
+    id: 'r3-phishing', name: 'El Email de Compliance', type: 'PHISHING', emoji: '🎣',
+    difficulty: 2, points: 900,
+    context: 'LUNES 10:00am · Email de "compliance@banconacional-seguro.com" · Asunto: Actualización obligatoria',
+    description: 'Recibís un email con el logo del banco: "Debido a nuevas regulaciones del BCRA, todos los empleados deben revalidar sus credenciales antes de las 12:00. Ingresá aquí." El dominio es banconacional-seguro.com en vez de banconacional.com.',
+    explanation: 'Los atacantes están intentando robar credenciales con un email falso. El dominio "-seguro.com" delata que es phishing. Tu carta "Verificar la URL" te permite detectar que el dominio es falso. También podés usar "Reportar a IT" para alertar al equipo. Un Filtro anti-phishing debería haber bloqueado este email.',
+    validDefense: ['verificar-url', 'reportar-it'],
+    relevantTools: ['filtro-email', 'capacitacion'],
   },
+  // ── CAPÍTULO 2: INFILTRACIÓN (Rondas 4-6) ──
   {
-    id: 'soporte-falso', name: 'Soporte Técnico Falso', type: 'INGENIERÍA SOCIAL', emoji: '📞',
-    difficulty: 2, points: 800,
-    context: 'Llamada entrante · Número desconocido',
-    description: 'Alguien llama diciendo ser de "soporte técnico de Microsoft" y pide acceso remoto para "solucionar un problema detectado".',
-    explanation: 'Microsoft nunca llama proactivamente a usuarios. Es una estafa de "soporte técnico falso" muy común. Colgar y reportar inmediatamente.',
+    id: 'r4-vishing', name: 'La Llamada del Regulador', type: 'VISHING', emoji: '📞',
+    difficulty: 3, points: 1000,
+    context: 'MARTES 9:00am · Llamada de "Superintendencia de Bancos" · Número con prefijo oficial',
+    description: 'Recibís una llamada que se identifica como la Superintendencia de Bancos: "Detectamos operaciones irregulares en su sucursal. Necesitamos que nos dé acceso remoto a su terminal para una auditoría de emergencia. Es confidencial, no informe a nadie."',
+    explanation: 'Los reguladores NUNCA piden acceso remoto por teléfono ni exigen confidencialidad. El pedido de "no informar a nadie" es una señal de alarma clara. Tu carta "Colgar y reportar" es la defensa: cortá la llamada e informá a IT y a tu supervisor. La Capacitación ayuda a reconocer estas tácticas de presión.',
     validDefense: ['colgar-reportar'],
     relevantTools: ['capacitacion'],
   },
   {
-    id: 'wifi', name: 'WiFi Trampa', type: 'TRABAJO REMOTO', emoji: '📡',
-    difficulty: 3, points: 900,
-    context: 'Cafetería · WiFi gratuito · Laptop del trabajo',
-    description: 'Estás trabajando desde una cafetería y necesitás revisar información confidencial de clientes. La cafetería ofrece WiFi gratis.',
-    explanation: 'Las redes WiFi públicas pueden estar intervenidas. La VPN crea un "túnel privado" seguro. Siempre activarla cuando trabajés fuera de la oficina.',
+    id: 'r5-compañero', name: 'El Compañero Desesperado', type: 'INGENIERÍA SOCIAL', emoji: '🔑',
+    difficulty: 2, points: 900,
+    context: 'MARTES 11:30am · Oficina de operaciones · Tu compañero Luis está muy nervioso',
+    description: 'Luis del área de operaciones te dice con cara de pánico: "Me bloquearon el acceso al sistema de transferencias y tengo que procesar un pago urgente del directorio. ¿Me prestás tu usuario y contraseña? Son 5 minutos, te la devuelvo enseguida."',
+    explanation: 'Lo que Luis no sabe es que su cuenta fue bloqueada porque los atacantes ya la comprometieron. Si le das tu contraseña, los atacantes tendrán acceso a otra cuenta más. Tu carta "Reportar a IT" es la defensa correcta: IT puede investigar por qué se bloqueó su cuenta. La MFA y Contraseña fuerte protegen tus credenciales.',
+    validDefense: ['reportar-it'],
+    relevantTools: ['mfa', 'password-fuerte'],
+  },
+  {
+    id: 'r6-wifi-sucursal', name: 'La Red WiFi Clonada', type: 'INTERCEPCIÓN', emoji: '📡',
+    difficulty: 3, points: 1000,
+    context: 'MARTES 2:00pm · Sala de reuniones · Red WiFi "BancoNacional_Invitados_5G" no reconocida',
+    description: 'Estás en una reunión con un cliente importante y necesitás mostrarle datos de su cuenta desde tu laptop. La red habitual no aparece, pero hay una nueva: "BancoNacional_Invitados_5G". El cliente espera.',
+    explanation: 'Los atacantes instalaron un punto de acceso falso que imita la red del banco (ataque "Evil Twin"). Todo lo que transmitas por esa red será interceptado. Tu carta "Usar VPN" cifra tu conexión y protege los datos aunque la red esté comprometida. La VPN corporativa es tu túnel seguro.',
     validDefense: ['usar-vpn'],
     relevantTools: ['vpn-corp'],
   },
+  // ── CAPÍTULO 3: ATAQUE ACTIVO (Rondas 7-8) ──
   {
-    id: 'phishing-interno', name: 'Phishing Interno', type: 'PHISHING INTERNO', emoji: '🎣',
-    difficulty: 3, points: 1000,
-    context: 'Email recibido un viernes a las 5pm · URL sospechosa',
-    description: 'Email del "área de Sistemas" dice: "Ingresá a este enlace para confirmar tus datos de acceso antes del lunes o tu cuenta quedará bloqueada".',
-    explanation: 'El banco NUNCA pide usuario y contraseña por email. Siempre verificar llamando directamente al área. Los delincuentes imitan la imagen del propio banco.',
-    validDefense: ['verificar-canal', 'reportar-it'],
-    relevantTools: ['mfa', 'capacitacion'],
+    id: 'r7-ransomware', name: 'El Secuestro del Sistema', type: 'RANSOMWARE', emoji: '🔒',
+    difficulty: 4, points: 1100,
+    context: 'MIÉRCOLES 7:00am · 15 computadoras bloqueadas · Pantalla roja con cuenta regresiva de 72 horas',
+    description: 'Al llegar el miércoles, 15 computadoras de la sucursal muestran una pantalla roja: "BANCO NACIONAL: Sus archivos están encriptados. Paguen 5 Bitcoin (USD $200,000) en 72 horas o publicaremos los datos de sus clientes." El pánico se extiende.',
+    explanation: 'El ransomware entró por las credenciales robadas en rondas anteriores. Tu carta "Desconectar de la red" evita que se propague a más equipos. NUNCA pagar el rescate — no garantiza nada y financia criminales. Si tenés un Backup reciente, los archivos se pueden recuperar. El Antivirus podría haber frenado la ejecución.',
+    validDefense: ['desconectar-red'],
+    relevantTools: ['backup', 'antivirus'],
   },
   {
-    id: 'datos-fisicos', name: 'Fuga en la Pizarra', type: 'DATOS SENSIBLES', emoji: '📋',
-    difficulty: 1, points: 800,
-    context: 'Sala de reuniones · Datos de clientes en pizarra física',
-    description: 'Terminás una reunión con datos confidenciales escritos en la pizarra. Todos se van. ¿Qué hacés antes de salir?',
-    explanation: 'Los datos físicos son tan sensibles como los digitales. Siempre limpiar pizarras, destruir documentos físicos y no dejar información visible.',
+    id: 'r8-deepfake', name: 'La Voz del Gerente General', type: 'DEEPFAKE', emoji: '🎙️',
+    difficulty: 4, points: 1100,
+    context: 'MIÉRCOLES 10:00am · Audio de WhatsApp · La voz suena EXACTAMENTE como el Gerente General',
+    description: 'En plena crisis del ransomware, recibís un audio de WhatsApp del "Gerente General": "Escuchame, la situación es crítica. Necesito que transfieras USD $200,000 a esta cuenta para pagar el rescate YA. No consultes con nadie, hacelo ahora, es una orden directa."',
+    explanation: 'Los atacantes usan deepfake de audio para clonar la voz del gerente y presionarte durante la crisis. Tu carta "Verificar por canal alternativo" es vital: llamá al gerente por teléfono fijo o acercate en persona. La MFA protege las transferencias con un segundo factor que los atacantes no tienen.',
+    validDefense: ['verificar-canal'],
+    relevantTools: ['mfa', 'capacitacion'],
+  },
+  // ── CAPÍTULO 4: CONTENCIÓN Y RECUPERACIÓN (Rondas 9-10) ──
+  {
+    id: 'r9-update-falsa', name: 'El Parche de Emergencia', type: 'MALWARE', emoji: '⬇️',
+    difficulty: 3, points: 1000,
+    context: 'JUEVES 8:00am · Popup: "Parche de seguridad crítico de Banco Nacional — Instalar YA"',
+    description: 'Después del ataque de ransomware, aparece un popup en tu computadora: "IT ha distribuido un parche de emergencia para proteger su equipo. Haga clic aquí para instalar inmediatamente." Pero IT nunca distribuye parches por popups del navegador.',
+    explanation: 'Los atacantes aprovechan el miedo post-ransomware para instalar MÁS malware disfrazado de "parche de seguridad". Tu carta "Actualizar desde Configuración" es la defensa: las actualizaciones legítimas se instalan desde el menú del sistema, no desde popups. Un Antivirus actualizado bloquea estas descargas maliciosas.',
+    validDefense: ['actualizar-config', 'no-descargar'],
+    relevantTools: ['antivirus', 'capacitacion'],
+  },
+  {
+    id: 'r10-fuga-datos', name: 'Los Datos en la Pizarra', type: 'FUGA DE DATOS', emoji: '📋',
+    difficulty: 2, points: 900,
+    context: 'VIERNES 6:00pm · Sala de crisis · Pizarra con plan de respuesta, IPs internas y contraseñas temporales',
+    description: 'Después de una semana de crisis, la sala de guerra tiene pizarras llenas con: IPs de servidores internos, contraseñas temporales de recuperación, nombres de clientes afectados y el plan de respuesta al incidente. Todos se van exhaustos sin limpiar.',
+    explanation: 'Después de una crisis es cuando más vulnerables somos. Si alguien no autorizado ve esas pizarras, tiene el mapa completo de la infraestructura del banco. Tu carta "Borrar información sensible" es crítica: limpiá toda la información antes de irte. La Capacitación ayuda a que TODO el equipo entienda que la seguridad no termina cuando termina la crisis.',
     validDefense: ['borrar-sensible'],
-    relevantTools: ['capacitacion'],
+    relevantTools: ['capacitacion', 'control-acceso'],
   },
 ];
 
 // ─── DATOS: CARTAS DE DEFENSA ─────────────────────────────────
-// Acciones de respuesta correcta. Cada una contrarresta uno o más
-// tipos de ataque. Se descartan al usarse.
+// 10 acciones de respuesta. Cada equipo recibe 5, así que no
+// puede cubrir las 10 rondas — debe decidir estratégicamente.
 const ALL_DEFENSE_CARDS = [
-  { id: 'verificar-canal', name: 'Verificar por canal alternativo', emoji: '📞', desc: 'Llamar directamente para confirmar la solicitud' },
-  { id: 'reportar-it', name: 'Reportar a IT', emoji: '🔔', desc: 'Informar al equipo de seguridad de inmediato' },
-  { id: 'desconectar-red', name: 'Desconectar de la red', emoji: '🔌', desc: 'Aislar el equipo para evitar propagación' },
-  { id: 'no-conectar', name: 'No conectar el dispositivo', emoji: '🚫', desc: 'Entregar el dispositivo a IT sin conectarlo' },
-  { id: 'usar-vpn', name: 'Usar VPN', emoji: '🛡️', desc: 'Activar la VPN antes de conectarse a la red' },
-  { id: 'colgar-reportar', name: 'Colgar y reportar', emoji: '📵', desc: 'Cortar la comunicación e informar a IT' },
-  { id: 'actualizar-config', name: 'Actualizar desde Configuración', emoji: '⚙️', desc: 'Actualizar software solo desde canales oficiales' },
-  { id: 'borrar-sensible', name: 'Borrar información sensible', emoji: '🧹', desc: 'Eliminar datos expuestos en espacios compartidos' },
+  { id: 'pedir-autorizacion', name: 'Pedir autorización a seguridad', emoji: '🏢', desc: 'Verificar identidad de visitantes con el equipo de seguridad física' },
+  { id: 'no-conectar', name: 'No conectar el dispositivo', emoji: '🚫', desc: 'Entregar dispositivos desconocidos a IT sin conectarlos' },
+  { id: 'verificar-url', name: 'Verificar la URL', emoji: '🔍', desc: 'Revisar que el dominio y la dirección web sean los oficiales del banco' },
+  { id: 'colgar-reportar', name: 'Colgar y reportar', emoji: '📵', desc: 'Cortar llamadas sospechosas e informar a IT inmediatamente' },
+  { id: 'reportar-it', name: 'Reportar a IT', emoji: '🔔', desc: 'Informar al equipo de seguridad informática para que investiguen' },
+  { id: 'usar-vpn', name: 'Usar VPN', emoji: '🛡️', desc: 'Activar la VPN del banco antes de conectarse a cualquier red' },
+  { id: 'desconectar-red', name: 'Desconectar de la red', emoji: '🔌', desc: 'Aislar el equipo de la red para evitar propagación del daño' },
+  { id: 'verificar-canal', name: 'Verificar por canal alternativo', emoji: '📞', desc: 'Confirmar instrucciones llamando directamente a la persona por otro medio' },
+  { id: 'actualizar-config', name: 'Actualizar desde Configuración', emoji: '⚙️', desc: 'Solo instalar actualizaciones desde el menú oficial del sistema' },
+  { id: 'no-descargar', name: 'No descargar archivos sospechosos', emoji: '⛔', desc: 'Rechazar descargas de fuentes no verificadas o popups inesperados' },
+  { id: 'borrar-sensible', name: 'Borrar información sensible', emoji: '🧹', desc: 'Eliminar datos expuestos en pizarras, papeles o pantallas compartidas' },
 ];
 
 // ─── DATOS: CARTAS DE HERRAMIENTA ─────────────────────────────
-// Protecciones permanentes que se acumulan. Se activan jugándolas
-// en cualquier ronda y permanecen activas el resto del juego.
+// 8 protecciones permanentes. Cada equipo recibe 3. Se acumulan
+// entre rondas dando ventaja compuesta.
 const ALL_TOOL_CARDS = [
-  { id: 'mfa', name: 'MFA activado', emoji: '🔐', desc: 'Autenticación multifactor habilitada' },
-  { id: 'password-fuerte', name: 'Contraseña fuerte', emoji: '🔑', desc: 'Política de contraseñas robustas' },
-  { id: 'vpn-corp', name: 'VPN corporativa', emoji: '🌐', desc: 'Red privada virtual de la empresa' },
-  { id: 'antivirus', name: 'Antivirus actualizado', emoji: '🛡️', desc: 'Protección contra malware al día' },
-  { id: 'backup', name: 'Backup reciente', emoji: '💾', desc: 'Copias de seguridad verificadas' },
-  { id: 'capacitacion', name: 'Capacitación completada', emoji: '📚', desc: 'Formación en ciberseguridad al día' },
+  { id: 'control-acceso', name: 'Control de acceso físico', emoji: '🚪', desc: 'Tarjetas de acceso y registro obligatorio de visitantes' },
+  { id: 'antivirus', name: 'Antivirus actualizado', emoji: '🛡️', desc: 'Protección contra malware, virus y descargas peligrosas' },
+  { id: 'filtro-email', name: 'Filtro anti-phishing', emoji: '📧', desc: 'Sistema que detecta y bloquea emails falsos antes de llegar' },
+  { id: 'capacitacion', name: 'Capacitación completada', emoji: '📚', desc: 'Formación en ciberseguridad — sabés identificar amenazas' },
+  { id: 'mfa', name: 'MFA activado', emoji: '🔐', desc: 'Autenticación multifactor — segundo paso para iniciar sesión' },
+  { id: 'password-fuerte', name: 'Contraseña fuerte', emoji: '🔑', desc: 'Política de contraseñas robustas y únicas por sistema' },
+  { id: 'vpn-corp', name: 'VPN corporativa', emoji: '🌐', desc: 'Red privada virtual — túnel seguro para proteger datos en tránsito' },
+  { id: 'backup', name: 'Backup reciente', emoji: '💾', desc: 'Copias de seguridad verificadas para recuperar archivos' },
 ];
 
 // ─── DATOS: CARTAS DE EVENTO ──────────────────────────────────
-// El facilitador puede jugar hasta 2 durante la partida. Afectan
-// a todos los equipos simultáneamente.
+// El facilitador puede jugar hasta 3 durante la partida. Afectan
+// a todos los equipos simultáneamente. Temática de crisis bancaria.
 const EVENT_CARDS = [
-  { id: 'brecha', name: 'Brecha Detectada', emoji: '💥', desc: 'Todos pierden 150 pts salvo quien tenga Backup activo', color: 'var(--danger)' },
-  { id: 'auditoria', name: 'Auditoría Regulatoria', emoji: '📋', desc: 'Quien tenga Capacitación completada suma 300 pts', color: 'var(--warn)' },
-  { id: 'ataque-masivo', name: 'Ataque Masivo', emoji: '⚡', desc: 'Los puntos de la próxima ronda se duplican para todos', color: 'var(--blue)' },
+  { id: 'brecha', name: 'Brecha en Base de Datos', emoji: '💥', desc: 'Filtración masiva: todos pierden 200 pts salvo quien tenga Backup activo', color: 'var(--danger)' },
+  { id: 'regulador', name: 'Auditoría del BCRA', emoji: '📋', desc: 'El regulador revisa protocolos: quien tenga Capacitación suma 300 pts', color: 'var(--warn)' },
+  { id: 'ataque-masivo', name: 'Ataque Coordinado', emoji: '⚡', desc: 'Los atacantes escalan: los puntos de la próxima ronda se DUPLICAN', color: 'var(--blue)' },
+  { id: 'filtracion', name: 'Alerta de Phishing Masivo', emoji: '🔓', desc: 'Oleada de emails falsos: +250 pts si tenés Filtro anti-phishing, −150 pts si no', color: 'var(--danger)' },
+  { id: 'inspeccion', name: 'Inspección de Seguridad Física', emoji: '🔍', desc: 'Revisión de accesos: quien tenga Control de acceso físico suma 250 pts', color: 'var(--warn)' },
 ];
+const MAX_EVENTS = 3;
 
 // ─── DATOS: EQUIPOS ───────────────────────────────────────────
 const TEAMS_BASE = [
@@ -513,16 +569,17 @@ const TEAMS_BASE = [
 ];
 
 // ─── DATOS: MANOS INICIALES ───────────────────────────────────
-// Distribución estratégica: cada equipo tiene 4 defensas y 2
-// herramientas. Ningún equipo puede cubrir todos los ataques,
-// forzando decisiones estratégicas sobre cuándo jugar cada carta.
+// Distribución estratégica: cada equipo tiene 5 defensas y 3
+// herramientas. Con 10 rondas y 5 defensas, cada equipo debe
+// pasar o usar herramientas en al menos 5 rondas.
+// Ningún equipo cubre todas las amenazas.
 const INITIAL_HANDS = [
-  { defense: ['verificar-canal','desconectar-red','usar-vpn','borrar-sensible'], tools: ['mfa','backup'] },
-  { defense: ['reportar-it','no-conectar','colgar-reportar','actualizar-config'], tools: ['password-fuerte','capacitacion'] },
-  { defense: ['verificar-canal','desconectar-red','reportar-it','no-conectar'], tools: ['antivirus','vpn-corp'] },
-  { defense: ['usar-vpn','colgar-reportar','borrar-sensible','actualizar-config'], tools: ['mfa','capacitacion'] },
-  { defense: ['verificar-canal','no-conectar','desconectar-red','borrar-sensible'], tools: ['backup','antivirus'] },
-  { defense: ['reportar-it','colgar-reportar','usar-vpn','actualizar-config'], tools: ['password-fuerte','vpn-corp'] },
+  { defense: ['pedir-autorizacion','verificar-url','usar-vpn','verificar-canal','borrar-sensible'], tools: ['control-acceso','filtro-email','backup'] },
+  { defense: ['no-conectar','colgar-reportar','reportar-it','desconectar-red','actualizar-config'], tools: ['antivirus','capacitacion','mfa'] },
+  { defense: ['verificar-url','reportar-it','usar-vpn','verificar-canal','no-descargar'], tools: ['filtro-email','vpn-corp','capacitacion'] },
+  { defense: ['pedir-autorizacion','no-conectar','colgar-reportar','desconectar-red','borrar-sensible'], tools: ['control-acceso','antivirus','backup'] },
+  { defense: ['verificar-url','no-conectar','verificar-canal','actualizar-config','borrar-sensible'], tools: ['mfa','password-fuerte','capacitacion'] },
+  { defense: ['pedir-autorizacion','colgar-reportar','usar-vpn','desconectar-red','no-descargar'], tools: ['vpn-corp','filtro-email','password-fuerte'] },
 ];
 
 // ─── ESTADO DEL JUEGO ────────────────────────────────────────
@@ -532,10 +589,11 @@ const INITIAL_HANDS = [
 let state = {
   mode: 'facilitator',    // 'facilitator' o 'team'
   teamIndex: -1,          // índice del equipo en modo team
-  currentRound: 0,        // ronda actual (0–7)
+  selectedTeam: -1,       // equipo elegido para emular (facilitador)
+  currentRound: 0,        // ronda actual (0–9)
   phase: 'lobby',         // lobby, playing, reveal, final
   timerInterval: null,
-  timeLeft: 45,
+  timeLeft: 300,
   playOrder: 0,           // contador para bonus de velocidad
   eventsPlayed: [],       // IDs de eventos ya jugados
   doubleNextRound: false,  // efecto del evento "Ataque Masivo"
@@ -605,10 +663,11 @@ function findTool(id) { return ALL_TOOL_CARDS.find(c => c.id === id); }
 function renderLobby() {
   const grid = document.getElementById('teamsGrid');
   grid.innerHTML = TEAMS_BASE.map((t, i) => `
-    <div class="team-card-lobby" id="lobbyCard${i}">
+    <div class="team-card-lobby ${state.selectedTeam === i ? 'chosen' : ''}" id="lobbyCard${i}" onclick="selectLobbyTeam(${i})">
       <div class="tc-name">EQUIPO ${i+1}</div>
       <div class="tc-emoji">${t.emoji}</div>
       <div class="tc-label">${t.name}</div>
+      ${state.selectedTeam === i ? '<div class="chosen-label">▶ EMULANDO</div>' : ''}
     </div>
   `).join('');
   setTimeout(() => {
@@ -621,14 +680,29 @@ function renderLobby() {
   }, 400);
 }
 
+// Selección de equipo a emular desde el lobby
+function selectLobbyTeam(idx) {
+  state.selectedTeam = idx;
+  const btn = document.getElementById('btnStart');
+  btn.disabled = false;
+  btn.textContent = `INICIAR COMO ${TEAMS_BASE[idx].name.toUpperCase()}`;
+  renderLobby();
+}
+
 // ─── INICIO DE PARTIDA ───────────────────────────────────────
 // Resetea puntajes y arranca la primera ronda. Es el punto de
 // entrada del juego desde el lobby.
 function startGame() {
+  if (state.selectedTeam < 0 && state.mode === 'facilitator') return;
   state.currentRound = 0;
   state.eventsPlayed = [];
   state.doubleNextRound = false;
   initTeamState();
+  // Actualizar badge con el equipo elegido
+  if (state.selectedTeam >= 0) {
+    const t = TEAMS_BASE[state.selectedTeam];
+    document.getElementById('sessionInfo').textContent = `${t.emoji} ${t.name.toUpperCase()} · ${ATTACK_CARDS.length} RONDAS`;
+  }
   startRound();
 }
 
@@ -669,9 +743,15 @@ function startRound() {
   // Paneles de equipo
   renderTeamPanels();
 
+  // Auto-jugar equipos no seleccionados
+  autoPlayOtherTeams();
+
+  // Card tracker
+  renderCardTracker();
+
   // Controles
   document.getElementById('btnReveal').disabled = true;
-  const eventsLeft = 2 - state.eventsPlayed.length;
+  const eventsLeft = MAX_EVENTS - state.eventsPlayed.length;
   document.getElementById('btnEvent').style.display = eventsLeft > 0 ? '' : 'none';
   document.getElementById('btnEvent').textContent = `JUGAR EVENTO (${eventsLeft})`;
 
@@ -736,10 +816,12 @@ function renderTeamPanels() {
     const playedCard = t.hasPlayed && t.currentPlay.type !== 'pass'
       ? `<div class="tp-played-card">${t.currentPlay.type === 'tool' ? '🔧' : '🃏'} Carta jugada</div>`
       : '';
+    const isEmulated = state.selectedTeam === i;
+    const canClick = isEmulated && !t.hasPlayed;
     return `
-      <div class="team-panel ${t.hasPlayed ? 'selected locked' : ''}" onclick="openTeamModal(${i})" id="tPanel${i}">
+      <div class="team-panel ${t.hasPlayed ? 'selected locked' : ''}" onclick="${canClick ? `openTeamModal(${i})` : ''}" id="tPanel${i}" style="${isEmulated ? 'border-color:var(--green);box-shadow:0 0 12px rgba(0,255,135,0.15);' : ''}${!isEmulated ? 'opacity:0.7;cursor:default;' : ''}">
         <div class="tp-emoji">${t.emoji}</div>
-        <div class="tp-name">${t.name.toUpperCase()}</div>
+        <div class="tp-name">${t.name.toUpperCase()}${isEmulated ? ' ◀' : ''}</div>
         <div class="tp-score">${t.score} pts</div>
         <div class="tp-status ${statusClass}">${statusText}</div>
         ${toolIcons ? `<div class="tp-tools">${toolIcons}</div>` : ''}
@@ -754,7 +836,12 @@ function renderTeamPanels() {
 function updateReadyCount() {
   const ready = state.teams.filter(t => t.hasPlayed).length;
   document.getElementById('teamReadyCount').textContent = `${ready}/${state.teams.length} LISTOS`;
-  document.getElementById('btnReveal').disabled = ready === 0;
+  // Habilitar revelar cuando el equipo emulado también jugó
+  if (state.selectedTeam >= 0) {
+    document.getElementById('btnReveal').disabled = !state.teams[state.selectedTeam].hasPlayed;
+  } else {
+    document.getElementById('btnReveal').disabled = ready === 0;
+  }
 }
 
 // ─── MODAL DE SELECCIÓN DE CARTA ──────────────────────────────
@@ -763,6 +850,7 @@ function updateReadyCount() {
 // o en "Pasar turno" para registrar la jugada del equipo.
 function openTeamModal(teamIdx) {
   if (state.teams[teamIdx].hasPlayed) return;
+  if (state.selectedTeam >= 0 && teamIdx !== state.selectedTeam) return;
 
   const team = state.teams[teamIdx];
   const attack = ATTACK_CARDS[state.currentRound];
@@ -841,16 +929,17 @@ function playCard(teamIdx, cardId, cardType) {
 
   closeModal();
   renderTeamPanels();
+  renderCardTracker();
 }
 
 // ─── TIMER ────────────────────────────────────────────────────
-// Countdown de 45 segundos. Actualiza el anillo SVG y cambia de
-// color: verde → amarillo (≤15s) → rojo (≤5s). Al llegar a 0
+// Countdown de 5 minutos (300s). Actualiza el anillo SVG y cambia de
+// color: verde → amarillo (≤60s) → rojo (≤15s). Al llegar a 0
 // se detiene pero NO fuerza la revelación — el facilitador decide.
 function startTimer() {
   clearInterval(state.timerInterval);
-  state.timeLeft = 45;
-  updateTimerDisplay(45);
+  state.timeLeft = 300;
+  updateTimerDisplay(300);
   state.timerInterval = setInterval(() => {
     state.timeLeft--;
     updateTimerDisplay(state.timeLeft);
@@ -861,12 +950,14 @@ function startTimer() {
 }
 
 function updateTimerDisplay(t) {
-  const display = Math.max(0, t);
-  document.getElementById('timerNum').textContent = display;
+  const s = Math.max(0, t);
+  const min = Math.floor(s / 60);
+  const sec = String(s % 60).padStart(2, '0');
+  document.getElementById('timerNum').textContent = `${min}:${sec}`;
   const circle = document.getElementById('timerCircle');
-  const pct = Math.max(0, t) / 45;
-  circle.style.strokeDashoffset = 188 * (1 - pct);
-  const color = t > 15 ? 'var(--green)' : t > 5 ? 'var(--warn)' : 'var(--danger)';
+  const pct = s / 300;
+  circle.style.strokeDashoffset = 239 * (1 - pct);
+  const color = t > 60 ? 'var(--green)' : t > 15 ? 'var(--warn)' : 'var(--danger)';
   circle.style.stroke = color;
   document.getElementById('timerNum').style.color = color;
 }
@@ -1049,7 +1140,7 @@ function nextRound() {
 
 // ─── EVENTOS ──────────────────────────────────────────────────
 // Abre el modal con las cartas de evento disponibles. El facilitador
-// puede jugar hasta 2 eventos durante toda la partida.
+// puede jugar hasta 3 eventos durante toda la partida.
 function showEventModal() {
   document.getElementById('modalTitle').textContent = '⚡ Jugar Carta de Evento';
   const html = EVENT_CARDS.map(ev => {
@@ -1064,7 +1155,7 @@ function showEventModal() {
   }).join('');
   document.getElementById('modalBody').innerHTML = `
     <div style="text-align:center;margin-bottom:1rem;">
-      <span style="font-size:0.75rem;color:var(--muted);font-family:'Syne Mono',monospace;">${2 - state.eventsPlayed.length} evento(s) restante(s)</span>
+      <span style="font-size:0.9rem;color:var(--muted);font-family:'Syne Mono',monospace;">${MAX_EVENTS - state.eventsPlayed.length} evento(s) restante(s)</span>
     </div>
     <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">${html}</div>
   `;
@@ -1080,13 +1171,13 @@ function playEvent(eventId) {
   const ev = EVENT_CARDS.find(e => e.id === eventId);
 
   if (eventId === 'brecha') {
-    // Todos pierden 150 excepto quien tenga Backup activo
+    // Todos pierden 200 excepto quien tenga Backup activo
     state.teams.forEach(t => {
       if (!t.activeTools.includes('backup')) {
-        t.score = Math.max(0, t.score - 150);
+        t.score = Math.max(0, t.score - 200);
       }
     });
-  } else if (eventId === 'auditoria') {
+  } else if (eventId === 'regulador') {
     // Quien tenga Capacitación completada gana +300
     state.teams.forEach(t => {
       if (t.activeTools.includes('capacitacion')) {
@@ -1096,6 +1187,22 @@ function playEvent(eventId) {
   } else if (eventId === 'ataque-masivo') {
     // Duplicar puntos de la próxima ronda
     state.doubleNextRound = true;
+  } else if (eventId === 'filtracion') {
+    // Quien tenga filtro-email suma 250, el resto pierde 150
+    state.teams.forEach(t => {
+      if (t.activeTools.includes('filtro-email')) {
+        t.score += 250;
+      } else {
+        t.score = Math.max(0, t.score - 150);
+      }
+    });
+  } else if (eventId === 'inspeccion') {
+    // Quien tenga control-acceso suma 250
+    state.teams.forEach(t => {
+      if (t.activeTools.includes('control-acceso')) {
+        t.score += 250;
+      }
+    });
   }
 
   closeModal();
@@ -1112,7 +1219,7 @@ function playEvent(eventId) {
   ).join('');
 
   // Actualizar botón de eventos
-  const eventsLeft = 2 - state.eventsPlayed.length;
+  const eventsLeft = MAX_EVENTS - state.eventsPlayed.length;
   document.getElementById('btnEvent').style.display = eventsLeft > 0 ? '' : 'none';
   document.getElementById('btnEvent').textContent = `JUGAR EVENTO (${eventsLeft})`;
 }
@@ -1150,6 +1257,7 @@ function resetGame() {
   state.eventsPlayed = [];
   state.doubleNextRound = false;
   state.playOrder = 0;
+  state.selectedTeam = -1;
   initTeamState();
   document.getElementById('progressFill').style.width = '0%';
   if (state.mode === 'team') {
@@ -1159,8 +1267,116 @@ function resetGame() {
     showScreen('screenTeamPlay');
   } else {
     renderLobby();
+    const btn = document.getElementById('btnStart');
+    btn.disabled = true;
+    btn.textContent = 'ELEGÍ UN EQUIPO PARA COMENZAR';
+    document.getElementById('sessionInfo').textContent = `6 EQUIPOS · ${ATTACK_CARDS.length} RONDAS`;
     showScreen('screenLobby');
   }
+}
+
+// ─── AUTO-JUGAR EQUIPOS NO SELECCIONADOS ─────────────────────
+// Simula la jugada de los equipos que no están siendo emulados.
+// Lógica: ~60% juega defensa correcta si la tiene, ~25% juega
+// defensa incorrecta, ~10% activa herramienta, ~5% pasa.
+function autoPlayOtherTeams() {
+  if (state.selectedTeam < 0) return;
+  const attack = ATTACK_CARDS[state.currentRound];
+
+  state.teams.forEach((team, i) => {
+    if (i === state.selectedTeam) return; // el jugador elige manualmente
+    if (team.hasPlayed) return;
+
+    state.playOrder++;
+    team.playOrder = state.playOrder;
+    team.hasPlayed = true;
+
+    // Defensas disponibles (no usadas)
+    const availDef = team.defenseHand.filter(d => !team.usedDefense.includes(d));
+    // Defensas correctas disponibles
+    const correctDef = availDef.filter(d => attack.validDefense.includes(d));
+    // Herramientas no activadas
+    const availTools = team.toolHand.filter(t => !team.activeTools.includes(t));
+
+    const roll = Math.random();
+
+    if (correctDef.length > 0 && roll < 0.6) {
+      // Juega defensa correcta
+      const pick = correctDef[Math.floor(Math.random() * correctDef.length)];
+      team.currentPlay = { id: pick, type: 'defense' };
+      team.usedDefense.push(pick);
+    } else if (availTools.length > 0 && roll < 0.7) {
+      // Activa herramienta
+      const pick = availTools[Math.floor(Math.random() * availTools.length)];
+      team.currentPlay = { id: pick, type: 'tool' };
+      team.activeTools.push(pick);
+    } else if (availDef.length > 0) {
+      // Juega defensa incorrecta
+      const wrongDef = availDef.filter(d => !attack.validDefense.includes(d));
+      if (wrongDef.length > 0) {
+        const pick = wrongDef[Math.floor(Math.random() * wrongDef.length)];
+        team.currentPlay = { id: pick, type: 'defense' };
+        team.usedDefense.push(pick);
+      } else {
+        // Solo tiene correctas, juega una
+        const pick = availDef[0];
+        team.currentPlay = { id: pick, type: 'defense' };
+        team.usedDefense.push(pick);
+      }
+    } else if (availTools.length > 0) {
+      const pick = availTools[0];
+      team.currentPlay = { id: pick, type: 'tool' };
+      team.activeTools.push(pick);
+    } else {
+      // Sin cartas — pasa
+      team.currentPlay = { id: 'pass', type: 'pass' };
+    }
+  });
+
+  // Re-renderizar paneles con los resultados de auto-play
+  renderTeamPanels();
+}
+
+// ─── CARD TRACKER ─────────────────────────────────────────────
+// Muestra las cartas del equipo emulado: disponibles vs usadas
+function renderCardTracker() {
+  const tracker = document.getElementById('cardTracker');
+  if (!tracker || state.selectedTeam < 0) return;
+
+  const team = state.teams[state.selectedTeam];
+
+  // Defensas
+  const defChips = team.defenseHand.map(dId => {
+    const card = findDefense(dId);
+    const used = team.usedDefense.includes(dId);
+    return `<span class="ct-chip ${used ? 'used' : 'available'}">${card.emoji} ${card.name}</span>`;
+  }).join('');
+
+  // Herramientas
+  const toolChips = team.toolHand.map(tId => {
+    const card = findTool(tId);
+    const active = team.activeTools.includes(tId);
+    return `<span class="ct-chip ${active ? 'active-tool' : 'pending-tool'}">${card.emoji} ${card.name}${active ? ' ✓' : ''}</span>`;
+  }).join('');
+
+  const availCount = team.defenseHand.length - team.usedDefense.length;
+  const usedCount = team.usedDefense.length;
+  const activeToolCount = team.activeTools.length;
+
+  tracker.innerHTML = `
+    <div class="ct-title">
+      <span>// ${team.emoji} ${team.name.toUpperCase()} — INVENTARIO DE CARTAS</span>
+      <span style="color:var(--muted);font-size:0.55rem;">${availCount} disponibles · ${usedCount} usadas</span>
+    </div>
+    <div class="ct-section">
+      <div class="ct-label">🃏 CARTAS DE DEFENSA</div>
+      <div class="ct-cards">${defChips}</div>
+    </div>
+    <div class="ct-section">
+      <div class="ct-label">🔧 HERRAMIENTAS (${activeToolCount} activas)</div>
+      <div class="ct-cards">${toolChips}</div>
+    </div>
+  `;
 }
 
 // ─── MODAL ────────────────────────────────────────────────────
