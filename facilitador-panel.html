@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel Facilitador — Control de Sesión</title>
 <link rel="icon" type="image/png" href="Recursos/ICONO.png">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0f1117;
@@ -22,28 +22,28 @@
     --purple: #8957e5;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; font-size: 15px; }
 
   /* TOP */
   .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem; padding: 1rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
   .h-brand { display: flex; align-items: center; gap: 0.75rem; }
   .h-brand img { height: 28px; width: auto; }
-  .h-brand-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(--blue); }
+  .h-brand-label { font-family: 'Syne', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--blue); }
   .h-status { display: flex; align-items: center; gap: 1rem; }
-  .status-pill { display: flex; align-items: center; gap: 0.4rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; padding: 0.3rem 0.7rem; border-radius: 20px; }
+  .status-pill { display: flex; align-items: center; gap: 0.4rem; font-family: 'Syne', sans-serif; font-size: 0.75rem; padding: 0.35rem 0.8rem; border-radius: 20px; }
   .pill-green { background: rgba(46,160,67,0.15); border: 1px solid rgba(63,185,80,0.3); color: var(--green-l); }
   .pill-yellow { background: rgba(210,153,34,0.15); border: 1px solid rgba(210,153,34,0.3); color: var(--yellow); }
   .pill-red { background: rgba(218,54,51,0.15); border: 1px solid rgba(218,54,51,0.3); color: var(--red); }
   .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .h-controls { display: flex; gap: 0.5rem; }
-  .btn { padding: 0.4rem 1rem; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn { padding: 0.5rem 1.1rem; border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
   .btn-blue { background: var(--blue); color: white; }
   .btn-blue:hover { opacity: 0.85; }
   .btn-green { background: var(--green); color: white; }
   .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
   .btn-ghost:hover { border-color: var(--blue); }
   .btn-danger { background: var(--red); color: white; }
-  .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.75rem; }
+  .btn-sm { padding: 0.35rem 0.85rem; font-size: 0.8rem; }
 
   /* LAYOUT */
   .layout { display: grid; grid-template-columns: 240px 1fr 280px; min-height: calc(100vh - 57px); }
@@ -51,8 +51,8 @@
   /* LEFT NAV */
   .left-nav { background: var(--surface); border-right: 1px solid var(--border); padding: 1rem; }
   .nav-section { margin-bottom: 1.5rem; }
-  .nav-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.5rem; padding: 0 0.5rem; }
-  .nav-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; margin-bottom: 0.15rem; }
+  .nav-label { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.5rem; padding: 0 0.5rem; }
+  .nav-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.95rem; transition: all 0.15s; margin-bottom: 0.15rem; }
   .nav-item:hover { background: var(--surface2); }
   .nav-item.active { background: rgba(56,139,253,0.1); color: var(--blue); border: 1px solid rgba(56,139,253,0.2); }
   .nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -66,7 +66,7 @@
 
   /* TABS */
   .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
-  .tab { padding: 0.75rem 1.25rem; font-size: 0.8rem; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); transition: all 0.2s; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em; }
+  .tab { padding: 0.75rem 1.25rem; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); transition: all 0.2s; font-family: 'Syne', sans-serif; font-size: 0.8rem; letter-spacing: 0.05em; }
   .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
   .tab:hover { color: var(--text); }
 
@@ -77,18 +77,18 @@
   .var-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
   .var-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .vc-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .vc-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--muted); }
-  .vc-body { padding: 1rem; }
-  .vc-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; }
-  .vc-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.75rem; }
+  .vc-name { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+  .vc-body { padding: 1.25rem; }
+  .vc-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .vc-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.6; margin-bottom: 0.85rem; }
   .vc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .vc-stat { background: var(--bg); border-radius: 4px; padding: 0.4rem 0.6rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+  .vc-stat { background: var(--bg); border-radius: 4px; padding: 0.45rem 0.7rem; font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); }
   .vc-stat span { color: var(--text); font-weight: 600; }
 
   /* SESSION CONTROL */
   .session-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
   .sc-header { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .sc-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); }
+  .sc-title { font-family: 'Syne', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--muted); }
   .sc-body { padding: 1.25rem; }
 
   /* TIMELINE */
@@ -101,67 +101,67 @@
   .tl-dot-next { background: var(--surface2); border-color: var(--border); color: var(--muted); }
   @keyframes tlPulse { 0%,100%{box-shadow:0 0 0 0 rgba(56,139,253,0.3)} 50%{box-shadow:0 0 0 6px rgba(56,139,253,0)} }
   .tl-content { flex: 1; padding-top: 4px; }
-  .tl-name { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.15rem; }
-  .tl-sub { font-size: 0.75rem; color: var(--muted); }
-  .tl-time { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+  .tl-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.15rem; }
+  .tl-sub { font-size: 0.85rem; color: var(--muted); }
+  .tl-time { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); }
 
   /* TEAM GRID */
   .team-monitor { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
   .tm-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
-  .tm-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+  .tm-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
   .tm-indicator { width: 8px; height: 8px; border-radius: 50%; }
   .tm-online { background: var(--green-l); box-shadow: 0 0 6px var(--green-l); }
-  .tm-row { display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 0.2rem; }
+  .tm-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
   .tm-key { color: var(--muted); }
-  .tm-val { font-family: 'IBM Plex Mono', monospace; }
+  .tm-val { font-family: 'Syne', sans-serif; }
 
   /* SCRIPT */
-  .script-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-size: 0.82rem; line-height: 1.8; color: var(--text); }
-  .script-note { display: flex; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.78rem; }
+  .script-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-size: 0.95rem; line-height: 1.8; color: var(--text); }
+  .script-note { display: flex; gap: 0.5rem; padding: 0.6rem 0.85rem; border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.9rem; }
   .note-facilitador { background: rgba(210,153,34,0.1); border-left: 2px solid var(--yellow); color: var(--yellow); }
   .note-pantalla { background: rgba(56,139,253,0.1); border-left: 2px solid var(--blue); color: var(--blue); }
   .note-equipos { background: rgba(46,160,67,0.1); border-left: 2px solid var(--green-l); color: var(--green-l); }
   .note-tiempo { background: rgba(137,87,229,0.1); border-left: 2px solid var(--purple); color: var(--purple); }
-  .note-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; flex-shrink: 0; padding-top: 1px; }
+  .note-label { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.1em; flex-shrink: 0; padding-top: 1px; }
   .note-text { flex: 1; }
 
   /* TIMER CONTROL */
   .timer-control { display: flex; align-items: center; gap: 1rem; }
-  .timer-big { font-family: 'IBM Plex Mono', monospace; font-size: 2.5rem; font-weight: 600; color: var(--blue); min-width: 120px; }
+  .timer-big { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 600; color: var(--blue); min-width: 120px; }
   .timer-big.warn { color: var(--yellow); }
   .timer-big.crit { color: var(--red); }
   .timer-btns { display: flex; flex-direction: column; gap: 0.4rem; }
 
   /* QUICK ACTIONS */
   .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-  .qa-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; text-align: left; }
+  .qa-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem 1.1rem; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; text-align: left; }
   .qa-btn:hover { border-color: var(--blue); }
   .qa-title { font-weight: 500; margin-bottom: 0.15rem; }
-  .qa-sub { font-size: 0.7rem; color: var(--muted); }
+  .qa-sub { font-size: 0.8rem; color: var(--muted); }
 
   /* RIGHT SIDEBAR */
   .right-sidebar { background: var(--surface); border-left: 1px solid var(--border); padding: 1rem; overflow-y: auto; }
   .rs-section { margin-bottom: 1.5rem; }
-  .rs-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
+  .rs-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
 
   /* ALERT LOG */
   .alert-log { display: flex; flex-direction: column; gap: 0.4rem; }
-  .alert-item { padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; display: flex; gap: 0.5rem; }
-  .ai-time { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); flex-shrink: 0; }
+  .alert-item { padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.85rem; line-height: 1.4; display: flex; gap: 0.5rem; }
+  .ai-time { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); flex-shrink: 0; }
   .alert-info { background: rgba(56,139,253,0.08); border: 1px solid rgba(56,139,253,0.15); }
   .alert-warn { background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.15); }
   .alert-ok { background: rgba(46,160,67,0.08); border: 1px solid rgba(46,160,67,0.15); }
 
   /* CHEAT SHEET */
-  .cheat-item { padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem; }
+  .cheat-item { padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
   .cheat-item:last-child { border: none; }
-  .cheat-q { color: var(--muted); font-size: 0.7rem; margin-bottom: 0.2rem; }
+  .cheat-q { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.2rem; }
   .cheat-a { color: var(--green-l); font-weight: 500; }
 
   /* OPEN BUTTONS */
-  .open-btn { display: block; width: 100%; padding: 0.75rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--text); text-align: left; margin-bottom: 0.5rem; transition: all 0.2s; }
+  .open-btn { display: block; width: 100%; padding: 0.85rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text); text-align: left; margin-bottom: 0.5rem; transition: all 0.2s; }
   .open-btn:hover { border-color: var(--blue); color: var(--blue); }
-  .open-btn span { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+  .open-btn span { color: var(--muted); font-size: 0.8rem; font-weight: 400; display: block; margin-top: 0.15rem; }
 
   /* WELCOME SCREEN */
   #welcome-screen {
@@ -182,17 +182,17 @@
   @keyframes wsBreath { 0%,100%{filter:drop-shadow(0 0 12px rgba(56,139,253,0.2))} 50%{filter:drop-shadow(0 0 28px rgba(56,139,253,0.5))} }
 
   .ws-badge {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Syne', sans-serif;
     font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--blue); margin-bottom: 0.5rem;
   }
   .ws-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700;
     color: var(--text); margin-bottom: 0.4rem; text-align: center;
   }
   .ws-sub {
-    font-size: 0.85rem; color: var(--muted); text-align: center;
+    font-size: 1rem; color: var(--muted); text-align: center;
     margin-bottom: 2rem; letter-spacing: 0.03em;
   }
 
@@ -207,8 +207,8 @@
     border-radius: 10px; padding: 1.25rem;
   }
   .ws-card-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted);
     text-transform: uppercase; margin-bottom: 1rem;
   }
 
@@ -216,7 +216,7 @@
   .ws-check-list { display: flex; flex-direction: column; gap: 0.55rem; }
   .ws-check-item {
     display: flex; align-items: center; gap: 0.65rem;
-    cursor: pointer; user-select: none; font-size: 0.82rem;
+    cursor: pointer; user-select: none; font-size: 0.95rem;
     padding: 0.4rem 0.6rem; border-radius: 5px;
     transition: background 0.15s;
   }
@@ -234,23 +234,23 @@
   .ws-check-item.checked .ws-check-label { color: var(--muted); text-decoration: line-through; }
   .ws-check-label { flex: 1; }
   .ws-check-count {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem; color: var(--muted); margin-top: 0.75rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; color: var(--muted); margin-top: 0.75rem;
     text-align: right;
   }
 
   /* Session fields */
   .ws-field { margin-bottom: 0.9rem; }
   .ws-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6rem; letter-spacing: 0.1em; color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.1em; color: var(--muted);
     display: block; margin-bottom: 0.4rem; text-transform: uppercase;
   }
   .ws-input {
     width: 100%; background: var(--bg);
     border: 1px solid var(--border); border-radius: 6px;
     padding: 0.55rem 0.75rem; color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem;
+    font-family: 'Syne', sans-serif; font-size: 0.95rem;
     outline: none; transition: border-color 0.2s;
   }
   .ws-input:focus { border-color: var(--blue); }
@@ -258,7 +258,7 @@
   .ws-variant-row { display: flex; gap: 0.5rem; }
   .ws-var-btn {
     flex: 1; padding: 0.5rem 0.25rem; border-radius: 6px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 600;
+    font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 600;
     cursor: pointer; border: 1.5px solid var(--border);
     background: var(--bg); color: var(--muted); transition: all 0.2s; text-align: center;
   }
@@ -269,13 +269,13 @@
   .ws-info-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 0.45rem 0; border-bottom: 1px solid var(--border);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
   .ws-info-row:last-child { border: none; padding-bottom: 0; }
   .ws-info-key { color: var(--muted); }
   .ws-info-val {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem; color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem; color: var(--text);
   }
   .ws-info-val.green { color: var(--green-l); }
   .ws-info-val.blue { color: var(--blue); }
@@ -286,7 +286,7 @@
     width: 100%; padding: 1rem;
     background: linear-gradient(135deg, #1a3a6b, var(--blue));
     color: white; border: none; border-radius: 10px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;
+    font-family: 'Syne', sans-serif; font-size: 1rem;
     font-weight: 600; letter-spacing: 0.1em; cursor: pointer;
     transition: all 0.25s;
     box-shadow: 0 0 30px rgba(56,139,253,0.25);
@@ -294,8 +294,8 @@
   .ws-launch:hover { box-shadow: 0 0 45px rgba(56,139,253,0.5); transform: translateY(-2px); }
   .ws-launch:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .ws-launch-note {
-    text-align: center; font-size: 0.7rem; color: var(--muted);
-    margin-top: 0.6rem; font-family: 'IBM Plex Mono', monospace;
+    text-align: center; font-size: 0.85rem; color: var(--muted);
+    margin-top: 0.6rem; font-family: 'Syne', sans-serif;
   }
 
   /* Scanline overlay */
@@ -372,10 +372,9 @@
       <div class="ws-field">
         <label class="ws-label">Variante a utilizar</label>
         <div class="ws-variant-row">
-          <div class="ws-var-btn selected" id="varBtn-a" onclick="selectVar('a')">A<br><span style="font-size:0.55rem;font-weight:400;color:inherit">Cazadores</span></div>
-          <div class="ws-var-btn" id="varBtn-b" onclick="selectVar('b')">B<br><span style="font-size:0.55rem;font-weight:400;color:inherit">Escape Room</span></div>
-          <div class="ws-var-btn" id="varBtn-c" onclick="selectVar('c')">C<br><span style="font-size:0.55rem;font-weight:400;color:inherit">Crisis</span></div>
-          <div class="ws-var-btn" id="varBtn-d" onclick="selectVar('d')">D<br><span style="font-size:0.55rem;font-weight:400;color:inherit">BASA·War</span></div>
+          <div class="ws-var-btn selected" id="varBtn-a" onclick="selectVar('a')">A<br><span style="font-size:0.7rem;font-weight:400;color:inherit">Cazadores</span></div>
+          <div class="ws-var-btn" id="varBtn-b" onclick="selectVar('b')">B<br><span style="font-size:0.7rem;font-weight:400;color:inherit">Escape Room</span></div>
+          <div class="ws-var-btn" id="varBtn-c" onclick="selectVar('c')">C<br><span style="font-size:0.7rem;font-weight:400;color:inherit">Crisis</span></div>
         </div>
       </div>
     </div>
@@ -385,7 +384,7 @@
       <div class="ws-card-title">Estado del sistema</div>
       <div class="ws-info-row">
         <span class="ws-info-key">Variantes disponibles</span>
-        <span class="ws-info-val green">4 / 4 LISTAS</span>
+        <span class="ws-info-val green">3 / 3 LISTAS</span>
       </div>
       <div class="ws-info-row">
         <span class="ws-info-key">Capacidad</span>
@@ -458,7 +457,7 @@
   <div class="h-status">
     <div class="status-pill pill-green"><div class="pill-dot"></div>SESIÓN ACTIVA</div>
     <div class="status-pill pill-yellow"><div class="pill-dot"></div>6 EQUIPOS CONECTADOS</div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted)">DEMO · CIBERSEGURIDAD CORPORATIVA</div>
+    <div style="font-family:'Syne',sans-serif;font-size:0.7rem;color:var(--muted)">DEMO · CIBERSEGURIDAD CORPORATIVA</div>
   </div>
   <div class="h-controls">
     <button class="btn btn-ghost btn-sm" onclick="addLog('Pausa solicitada por facilitador', 'warn')">⏸ Pausar</button>
@@ -488,7 +487,7 @@
     <div class="nav-section">
       <div class="nav-label">SESIÓN</div>
       <div style="padding:0.75rem;background:var(--bg);border-radius:6px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;">TIEMPO RESTANTE</div>
+        <div style="font-family:'Syne',sans-serif;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;">TIEMPO RESTANTE</div>
         <div class="timer-big" id="mainTimer">60:00</div>
         <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
           <button class="btn btn-ghost btn-sm" id="timerBtn" onclick="toggleTimer()">▶ Iniciar</button>
@@ -514,10 +513,10 @@
           <div class="vc-header"><div class="vc-name">VARIANTE A</div><div class="status-pill pill-green btn-sm"><div class="pill-dot"></div>LISTO</div></div>
           <div class="vc-body">
             <div class="vc-title">Cazadores de amenazas</div>
-            <div class="vc-desc">Quiz competitivo en tiempo real. Facilitador presenta casos, equipos responden desde laptops.</div>
+            <div class="vc-desc">Juego de cartas con historia conectada: una crisis de ciberseguridad en un banco. Cada equipo usa cartas de defensa y herramientas para frenar un ataque coordinado que escala ronda a ronda.</div>
             <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
-              <div class="vc-stat">Preguntas: <span>8</span></div>
-              <div class="vc-stat">Tiempo: <span>75 min</span></div>
+              <div class="vc-stat">Rondas: <span>10</span></div>
+              <div class="vc-stat">Tiempo: <span>60 min</span></div>
               <div class="vc-stat">Dificultad: <span>Media</span></div>
             </div>
             <div class="vc-actions">
@@ -529,7 +528,7 @@
           <div class="vc-header"><div class="vc-name">VARIANTE B</div><div class="status-pill pill-green btn-sm"><div class="pill-dot"></div>LISTO</div></div>
           <div class="vc-body">
             <div class="vc-title">Escape room digital</div>
-            <div class="vc-desc">Retos encadenados. Cada equipo resuelve el incidente desde su laptop en paralelo.</div>
+            <div class="vc-desc">Retos encadenados con penalización por errores. Cada equipo investiga un incidente desde su laptop resolviendo 4 etapas contra reloj. Cada respuesta incorrecta descuenta puntos.</div>
             <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
               <div class="vc-stat">Retos: <span>4</span></div>
               <div class="vc-stat">Tiempo: <span>60 min</span></div>
@@ -764,8 +763,8 @@
   <div class="right-sidebar">
     <div class="rs-section">
       <div class="rs-title">ABRIR VARIANTE</div>
-      <button class="open-btn" onclick="openVariante('a')">Variante A — Cazadores <span>quiz en vivo</span></button>
-      <button class="open-btn" onclick="openVariante('b')">Variante B — Escape Room <span>retos encadenados</span></button>
+      <button class="open-btn" onclick="openVariante('a')">Variante A — Cazadores <span>juego de cartas · crisis bancaria</span></button>
+      <button class="open-btn" onclick="openVariante('b')">Variante B — Escape Room <span>retos encadenados · penalización</span></button>
       <button class="open-btn" onclick="openVariante('c')">Variante C — Crisis <span>decisiones estratégicas</span></button>
     </div>
 
@@ -944,7 +943,7 @@ function launchPanel() {
   document.getElementById('welcome-screen').classList.add('hidden');
   document.getElementById('main-panel').style.display = 'block';
   // Actualizar header con datos de sesión
-  const varName = { a: 'Cazadores', b: 'Escape Room', c: 'Crisis', d: 'BASA·War' }[selectedVar];
+  const varName = { a: 'Cazadores', b: 'Escape Room', c: 'Crisis' }[selectedVar];
   document.getElementById('h-brand-label').textContent = `// ${facilitador.toUpperCase()} — PANEL FACILITADOR`;
   if (org) {
     document.querySelector('.h-status').querySelector('div:last-child').textContent =
