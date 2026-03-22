@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cazadores de Amenazas — Variante A</title>
+<title>Cazadores de Amenazas — Juego de Cartas</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -16,159 +16,311 @@
     --danger: #ff4444;
     --warn: #ffb300;
     --blue: #4FC3F7;
+    --purple: #b388ff;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--dark); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--dark); color:var(--text); font-family:'Syne',sans-serif; min-height:100vh; overflow-x:hidden; }
 
-  /* SCAN LINE EFFECT */
-  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,135,0.015) 2px, rgba(0,255,135,0.015) 4px); pointer-events: none; z-index: 9999; }
+  /* SCAN LINES */
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,135,0.015) 2px,rgba(0,255,135,0.015) 4px); pointer-events:none; z-index:9999; }
 
-  header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); background: rgba(0,255,135,0.03); }
-  .logo { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--green); font-family: 'Syne Mono', monospace; }
-  .session-info { font-family: 'Syne Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+  /* HEADER */
+  header { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; border-bottom:1px solid var(--border); background:rgba(0,255,135,0.03); position:relative; z-index:10; }
+  .logo { font-size:0.7rem; letter-spacing:0.2em; color:var(--green); font-family:'Syne Mono',monospace; }
+  .session-info { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--muted); }
+  .mode-badge { font-family:'Syne Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; padding:0.2rem 0.6rem; border-radius:3px; }
+  .mode-fac { background:rgba(0,255,135,0.15); color:var(--green); border:1px solid rgba(0,255,135,0.3); }
+  .mode-team { background:rgba(79,195,247,0.15); color:var(--blue); border:1px solid rgba(79,195,247,0.3); }
+
+  /* PROGRESS */
+  .progress-strip { width:100%; height:3px; background:var(--border); position:fixed; top:52px; left:0; z-index:10; }
+  .progress-fill { height:100%; background:var(--green); transition:width 0.5s ease; }
 
   /* SCREENS */
-  .screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 2rem; }
-  .screen.active { display: flex; }
+  .screen { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 56px); padding:2rem; }
+  .screen.active { display:flex; }
 
-  /* LOBBY */
-  .lobby-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; line-height: 1; text-align: center; margin-bottom: 1rem; }
-  .lobby-title span { color: var(--green); }
-  .lobby-sub { color: var(--muted); text-align: center; font-size: 1rem; margin-bottom: 3rem; letter-spacing: 0.05em; }
-  .teams-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; width: 100%; max-width: 900px; margin-bottom: 3rem; }
-  .team-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 0.5rem; text-align: center; transition: all 0.3s; position: relative; overflow: hidden; }
-  .team-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--green); transform: scaleX(0); transition: transform 0.3s; }
-  .team-card.ready::before { transform: scaleX(1); }
-  .team-card.ready { border-color: var(--green); }
-  .team-name { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.5rem; }
-  .team-status { font-size: 1.5rem; }
-  .team-label { font-size: 0.7rem; font-weight: 700; color: var(--text); margin-top: 0.25rem; }
-  .btn { background: var(--green); color: var(--dark); border: none; padding: 1rem 3rem; font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; border-radius: 4px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,135,0.3); }
-  .btn:active { transform: translateY(0); }
-  .btn-ghost { background: transparent; color: var(--green); border: 1px solid var(--green); }
-  .btn-ghost:hover { background: rgba(0,255,135,0.1); box-shadow: none; }
+  /* ── LOBBY ── */
+  .lobby-title { font-size:clamp(2.5rem,6vw,5rem); font-weight:800; line-height:1; text-align:center; margin-bottom:0.5rem; }
+  .lobby-title span { color:var(--green); }
+  .lobby-sub { color:var(--muted); text-align:center; font-size:1rem; margin-bottom:0.5rem; letter-spacing:0.05em; }
+  .lobby-desc { color:var(--muted); text-align:center; font-size:0.8rem; margin-bottom:2.5rem; max-width:600px; line-height:1.6; }
+  .teams-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:0.75rem; width:100%; max-width:900px; margin-bottom:2.5rem; }
+  .team-card-lobby { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem 0.5rem; text-align:center; transition:all 0.3s; position:relative; overflow:hidden; }
+  .team-card-lobby::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--green); transform:scaleX(0); transition:transform 0.3s; }
+  .team-card-lobby.ready::before { transform:scaleX(1); }
+  .team-card-lobby.ready { border-color:var(--green); }
+  .tc-name { font-size:0.6rem; letter-spacing:0.15em; color:var(--muted); margin-bottom:0.4rem; }
+  .tc-emoji { font-size:1.5rem; }
+  .tc-label { font-size:0.7rem; font-weight:700; color:var(--text); margin-top:0.2rem; }
 
-  /* QUESTION SCREEN */
-  .q-header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-  .q-counter { font-family: 'Syne Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; }
-  .q-score-strip { display: flex; gap: 1rem; }
-  .qs-team { font-family: 'Syne Mono', monospace; font-size: 0.7rem; color: var(--muted); }
-  .qs-team span { color: var(--green); font-weight: 700; }
+  /* ── BUTTONS ── */
+  .btn { background:var(--green); color:var(--dark); border:none; padding:0.85rem 2.5rem; font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; letter-spacing:0.1em; border-radius:4px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,255,135,0.3); }
+  .btn:active { transform:translateY(0); }
+  .btn:disabled { opacity:0.3; cursor:default; transform:none; box-shadow:none; }
+  .btn-ghost { background:transparent; color:var(--green); border:1px solid var(--green); }
+  .btn-ghost:hover { background:rgba(0,255,135,0.1); box-shadow:none; }
+  .btn-danger { background:var(--danger); color:white; }
+  .btn-warn { background:var(--warn); color:var(--dark); }
+  .btn-blue { background:var(--blue); color:var(--dark); }
+  .btn-sm { padding:0.5rem 1.2rem; font-size:0.75rem; }
 
-  .timer-ring { position: relative; width: 80px; height: 80px; margin: 0 auto 2rem; }
-  .timer-ring svg { transform: rotate(-90deg); }
-  .timer-ring circle { fill: none; stroke: var(--border); stroke-width: 4; }
-  .timer-ring .progress { stroke: var(--green); stroke-width: 4; stroke-dasharray: 220; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear, stroke 0.3s; stroke-linecap: round; }
-  .timer-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--green); }
+  /* ── ROUND SCREEN ── */
+  .round-layout { width:100%; max-width:1200px; display:flex; flex-direction:column; gap:1.5rem; align-items:center; }
+  .round-header { width:100%; display:flex; justify-content:space-between; align-items:center; }
+  .round-counter { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--muted); letter-spacing:0.1em; }
+  .round-score-strip { display:flex; gap:0.75rem; flex-wrap:wrap; }
+  .rs-team { font-family:'Syne Mono',monospace; font-size:0.65rem; color:var(--muted); }
+  .rs-team span { color:var(--green); font-weight:700; }
 
-  .threat-badge { display: inline-block; background: rgba(255,68,68,0.15); border: 1px solid var(--danger); color: var(--danger); font-family: 'Syne Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; padding: 0.3rem 0.8rem; border-radius: 2px; margin-bottom: 1rem; }
-  .question-text { font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 700; text-align: center; max-width: 800px; line-height: 1.4; margin-bottom: 0.5rem; }
-  .question-context { font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 2.5rem; font-family: 'Syne Mono', monospace; }
+  /* ── ATTACK CARD ── */
+  .attack-card-zone { perspective:1000px; width:100%; max-width:560px; margin:0 auto; }
+  .attack-card-inner { position:relative; width:100%; transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); transform-style:preserve-3d; }
+  .attack-card-inner.flipped { transform:rotateY(180deg); }
+  .attack-face { backface-visibility:hidden; border-radius:14px; overflow:hidden; }
+  .attack-back { position:absolute; inset:0; background:var(--card); border:2px solid var(--green); border-radius:14px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
+  .attack-back-icon { font-size:4rem; opacity:0.3; }
+  .attack-back-label { font-family:'Syne Mono',monospace; font-size:0.8rem; color:var(--green); letter-spacing:0.2em; opacity:0.5; }
+  .attack-front { transform:rotateY(180deg); background:var(--card); border:2px solid var(--danger); }
+  .af-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .af-type { font-family:'Syne Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; color:var(--danger); }
+  .af-diff { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--warn); }
+  .af-body { padding:1.5rem; text-align:center; }
+  .af-emoji { font-size:3.5rem; margin-bottom:0.75rem; }
+  .af-name { font-size:1.6rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; }
+  .af-desc { font-size:0.9rem; color:var(--muted); line-height:1.6; margin-bottom:0.75rem; }
+  .af-context { font-family:'Syne Mono',monospace; font-size:0.72rem; color:var(--muted); padding:0.5rem 1rem; background:rgba(0,255,135,0.03); border:1px dashed var(--border); border-radius:6px; }
+  .af-footer { padding:0.75rem 1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .af-pts { font-family:'Syne Mono',monospace; font-size:1rem; font-weight:700; color:var(--green); }
 
-  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; max-width: 800px; }
-  .option-btn { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem 1.5rem; text-align: left; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 0.95rem; color: var(--text); transition: all 0.2s; display: flex; align-items: center; gap: 1rem; }
-  .option-btn:hover { border-color: var(--green); background: rgba(0,255,135,0.05); }
-  .option-btn.correct { background: rgba(0,255,135,0.15); border-color: var(--green); color: var(--green); }
-  .option-btn.wrong { background: rgba(255,68,68,0.1); border-color: var(--danger); color: var(--danger); }
-  .option-btn.disabled { cursor: default; pointer-events: none; }
-  .opt-letter { font-family: 'Syne Mono', monospace; font-size: 0.7rem; font-weight: 700; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .option-btn.correct .opt-letter { border-color: var(--green); color: var(--green); }
-  .option-btn.wrong .opt-letter { border-color: var(--danger); color: var(--danger); }
+  /* ── TIMER ── */
+  .timer-ring { position:relative; width:72px; height:72px; }
+  .timer-ring svg { transform:rotate(-90deg); }
+  .timer-ring circle { fill:none; stroke:var(--border); stroke-width:4; }
+  .timer-ring .progress { stroke:var(--green); stroke-width:4; stroke-dasharray:188; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear,stroke 0.3s; stroke-linecap:round; }
+  .timer-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne Mono',monospace; font-size:1.2rem; font-weight:700; color:var(--green); }
 
-  /* REVEAL */
-  .reveal-box { background: var(--card); border: 1px solid var(--green); border-radius: 12px; padding: 2rem; max-width: 700px; width: 100%; text-align: center; }
-  .reveal-icon { font-size: 3rem; margin-bottom: 1rem; }
-  .reveal-title { font-size: 1.5rem; font-weight: 800; color: var(--green); margin-bottom: 0.75rem; }
-  .reveal-text { color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; font-size: 0.95rem; }
-  .points-pop { font-family: 'Syne Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--green); margin-bottom: 1.5rem; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  @keyframes pop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  /* ── TEAM PANELS (facilitator round view) ── */
+  .teams-bar { display:grid; grid-template-columns:repeat(6,1fr); gap:0.6rem; width:100%; }
+  .team-panel { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:0.6rem; text-align:center; cursor:pointer; transition:all 0.2s; position:relative; }
+  .team-panel:hover { border-color:var(--green); background:rgba(0,255,135,0.03); }
+  .team-panel.selected { border-color:var(--green); background:rgba(0,255,135,0.08); }
+  .team-panel.locked { cursor:default; }
+  .team-panel.locked:hover { border-color:var(--green); }
+  .tp-emoji { font-size:1.2rem; }
+  .tp-name { font-family:'Syne Mono',monospace; font-size:0.55rem; color:var(--muted); letter-spacing:0.1em; margin:0.2rem 0; }
+  .tp-score { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--green); font-weight:700; }
+  .tp-status { font-size:0.6rem; color:var(--muted); margin-top:0.25rem; font-family:'Syne Mono',monospace; }
+  .tp-status.ready { color:var(--green); }
+  .tp-tools { display:flex; gap:0.2rem; justify-content:center; margin-top:0.3rem; flex-wrap:wrap; }
+  .tp-tool-icon { font-size:0.65rem; background:rgba(79,195,247,0.15); border:1px solid rgba(79,195,247,0.3); border-radius:3px; padding:0.1rem 0.25rem; }
+  .tp-played-card { font-size:0.55rem; color:var(--green); font-family:'Syne Mono',monospace; margin-top:0.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  /* SCOREBOARD */
-  .score-title { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; }
-  .score-title span { color: var(--green); }
-  .score-sub { color: var(--muted); text-align: center; font-family: 'Syne Mono', monospace; font-size: 0.75rem; letter-spacing: 0.15em; margin-bottom: 3rem; }
-  .score-list { width: 100%; max-width: 650px; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2.5rem; }
-  .score-row { display: flex; align-items: center; gap: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; transition: all 0.3s; }
-  .score-row:first-child { border-color: var(--green); background: rgba(0,255,135,0.05); }
-  .score-pos { font-family: 'Syne Mono', monospace; font-size: 0.75rem; color: var(--muted); width: 20px; }
-  .score-row:first-child .score-pos { color: var(--green); }
-  .score-name { flex: 1; font-weight: 700; font-size: 1rem; }
-  .score-bar-wrap { flex: 2; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .score-bar { height: 100%; background: var(--green); border-radius: 3px; transition: width 1s ease; }
-  .score-pts { font-family: 'Syne Mono', monospace; font-size: 0.85rem; color: var(--green); font-weight: 700; min-width: 70px; text-align: right; }
+  /* ── FACILITATOR CONTROLS ── */
+  .fac-controls { display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; justify-content:center; }
 
-  /* GLITCH ANIM */
-  @keyframes glitch { 0%,100% { clip-path: inset(0 0 98% 0); } 25% { clip-path: inset(30% 0 50% 0); } 75% { clip-path: inset(70% 0 10% 0); } }
-  .glitch { position: relative; }
-  .glitch::before { content: attr(data-text); position: absolute; inset: 0; color: var(--green); opacity: 0.5; animation: glitch 3s infinite; clip-path: inset(0 0 98% 0); }
+  /* ── MODAL ── */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:100; align-items:center; justify-content:center; padding:1rem; }
+  .modal-overlay.active { display:flex; }
+  .modal-box { background:var(--card); border:1px solid var(--border); border-radius:12px; max-width:700px; width:100%; max-height:90vh; overflow-y:auto; }
+  .modal-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .modal-title { font-size:1rem; font-weight:700; }
+  .modal-close { background:none; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; }
+  .modal-close:hover { color:var(--text); }
+  .modal-body { padding:1.5rem; }
 
-  /* PROGRESS BAR */
-  .progress-strip { width: 100%; height: 3px; background: var(--border); position: fixed; top: 60px; left: 0; }
-  .progress-fill { height: 100%; background: var(--green); transition: width 0.5s ease; }
+  /* ── HAND OF CARDS ── */
+  .hand-section-title { font-family:'Syne Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; color:var(--muted); margin-bottom:0.75rem; }
+  .hand-grid { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+  .hand-card { background:var(--dark); border:2px solid var(--green); border-radius:8px; padding:0.75rem; width:140px; cursor:pointer; transition:all 0.2s; text-align:center; position:relative; }
+  .hand-card:hover { transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,255,135,0.2); border-color:#66ffaa; }
+  .hand-card.tool-card { border-color:var(--blue); }
+  .hand-card.tool-card:hover { box-shadow:0 6px 20px rgba(79,195,247,0.2); border-color:#90d5f7; }
+  .hand-card.used { opacity:0.25; cursor:default; pointer-events:none; border-style:dashed; }
+  .hand-card.used::after { content:'USADA'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Syne Mono',monospace; font-size:0.6rem; letter-spacing:0.2em; color:var(--muted); background:rgba(10,14,10,0.7); border-radius:6px; }
+  .hc-emoji { font-size:1.8rem; margin-bottom:0.4rem; }
+  .hc-name { font-size:0.72rem; font-weight:700; color:var(--text); line-height:1.3; }
+  .hc-desc { font-size:0.6rem; color:var(--muted); margin-top:0.3rem; line-height:1.4; }
+  .pass-btn { width:100%; padding:0.75rem; background:rgba(255,68,68,0.1); border:1px dashed var(--danger); border-radius:8px; color:var(--danger); font-family:'Syne Mono',monospace; font-size:0.75rem; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; }
+  .pass-btn:hover { background:rgba(255,68,68,0.2); }
 
-  /* FADE IN */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-up { animation: fadeUp 0.4s ease forwards; }
+  /* ── EVENT CARD ── */
+  .event-card { background:var(--dark); border:2px solid var(--warn); border-radius:10px; padding:1rem; cursor:pointer; transition:all 0.2s; text-align:center; width:200px; }
+  .event-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(255,179,0,0.2); }
+  .event-card.used { opacity:0.2; pointer-events:none; border-style:dashed; }
+  .ec-emoji { font-size:2rem; margin-bottom:0.3rem; }
+  .ec-name { font-size:0.8rem; font-weight:700; color:var(--warn); margin-bottom:0.2rem; }
+  .ec-desc { font-size:0.65rem; color:var(--muted); line-height:1.4; }
 
-  /* TEAM ANSWER STATUS */
-  .answer-status { display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center; }
-  .ans-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
-  .ans-dot.answered { background: var(--green); }
+  /* ── REVEAL SCREEN ── */
+  .reveal-layout { width:100%; max-width:1000px; }
+  .reveal-attack-mini { background:var(--card); border:1px solid var(--danger); border-radius:8px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; }
+  .ram-emoji { font-size:1.5rem; }
+  .ram-name { font-weight:700; font-size:0.95rem; }
+  .ram-correct { font-family:'Syne Mono',monospace; font-size:0.65rem; color:var(--green); }
+  .results-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:1.25rem; }
+  .result-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:0.75rem; text-align:center; transition:all 0.3s; }
+  .result-card.rc-correct { border-color:var(--green); background:rgba(0,255,135,0.05); }
+  .result-card.rc-wrong { border-color:var(--danger); background:rgba(255,68,68,0.03); }
+  .result-card.rc-tool { border-color:var(--blue); background:rgba(79,195,247,0.03); }
+  .result-card.rc-pass { border-color:var(--muted); }
+  .rc-team-name { font-size:0.75rem; font-weight:700; margin-bottom:0.3rem; }
+  .rc-played { font-size:1.5rem; margin-bottom:0.2rem; }
+  .rc-played-name { font-size:0.65rem; color:var(--muted); font-family:'Syne Mono',monospace; margin-bottom:0.3rem; }
+  .rc-points { font-family:'Syne Mono',monospace; font-size:0.9rem; font-weight:700; }
+  .rc-breakdown { font-family:'Syne Mono',monospace; font-size:0.55rem; color:var(--muted); line-height:1.6; margin-top:0.2rem; }
+  .explanation-box { background:var(--card); border:1px solid var(--green); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem; }
+  .eb-title { font-size:1rem; font-weight:700; color:var(--green); margin-bottom:0.5rem; }
+  .eb-text { font-size:0.85rem; color:var(--muted); line-height:1.7; }
+  .mini-ranking { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.5rem; }
+  .mr-row { display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.75rem; background:var(--card); border:1px solid var(--border); border-radius:6px; font-size:0.8rem; }
+  .mr-row:first-child { border-color:var(--green); background:rgba(0,255,135,0.04); }
+  .mr-pos { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--muted); width:20px; }
+  .mr-row:first-child .mr-pos { color:var(--green); }
+  .mr-name { flex:1; font-weight:600; }
+  .mr-bar-wrap { flex:2; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .mr-bar { height:100%; background:var(--green); border-radius:3px; transition:width 0.8s ease; }
+  .mr-pts { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--green); font-weight:700; min-width:60px; text-align:right; }
+
+  /* ── FINAL SCOREBOARD ── */
+  .score-title { font-size:2.5rem; font-weight:800; text-align:center; margin-bottom:0.5rem; }
+  .score-title span { color:var(--green); }
+  .score-sub { color:var(--muted); text-align:center; font-family:'Syne Mono',monospace; font-size:0.75rem; letter-spacing:0.15em; margin-bottom:2.5rem; }
+  .score-list { width:100%; max-width:650px; display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2.5rem; }
+  .score-row { display:flex; align-items:center; gap:1.5rem; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem 1.5rem; transition:all 0.3s; }
+  .score-row:first-child { border-color:var(--green); background:rgba(0,255,135,0.05); }
+  .score-pos { font-family:'Syne Mono',monospace; font-size:0.75rem; color:var(--muted); width:20px; }
+  .score-row:first-child .score-pos { color:var(--green); }
+  .score-name { flex:1; font-weight:700; font-size:1rem; }
+  .score-bar-wrap { flex:2; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .score-bar { height:100%; background:var(--green); border-radius:3px; transition:width 1s ease; }
+  .score-pts { font-family:'Syne Mono',monospace; font-size:0.85rem; color:var(--green); font-weight:700; min-width:70px; text-align:right; }
+
+  /* ── TEAM MODE ── */
+  .team-select-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:500px; margin-bottom:2rem; }
+  .ts-card { background:var(--card); border:2px solid var(--border); border-radius:10px; padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .ts-card:hover { border-color:var(--green); transform:translateY(-3px); }
+  .ts-emoji { font-size:2rem; margin-bottom:0.3rem; }
+  .ts-name { font-weight:700; font-size:0.9rem; }
+
+  .team-play-layout { width:100%; max-width:900px; }
+  .team-attack-mini { background:var(--card); border:1px solid var(--danger); border-radius:10px; padding:1rem 1.5rem; margin-bottom:1.5rem; }
+  .tam-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; }
+  .tam-round { font-family:'Syne Mono',monospace; font-size:0.65rem; color:var(--muted); letter-spacing:0.1em; }
+  .tam-type { font-family:'Syne Mono',monospace; font-size:0.6rem; color:var(--danger); letter-spacing:0.15em; }
+  .tam-body { display:flex; align-items:center; gap:1rem; }
+  .tam-emoji { font-size:2.5rem; flex-shrink:0; }
+  .tam-info { flex:1; }
+  .tam-name { font-size:1.2rem; font-weight:800; margin-bottom:0.3rem; }
+  .tam-desc { font-size:0.8rem; color:var(--muted); line-height:1.5; }
+
+  .team-hand-area { margin-bottom:1.5rem; }
+  .team-tools-area { background:var(--card); border:1px solid rgba(79,195,247,0.2); border-radius:10px; padding:1rem; margin-bottom:1.5rem; }
+  .tta-title { font-family:'Syne Mono',monospace; font-size:0.6rem; color:var(--blue); letter-spacing:0.15em; margin-bottom:0.5rem; }
+  .active-tools-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .at-chip { font-size:0.7rem; background:rgba(79,195,247,0.1); border:1px solid rgba(79,195,247,0.25); color:var(--blue); padding:0.3rem 0.6rem; border-radius:4px; font-family:'Syne Mono',monospace; }
+  .at-chip.empty { color:var(--muted); border-color:var(--border); background:none; }
+
+  .team-wait-msg { text-align:center; }
+  .twm-icon { font-size:3rem; margin-bottom:1rem; }
+  .twm-title { font-size:1.3rem; font-weight:700; color:var(--green); margin-bottom:0.5rem; }
+  .twm-card { font-size:0.9rem; color:var(--muted); margin-bottom:0.3rem; }
+  .twm-sub { font-size:0.75rem; color:var(--muted); }
+
+  /* ── GLITCH ── */
+  @keyframes glitch { 0%,100%{clip-path:inset(0 0 98% 0)} 25%{clip-path:inset(30% 0 50% 0)} 75%{clip-path:inset(70% 0 10% 0)} }
+  .glitch { position:relative; }
+  .glitch::before { content:attr(data-text); position:absolute; inset:0; color:var(--green); opacity:0.5; animation:glitch 3s infinite; clip-path:inset(0 0 98% 0); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp 0.4s ease forwards; }
+  @keyframes pop { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
+  .pop { animation:pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+  @keyframes slideIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+  .slide-in { animation:slideIn 0.3s ease forwards; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse { animation:pulse 1.5s infinite; }
+
+  /* ── EVENT BANNER ── */
+  .event-banner { background:rgba(255,179,0,0.1); border:1px solid var(--warn); border-radius:8px; padding:0.75rem 1rem; text-align:center; width:100%; margin-bottom:0.75rem; }
+  .event-banner-text { font-size:0.8rem; color:var(--warn); }
+  .event-banner-name { font-weight:700; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:768px) {
+    .teams-bar { grid-template-columns:repeat(3,1fr); }
+    .results-grid { grid-template-columns:repeat(2,1fr); }
+    .teams-grid { grid-template-columns:repeat(3,1fr); }
+    .round-header { flex-direction:column; gap:0.5rem; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">// CAZADORES DE AMENAZAS — VARIANTE A</div>
-  <div class="session-info" id="sessionInfo">SESIÓN DEMO · 6 EQUIPOS · 30 PARTICIPANTES</div>
+  <div class="logo">// CAZADORES DE AMENAZAS — JUEGO DE CARTAS</div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div class="mode-badge mode-fac" id="modeBadge">FACILITADOR</div>
+    <div class="session-info" id="sessionInfo">6 EQUIPOS · 8 RONDAS</div>
+  </div>
 </header>
-
 <div class="progress-strip"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 
-<!-- LOBBY -->
+<!-- ═══ LOBBY ═══ -->
 <div class="screen active" id="screenLobby">
   <div class="lobby-title glitch" data-text="CAZADORES DE">CAZADORES DE<br><span>AMENAZAS</span></div>
-  <div class="lobby-sub">SIMULACRO DE CIBERSEGURIDAD EN TIEMPO REAL · 1 FACILITADOR · 6 EQUIPOS</div>
+  <div class="lobby-sub">JUEGO DE CARTAS DE CIBERSEGURIDAD · 1 FACILITADOR · 6 EQUIPOS</div>
+  <div class="lobby-desc">Cada equipo recibe una mano de cartas de defensa y herramientas. En cada ronda se revela una amenaza y deben elegir la mejor carta para contrarrestarla. Las herramientas se acumulan entre rondas dando ventaja compuesta.</div>
   <div class="teams-grid" id="teamsGrid"></div>
-  <button class="btn" onclick="startGame()">INICIAR SIMULACRO</button>
+  <div style="display:flex;gap:1rem;">
+    <button class="btn" onclick="startGame()">INICIAR PARTIDA</button>
+  </div>
 </div>
 
-<!-- QUESTION -->
-<div class="screen" id="screenQuestion">
-  <div class="q-header">
-    <div class="q-counter" id="qCounter">AMENAZA 1 DE 8</div>
-    <div class="q-score-strip" id="scoreStrip"></div>
+<!-- ═══ ROUND (Facilitator) ═══ -->
+<div class="screen" id="screenRound">
+  <div class="round-layout">
+    <div class="round-header">
+      <div class="round-counter" id="roundCounter">RONDA 1 DE 8</div>
+      <div class="round-score-strip" id="roundScoreStrip"></div>
+    </div>
+
+    <div id="eventBannerArea"></div>
+
+    <div style="display:flex;align-items:center;gap:2rem;width:100%;justify-content:center;">
+      <div class="attack-card-zone" id="attackCardZone"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+        <div class="timer-ring">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="30"/>
+            <circle class="progress" cx="36" cy="36" r="30" id="timerCircle"/>
+          </svg>
+          <div class="timer-num" id="timerNum">45</div>
+        </div>
+        <div style="font-family:'Syne Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;" id="teamReadyCount">0/6 LISTOS</div>
+      </div>
+    </div>
+
+    <div class="teams-bar" id="teamsBar"></div>
+
+    <div class="fac-controls" id="facControls">
+      <button class="btn" id="btnReveal" onclick="revealRound()" disabled>REVELAR RESULTADOS</button>
+      <button class="btn-ghost btn btn-sm" id="btnEvent" onclick="showEventModal()">JUGAR EVENTO</button>
+    </div>
   </div>
-  <div class="timer-ring">
-    <svg width="80" height="80" viewBox="0 0 80 80">
-      <circle cx="40" cy="40" r="35"/>
-      <circle class="progress" cx="40" cy="40" r="35" id="timerCircle"/>
-    </svg>
-    <div class="timer-num" id="timerNum">60</div>
-  </div>
-  <div class="threat-badge" id="threatBadge">AMENAZA DETECTADA</div>
-  <div class="question-text fade-up" id="questionText"></div>
-  <div class="question-context" id="questionContext"></div>
-  <div class="options-grid" id="optionsGrid"></div>
-  <div class="answer-status" id="answerStatus"></div>
 </div>
 
-<!-- REVEAL -->
+<!-- ═══ REVEAL ═══ -->
 <div class="screen" id="screenReveal">
-  <div class="reveal-box fade-up">
-    <div class="reveal-icon" id="revealIcon"></div>
-    <div class="reveal-title" id="revealTitle"></div>
-    <div class="reveal-text" id="revealText"></div>
-    <div class="points-pop" id="revealPoints"></div>
-    <button class="btn" onclick="nextQuestion()">SIGUIENTE AMENAZA →</button>
-  </div>
+  <div class="reveal-layout fade-up" id="revealContent"></div>
 </div>
 
-<!-- SCOREBOARD FINAL -->
-<div class="screen" id="screenScore">
+<!-- ═══ FINAL SCOREBOARD ═══ -->
+<div class="screen" id="screenFinal">
   <div class="score-title">RESULTADO<br><span>FINAL</span></div>
-  <div class="score-sub">SIMULACRO COMPLETADO · RANKING DE EQUIPOS</div>
+  <div class="score-sub">PARTIDA COMPLETADA · RANKING DE EQUIPOS</div>
   <div class="score-list" id="scoreList"></div>
   <div style="display:flex;gap:1rem;">
     <button class="btn btn-ghost" onclick="resetGame()">NUEVA SESIÓN</button>
@@ -176,339 +328,1051 @@
   </div>
 </div>
 
+<!-- ═══ TEAM MODE: SELECT ═══ -->
+<div class="screen" id="screenTeamSelect">
+  <div style="font-size:1.5rem;font-weight:800;margin-bottom:0.5rem;">Seleccioná tu equipo</div>
+  <div style="font-size:0.8rem;color:var(--muted);margin-bottom:2rem;">Elegí cuál equipo sos para ver tus cartas</div>
+  <div class="team-select-grid" id="teamSelectGrid"></div>
+</div>
+
+<!-- ═══ TEAM MODE: PLAY ═══ -->
+<div class="screen" id="screenTeamPlay">
+  <div class="team-play-layout" id="teamPlayContent"></div>
+</div>
+
+<!-- ═══ TEAM MODE: WAIT ═══ -->
+<div class="screen" id="screenTeamWait">
+  <div class="team-wait-msg" id="teamWaitContent"></div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Modal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
-// FLUJO GENERAL — cómo se conectan las funciones
+// JUEGO DE CARTAS — CAZADORES DE AMENAZAS
 //
-// Al cargar la página: initTeams() dibuja el lobby automáticamente.
+// FLUJO GENERAL:
 //
-// Facilitador pulsa "Iniciar":
-//   startGame() → showQuestion()
-//     ├─ showQuestion() arranca el timer y llama a simulateTeamAnswers()
-//     ├─ Usuario hace clic: selectAnswer() → revealAnswer()
-//     └─ Timer llega a 0: revealAnswer(-1)  (sin respuesta elegida)
+// init()
+//   ├─ Detecta modo: facilitador (default) o equipo (?equipo=N)
+//   ├─ Inicializa estado de equipos con sus manos de cartas
+//   └─ Muestra lobby (facilitador) o selección de equipo (team mode)
 //
-// Facilitador pulsa "Siguiente amenaza →":
-//   nextQuestion()
-//     ├─ Si quedan preguntas → showQuestion()  [vuelve al loop]
-//     └─ Si terminaron todas → showFinalScore()
+// MODO FACILITADOR:
+// startGame() → startRound()
+//   ├─ Renderiza carta de ataque con animación de volteo
+//   ├─ Arranca timer de 45 segundos
+//   ├─ Muestra paneles de equipos (clic → modal de selección de carta)
+//   └─ Facilitador selecciona carta de cada equipo
+//       selectCardForTeam(teamIdx, cardId, cardType)
+//       → Cuando todos eligieron: botón "Revelar" se habilita
 //
-// showScreen(id) es una utilidad que usan casi todas las funciones
-// para cambiar de pantalla (lobby / pregunta / reveal / score).
+// revealRound()
+//   ├─ Calcula puntos: defensa correcta + bonus herramientas + velocidad
+//   ├─ Muestra resultados por equipo + explicación educativa
+//   └─ Botón "Siguiente Ronda" → nextRound()
+//       → Si ronda < 8: startRound()
+//       → Si ronda = 8: showFinalScore()
+//
+// MODO EQUIPO:
+// El equipo ve su mano, selecciona cartas, y avanza rondas manualmente
+// sincronizándose con lo que el facilitador proyecta.
 // ═══════════════════════════════════════════════════════════════
 
-// DATOS — el juego vive en estos dos arrays.
-// TEAMS: 6 equipos con nombre, emoji y puntaje (empieza en 0).
-// QUESTIONS: 8 preguntas con opciones, índice correcto y puntos.
-const TEAMS = [
-  { name: 'Equipo 1', emoji: '🛡️', score: 0 },
-  { name: 'Equipo 2', emoji: '🔍', score: 0 },
-  { name: 'Equipo 3', emoji: '⚡', score: 0 },
-  { name: 'Equipo 4', emoji: '🔒', score: 0 },
-  { name: 'Equipo 5', emoji: '🌐', score: 0 },
-  { name: 'Equipo 6', emoji: '🎯', score: 0 },
-];
-
-const QUESTIONS = [
+// ─── DATOS: CARTAS DE ATAQUE ──────────────────────────────────
+// Las 8 amenazas originales convertidas en cartas con metadatos
+// de juego. Cada carta define qué defensas la contrarrestan y
+// qué herramientas dan bonus automático.
+const ATTACK_CARDS = [
   {
-    type: 'PHISHING',
-    text: 'Tu empresa recibe un email del "CEO" pidiendo transferir $50,000 urgente porque está en viaje. El email viene de ceo@empresa-corp.net. ¿Qué hacés?',
-    context: 'Email recibido a las 11:47pm · Asunto: URGENTE - Necesito tu ayuda',
-    options: ['Transferís porque es el CEO', 'Verificás llamando directamente al CEO', 'Respondés el email pidiendo confirmación', 'Ignorás el email sin reportarlo'],
-    correct: 1,
-    explanation: 'El dominio "empresa-corp.net" no es el dominio oficial. Siempre verificar por canal alternativo (llamada directa) antes de cualquier transferencia. Esto se llama BEC (Business Email Compromise).',
-    points: 1000
+    id: 'bec-ceo', name: 'CEO Impostor', type: 'BEC', emoji: '👔',
+    difficulty: 3, points: 1000,
+    context: 'Email recibido a las 11:47pm · Asunto: URGENTE',
+    description: 'Tu empresa recibe un email del "CEO" pidiendo transferir $50,000 urgente. El email viene de ceo@empresa-corp.net.',
+    explanation: 'El dominio "empresa-corp.net" no es el oficial. Siempre verificar por canal alternativo (llamada directa) antes de cualquier transferencia. Esto se llama BEC (Business Email Compromise).',
+    validDefense: ['verificar-canal'],
+    relevantTools: ['mfa', 'capacitacion'],
   },
   {
-    type: 'CONTRASEÑAS',
-    text: 'Un compañero te pide tu contraseña del sistema porque "olvidó la suya y necesita el archivo urgente". ¿Cuál es la respuesta correcta?',
-    context: 'Situación en oficina · Compañero de confianza hace el pedido',
-    options: ['Se la das porque confías en él', 'Le decís que llame a IT para resetear su contraseña', 'Le das acceso temporal con tu cuenta', 'Le enviás la contraseña por WhatsApp'],
-    correct: 1,
+    id: 'password', name: 'El Compañero Urgente', type: 'CONTRASEÑAS', emoji: '🔑',
+    difficulty: 2, points: 800,
+    context: 'Situación en oficina · Compañero de confianza',
+    description: 'Un compañero te pide tu contraseña del sistema porque "olvidó la suya y necesita el archivo urgente".',
     explanation: 'Nunca compartir contraseñas, ni con personas de confianza. Las credenciales son personales e intransferibles. IT puede resetear su acceso en minutos.',
-    points: 800
+    validDefense: ['reportar-it'],
+    relevantTools: ['password-fuerte', 'mfa'],
   },
   {
-    type: 'USB MALICIOSO',
-    text: 'Encontrás un pendrive en el estacionamiento de la empresa con la etiqueta "Sueldos 2024". ¿Qué hacés?',
+    id: 'usb', name: 'Pendrive Misterioso', type: 'USB MALICIOSO', emoji: '💾',
+    difficulty: 2, points: 900,
     context: 'Lunes por la mañana · Pendrive cerca de la entrada',
-    options: ['Lo conectás para ver qué tiene', 'Lo entregás a seguridad/IT sin conectarlo', 'Lo tirás a la basura', 'Lo llevás a tu casa para revisar'],
-    correct: 1,
-    explanation: 'Los pendrives abandonados son un ataque clásico de ingeniería social. Pueden contener malware que se ejecuta automáticamente al conectarse. Siempre entregarlo a IT.',
-    points: 900
+    description: 'Encontrás un pendrive en el estacionamiento de la empresa con la etiqueta "Sueldos 2024".',
+    explanation: 'Los pendrives abandonados son un ataque clásico de ingeniería social. Pueden contener malware que se ejecuta automáticamente. Siempre entregarlo a IT.',
+    validDefense: ['no-conectar'],
+    relevantTools: ['antivirus', 'capacitacion'],
   },
   {
-    type: 'SECUESTRO DE DATOS',
-    text: 'Tu computadora muestra un mensaje inesperado: "Tus archivos están bloqueados. Tenés 48 horas para pagar o los perdés para siempre". No podés abrir ningún documento.',
-    context: 'Son las 9:00am · Tenés reunión importante en 2 horas',
-    options: ['Pagás para recuperar los archivos lo antes posible', 'Desconectás el equipo de la red y avisás a IT de inmediato', 'Apagás y encendés la computadora a ver si se soluciona', 'Buscás en Google cómo solucionarlo vos mismo'],
-    correct: 1,
-    explanation: 'Lo primero es desconectar el equipo de la red para que el problema no se extienda a otros. Nunca pagar — no garantiza recuperar los archivos y financia a los delincuentes. IT tiene protocolos para estos casos y puede recuperar datos desde copias de seguridad.',
-    points: 1000
+    id: 'ransomware', name: 'Secuestro Digital', type: 'RANSOMWARE', emoji: '🔒',
+    difficulty: 4, points: 1000,
+    context: 'Son las 9:00am · Reunión importante en 2 horas',
+    description: 'Tu computadora muestra: "Tus archivos están bloqueados. Tenés 48 horas para pagar o los perdés para siempre".',
+    explanation: 'Desconectar de la red evita que el ransomware se propague. Nunca pagar — no garantiza recuperar archivos y financia delincuentes. IT tiene protocolos de recuperación.',
+    validDefense: ['desconectar-red', 'actualizar-config'],
+    relevantTools: ['backup', 'antivirus'],
   },
   {
-    type: 'INGENIERÍA SOCIAL',
-    text: 'Alguien llama diciendo ser de "soporte técnico de Microsoft" y pide acceso remoto a tu computadora para "solucionar un problema detectado". ¿Qué hacés?',
+    id: 'soporte-falso', name: 'Soporte Técnico Falso', type: 'INGENIERÍA SOCIAL', emoji: '📞',
+    difficulty: 2, points: 800,
     context: 'Llamada entrante · Número desconocido',
-    options: ['Dás acceso porque Microsoft detectó algo', 'Cortás y reportás a IT', 'Pedís que te llamen al día siguiente', 'Les preguntás cómo encontraron tu número'],
-    correct: 1,
-    explanation: 'Microsoft nunca llama proactivamente a usuarios. Es una estafa de "soporte técnico falso" muy común. Colgar y reportar inmediatamente a IT.',
-    points: 800
+    description: 'Alguien llama diciendo ser de "soporte técnico de Microsoft" y pide acceso remoto para "solucionar un problema detectado".',
+    explanation: 'Microsoft nunca llama proactivamente a usuarios. Es una estafa de "soporte técnico falso" muy común. Colgar y reportar inmediatamente.',
+    validDefense: ['colgar-reportar'],
+    relevantTools: ['capacitacion'],
   },
   {
-    type: 'TRABAJO REMOTO',
-    text: 'Estás trabajando desde una cafetería y necesitás revisar información confidencial de clientes por email. La cafetería ofrece WiFi gratis. ¿Qué hacés?',
-    context: 'Cafetería · WiFi gratuito disponible · Laptop del trabajo',
-    options: ['Te conectás al WiFi de la cafetería y revisás el email normalmente', 'Activás la VPN del banco antes de conectarte y revisar cualquier cosa', 'Esperás llegar a la oficina para revisar información sensible', 'Usás los datos móviles de tu celular personal'],
-    correct: 1,
-    explanation: 'Las redes WiFi públicas pueden estar intervenidas o ser falsas. La VPN del banco crea un canal protegido entre tu computadora y los sistemas del banco, como un "túnel privado" que nadie más puede ver. Siempre activarla cuando trabajés fuera de la oficina.',
-    points: 900
+    id: 'wifi', name: 'WiFi Trampa', type: 'TRABAJO REMOTO', emoji: '📡',
+    difficulty: 3, points: 900,
+    context: 'Cafetería · WiFi gratuito · Laptop del trabajo',
+    description: 'Estás trabajando desde una cafetería y necesitás revisar información confidencial de clientes. La cafetería ofrece WiFi gratis.',
+    explanation: 'Las redes WiFi públicas pueden estar intervenidas. La VPN crea un "túnel privado" seguro. Siempre activarla cuando trabajés fuera de la oficina.',
+    validDefense: ['usar-vpn'],
+    relevantTools: ['vpn-corp'],
   },
   {
-    type: 'PHISHING INTERNO',
-    text: 'Recibís un email que parece ser del área de Sistemas del banco. Dice: "Por mantenimiento de seguridad, ingresá a este enlace para confirmar tus datos de acceso antes del lunes o tu cuenta quedará bloqueada". ¿Qué hacés?',
-    context: 'Email recibido un viernes a las 5pm · El enlace parece del portal del banco pero no es la dirección habitual',
-    options: ['Ingresás tu usuario y contraseña porque parece oficial y urgente', 'Llamás a Sistemas directamente para verificar si el email es real', 'Reenviás el email a tu jefe para que decida él', 'Borrás el email y no hacés nada más'],
-    correct: 1,
-    explanation: 'El banco NUNCA pide usuario y contraseña por email. Ante la duda, siempre verificar llamando directamente al área que supuestamente envió el mensaje — nunca usar los contactos del email sospechoso. Los delincuentes imitan la imagen del propio banco porque saben que la gente confía en comunicaciones internas.',
-    points: 1000
+    id: 'phishing-interno', name: 'Phishing Interno', type: 'PHISHING INTERNO', emoji: '🎣',
+    difficulty: 3, points: 1000,
+    context: 'Email recibido un viernes a las 5pm · URL sospechosa',
+    description: 'Email del "área de Sistemas" dice: "Ingresá a este enlace para confirmar tus datos de acceso antes del lunes o tu cuenta quedará bloqueada".',
+    explanation: 'El banco NUNCA pide usuario y contraseña por email. Siempre verificar llamando directamente al área. Los delincuentes imitan la imagen del propio banco.',
+    validDefense: ['verificar-canal', 'reportar-it'],
+    relevantTools: ['mfa', 'capacitacion'],
   },
   {
-    type: 'DATOS SENSIBLES',
-    text: 'Terminás una reunión con datos confidenciales en la pizarra. Todos se van. ¿Qué hacés antes de salir?',
-    context: 'Sala de reuniones · Datos de clientes escritos en pizarra física',
-    options: ['Salís rápido porque ya terminó la reunión', 'Borrás la pizarra completamente', 'Sacás una foto y borrás la pizarra', 'Dejás que el próximo en usar la sala lo borre'],
-    correct: 1,
-    explanation: 'Los datos físicos son tan sensibles como los digitales. Siempre limpiar pizarras, destruir documentos físicos y no dejar información visible en espacios compartidos.',
-    points: 800
-  }
+    id: 'datos-fisicos', name: 'Fuga en la Pizarra', type: 'DATOS SENSIBLES', emoji: '📋',
+    difficulty: 1, points: 800,
+    context: 'Sala de reuniones · Datos de clientes en pizarra física',
+    description: 'Terminás una reunión con datos confidenciales escritos en la pizarra. Todos se van. ¿Qué hacés antes de salir?',
+    explanation: 'Los datos físicos son tan sensibles como los digitales. Siempre limpiar pizarras, destruir documentos físicos y no dejar información visible.',
+    validDefense: ['borrar-sensible'],
+    relevantTools: ['capacitacion'],
+  },
 ];
 
-// ESTADO — estas variables cambian durante la partida.
-// currentQ: índice de la pregunta actual (empieza en 0).
-// timer: referencia al setInterval del contador; se guarda para poder detenerlo.
-// timeLeft: segundos que quedan para responder (arranca en 60).
-// answered: bloquea doble respuesta en la misma pregunta.
-// teamAnswered: array de booleanos, uno por equipo → true cuando "respondió".
-let currentQ = 0;
-let timer = null;
-let timeLeft = 60;
-let answered = false;
-let teamAnswered = [];
+// ─── DATOS: CARTAS DE DEFENSA ─────────────────────────────────
+// Acciones de respuesta correcta. Cada una contrarresta uno o más
+// tipos de ataque. Se descartan al usarse.
+const ALL_DEFENSE_CARDS = [
+  { id: 'verificar-canal', name: 'Verificar por canal alternativo', emoji: '📞', desc: 'Llamar directamente para confirmar la solicitud' },
+  { id: 'reportar-it', name: 'Reportar a IT', emoji: '🔔', desc: 'Informar al equipo de seguridad de inmediato' },
+  { id: 'desconectar-red', name: 'Desconectar de la red', emoji: '🔌', desc: 'Aislar el equipo para evitar propagación' },
+  { id: 'no-conectar', name: 'No conectar el dispositivo', emoji: '🚫', desc: 'Entregar el dispositivo a IT sin conectarlo' },
+  { id: 'usar-vpn', name: 'Usar VPN', emoji: '🛡️', desc: 'Activar la VPN antes de conectarse a la red' },
+  { id: 'colgar-reportar', name: 'Colgar y reportar', emoji: '📵', desc: 'Cortar la comunicación e informar a IT' },
+  { id: 'actualizar-config', name: 'Actualizar desde Configuración', emoji: '⚙️', desc: 'Actualizar software solo desde canales oficiales' },
+  { id: 'borrar-sensible', name: 'Borrar información sensible', emoji: '🧹', desc: 'Eliminar datos expuestos en espacios compartidos' },
+];
 
-// Dibuja las tarjetas de equipo en el lobby usando el array TEAMS.
-// Se llama sola al final del archivo (última línea: initTeams()).
-// No llama a ninguna otra función, solo construye HTML.
-function initTeams() {
-  const grid = document.getElementById('teamsGrid');
-  grid.innerHTML = TEAMS.map((t, i) => `
-    <div class="team-card" id="teamCard${i}">
-      <div class="team-name">EQUIPO ${i+1}</div>
-      <div class="team-status">${t.emoji}</div>
-      <div class="team-label">${t.name}</div>
-    </div>
-  `).join('');
-  // Animate teams ready
-  setTimeout(() => {
-    TEAMS.forEach((_, i) => {
-      setTimeout(() => {
-        document.getElementById(`teamCard${i}`).classList.add('ready');
-      }, i * 200);
-    });
-  }, 500);
+// ─── DATOS: CARTAS DE HERRAMIENTA ─────────────────────────────
+// Protecciones permanentes que se acumulan. Se activan jugándolas
+// en cualquier ronda y permanecen activas el resto del juego.
+const ALL_TOOL_CARDS = [
+  { id: 'mfa', name: 'MFA activado', emoji: '🔐', desc: 'Autenticación multifactor habilitada' },
+  { id: 'password-fuerte', name: 'Contraseña fuerte', emoji: '🔑', desc: 'Política de contraseñas robustas' },
+  { id: 'vpn-corp', name: 'VPN corporativa', emoji: '🌐', desc: 'Red privada virtual de la empresa' },
+  { id: 'antivirus', name: 'Antivirus actualizado', emoji: '🛡️', desc: 'Protección contra malware al día' },
+  { id: 'backup', name: 'Backup reciente', emoji: '💾', desc: 'Copias de seguridad verificadas' },
+  { id: 'capacitacion', name: 'Capacitación completada', emoji: '📚', desc: 'Formación en ciberseguridad al día' },
+];
+
+// ─── DATOS: CARTAS DE EVENTO ──────────────────────────────────
+// El facilitador puede jugar hasta 2 durante la partida. Afectan
+// a todos los equipos simultáneamente.
+const EVENT_CARDS = [
+  { id: 'brecha', name: 'Brecha Detectada', emoji: '💥', desc: 'Todos pierden 150 pts salvo quien tenga Backup activo', color: 'var(--danger)' },
+  { id: 'auditoria', name: 'Auditoría Regulatoria', emoji: '📋', desc: 'Quien tenga Capacitación completada suma 300 pts', color: 'var(--warn)' },
+  { id: 'ataque-masivo', name: 'Ataque Masivo', emoji: '⚡', desc: 'Los puntos de la próxima ronda se duplican para todos', color: 'var(--blue)' },
+];
+
+// ─── DATOS: EQUIPOS ───────────────────────────────────────────
+const TEAMS_BASE = [
+  { name: 'Equipo 1', emoji: '🛡️' },
+  { name: 'Equipo 2', emoji: '🔍' },
+  { name: 'Equipo 3', emoji: '⚡' },
+  { name: 'Equipo 4', emoji: '🔒' },
+  { name: 'Equipo 5', emoji: '🌐' },
+  { name: 'Equipo 6', emoji: '🎯' },
+];
+
+// ─── DATOS: MANOS INICIALES ───────────────────────────────────
+// Distribución estratégica: cada equipo tiene 4 defensas y 2
+// herramientas. Ningún equipo puede cubrir todos los ataques,
+// forzando decisiones estratégicas sobre cuándo jugar cada carta.
+const INITIAL_HANDS = [
+  { defense: ['verificar-canal','desconectar-red','usar-vpn','borrar-sensible'], tools: ['mfa','backup'] },
+  { defense: ['reportar-it','no-conectar','colgar-reportar','actualizar-config'], tools: ['password-fuerte','capacitacion'] },
+  { defense: ['verificar-canal','desconectar-red','reportar-it','no-conectar'], tools: ['antivirus','vpn-corp'] },
+  { defense: ['usar-vpn','colgar-reportar','borrar-sensible','actualizar-config'], tools: ['mfa','capacitacion'] },
+  { defense: ['verificar-canal','no-conectar','desconectar-red','borrar-sensible'], tools: ['backup','antivirus'] },
+  { defense: ['reportar-it','colgar-reportar','usar-vpn','actualizar-config'], tools: ['password-fuerte','vpn-corp'] },
+];
+
+// ─── ESTADO DEL JUEGO ────────────────────────────────────────
+// Contiene todo el estado mutable de la partida. Se resetea
+// con resetGame(). El estado de cada equipo incluye su mano
+// actual, cartas usadas, herramientas activas y jugada actual.
+let state = {
+  mode: 'facilitator',    // 'facilitator' o 'team'
+  teamIndex: -1,          // índice del equipo en modo team
+  currentRound: 0,        // ronda actual (0–7)
+  phase: 'lobby',         // lobby, playing, reveal, final
+  timerInterval: null,
+  timeLeft: 45,
+  playOrder: 0,           // contador para bonus de velocidad
+  eventsPlayed: [],       // IDs de eventos ya jugados
+  doubleNextRound: false,  // efecto del evento "Ataque Masivo"
+  teams: [],              // estado de cada equipo (se inicializa en initTeamState)
+  currentEventBanner: null, // evento activo esta ronda (visual)
+};
+
+// ─── INICIALIZACIÓN ───────────────────────────────────────────
+// Punto de entrada. Detecta el modo (facilitador o equipo) según
+// el parámetro URL ?equipo=N. Inicializa el estado y muestra la
+// pantalla correspondiente.
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  const teamParam = params.get('equipo');
+  if (teamParam && parseInt(teamParam) >= 1 && parseInt(teamParam) <= 6) {
+    state.mode = 'team';
+    state.teamIndex = parseInt(teamParam) - 1;
+    document.getElementById('modeBadge').textContent = TEAMS_BASE[state.teamIndex].name.toUpperCase();
+    document.getElementById('modeBadge').className = 'mode-badge mode-team';
+  }
+  initTeamState();
+  if (state.mode === 'team') {
+    renderTeamSelectScreen();
+    showScreen('screenTeamSelect');
+  } else {
+    renderLobby();
+    showScreen('screenLobby');
+  }
 }
 
-// Punto de entrada del juego. Resetea todos los puntajes a 0
-// y arranca la primera pregunta. Llama a: showQuestion().
-function startGame() {
-  TEAMS.forEach(t => t.score = 0);
-  currentQ = 0;
-  showQuestion();
+// Construye el estado inicial de cada equipo: mano de defensas,
+// herramientas disponibles, herramientas activas, etc.
+function initTeamState() {
+  state.teams = TEAMS_BASE.map((t, i) => ({
+    name: t.name,
+    emoji: t.emoji,
+    score: 0,
+    defenseHand: [...INITIAL_HANDS[i].defense],
+    toolHand: [...INITIAL_HANDS[i].tools],
+    activeTools: [],
+    usedDefense: [],
+    currentPlay: null,   // { id, type: 'defense'|'tool'|'pass' }
+    hasPlayed: false,
+    playOrder: 0,        // orden en que jugó (para bonus velocidad)
+  }));
 }
 
-// Utilidad para cambiar de pantalla: quita 'active' de todas y se
-// la pone solo a la del id recibido. La llaman showQuestion(),
-// revealAnswer(), nextQuestion() y showFinalScore().
+// ─── UTILIDADES DE PANTALLA ───────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// Función central del loop. Lee QUESTIONS[currentQ], construye los
-// botones de opciones, y arranca el timer con setInterval.
-// También llama a simulateTeamAnswers() para animar los puntos de equipo.
-// Llamada por: startGame() y nextQuestion().
-function showQuestion() {
-  showScreen('screenQuestion');
-  const q = QUESTIONS[currentQ];
-  answered = false;
-  teamAnswered = new Array(TEAMS.length).fill(false);
-  timeLeft = 60;
+// Genera los puntos de dificultad (●○) para una carta de ataque
+function diffDots(level) {
+  return '●'.repeat(level) + '○'.repeat(4 - level);
+}
 
-  document.getElementById('qCounter').textContent = `AMENAZA ${currentQ + 1} DE ${QUESTIONS.length}`;
-  document.getElementById('progressFill').style.width = `${(currentQ / QUESTIONS.length) * 100}%`;
-  document.getElementById('threatBadge').textContent = `⚡ ${q.type}`;
-  document.getElementById('questionText').textContent = q.text;
-  document.getElementById('questionContext').textContent = `◈ ${q.context}`;
+// Busca una carta de defensa por ID en el catálogo
+function findDefense(id) { return ALL_DEFENSE_CARDS.find(c => c.id === id); }
+// Busca una carta de herramienta por ID en el catálogo
+function findTool(id) { return ALL_TOOL_CARDS.find(c => c.id === id); }
 
-  // Options
-  const grid = document.getElementById('optionsGrid');
-  grid.innerHTML = ['A','B','C','D'].map((l, i) => `
-    <button class="option-btn" onclick="selectAnswer(${i})" id="opt${i}">
-      <div class="opt-letter">${l}</div>
-      <div>${q.options[i]}</div>
-    </button>
+// ─── LOBBY ────────────────────────────────────────────────────
+// Dibuja las 6 tarjetas de equipo en el lobby con animación de
+// entrada escalonada. Cada tarjeta muestra emoji y nombre.
+function renderLobby() {
+  const grid = document.getElementById('teamsGrid');
+  grid.innerHTML = TEAMS_BASE.map((t, i) => `
+    <div class="team-card-lobby" id="lobbyCard${i}">
+      <div class="tc-name">EQUIPO ${i+1}</div>
+      <div class="tc-emoji">${t.emoji}</div>
+      <div class="tc-label">${t.name}</div>
+    </div>
   `).join('');
+  setTimeout(() => {
+    TEAMS_BASE.forEach((_, i) => {
+      setTimeout(() => {
+        const el = document.getElementById('lobbyCard' + i);
+        if (el) el.classList.add('ready');
+      }, i * 200);
+    });
+  }, 400);
+}
+
+// ─── INICIO DE PARTIDA ───────────────────────────────────────
+// Resetea puntajes y arranca la primera ronda. Es el punto de
+// entrada del juego desde el lobby.
+function startGame() {
+  state.currentRound = 0;
+  state.eventsPlayed = [];
+  state.doubleNextRound = false;
+  initTeamState();
+  startRound();
+}
+
+// ─── RONDA ────────────────────────────────────────────────────
+// Arranca una ronda: renderiza la carta de ataque con animación
+// de volteo, muestra los paneles de equipo, arranca el timer.
+// El facilitador hace clic en cada equipo para seleccionar su carta.
+function startRound() {
+  state.phase = 'playing';
+  state.playOrder = 0;
+  state.currentEventBanner = null;
+  state.teams.forEach(t => {
+    t.currentPlay = null;
+    t.hasPlayed = false;
+    t.playOrder = 0;
+  });
+
+  const r = state.currentRound;
+  document.getElementById('progressFill').style.width = `${(r / ATTACK_CARDS.length) * 100}%`;
+  document.getElementById('roundCounter').textContent = `RONDA ${r + 1} DE ${ATTACK_CARDS.length}`;
 
   // Score strip
-  document.getElementById('scoreStrip').innerHTML = TEAMS.map(t =>
-    `<div class="qs-team">${t.emoji} <span>${t.score}</span></div>`
+  document.getElementById('roundScoreStrip').innerHTML = state.teams.map(t =>
+    `<div class="rs-team">${t.emoji} <span>${t.score}</span></div>`
   ).join('');
 
-  // Answer dots
-  document.getElementById('answerStatus').innerHTML = TEAMS.map((t, i) =>
-    `<div class="ans-dot" id="dot${i}" title="${t.name}"></div>`
-  ).join('');
+  // Event banner (si la ronda anterior activó "Ataque Masivo")
+  const ebArea = document.getElementById('eventBannerArea');
+  if (state.doubleNextRound) {
+    ebArea.innerHTML = `<div class="event-banner"><div class="event-banner-text">⚡ <span class="event-banner-name">ATAQUE MASIVO</span> — Los puntos de esta ronda están DUPLICADOS</div></div>`;
+  } else {
+    ebArea.innerHTML = '';
+  }
+
+  // Carta de ataque (empieza boca abajo, se voltea tras 1s)
+  renderAttackCard(ATTACK_CARDS[r]);
+
+  // Paneles de equipo
+  renderTeamPanels();
+
+  // Controles
+  document.getElementById('btnReveal').disabled = true;
+  const eventsLeft = 2 - state.eventsPlayed.length;
+  document.getElementById('btnEvent').style.display = eventsLeft > 0 ? '' : 'none';
+  document.getElementById('btnEvent').textContent = `JUGAR EVENTO (${eventsLeft})`;
 
   // Timer
-  clearInterval(timer);
-  updateTimer(60);
-  timer = setInterval(() => {
-    timeLeft--;
-    updateTimer(timeLeft);
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      if (!answered) revealAnswer(-1);
+  startTimer();
+
+  showScreen('screenRound');
+
+  // Voltear la carta tras un breve delay
+  setTimeout(() => {
+    const inner = document.querySelector('.attack-card-inner');
+    if (inner) inner.classList.add('flipped');
+  }, 800);
+}
+
+// ─── CARTA DE ATAQUE ──────────────────────────────────────────
+// Renderiza la carta de ataque con dos caras: dorso (cara inicial)
+// y frente (se muestra al voltear). Usa CSS 3D transforms.
+function renderAttackCard(card) {
+  const zone = document.getElementById('attackCardZone');
+  zone.innerHTML = `
+    <div class="attack-card-inner">
+      <div class="attack-face attack-back">
+        <div class="attack-back-icon">🃏</div>
+        <div class="attack-back-label">CARTA DE ATAQUE</div>
+      </div>
+      <div class="attack-face attack-front">
+        <div class="af-header">
+          <div class="af-type">⚡ ${card.type}</div>
+          <div class="af-diff">${diffDots(card.difficulty)}</div>
+        </div>
+        <div class="af-body">
+          <div class="af-emoji">${card.emoji}</div>
+          <div class="af-name">${card.name}</div>
+          <div class="af-desc">${card.description}</div>
+          <div class="af-context">◈ ${card.context}</div>
+        </div>
+        <div class="af-footer">
+          <div class="af-pts">${state.doubleNextRound ? card.points * 2 : card.points} PTS EN JUEGO</div>
+          <div style="font-family:'Syne Mono',monospace;font-size:0.65rem;color:var(--muted);">RONDA ${state.currentRound + 1}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── PANELES DE EQUIPO ────────────────────────────────────────
+// Muestra un panel compacto por equipo en la pantalla del facilitador.
+// Cada panel muestra: emoji, nombre, puntaje, herramientas activas,
+// estado (esperando / carta jugada). Al hacer clic se abre el modal
+// para seleccionar la carta del equipo.
+function renderTeamPanels() {
+  document.getElementById('teamsBar').innerHTML = state.teams.map((t, i) => {
+    const toolIcons = t.activeTools.map(tid => {
+      const tc = findTool(tid);
+      return tc ? `<span class="tp-tool-icon">${tc.emoji}</span>` : '';
+    }).join('');
+    const statusClass = t.hasPlayed ? 'ready' : '';
+    const statusText = t.hasPlayed
+      ? (t.currentPlay.type === 'pass' ? '⏭ PASÓ' : '✓ LISTO')
+      : '⏳ ESPERANDO';
+    const playedCard = t.hasPlayed && t.currentPlay.type !== 'pass'
+      ? `<div class="tp-played-card">${t.currentPlay.type === 'tool' ? '🔧' : '🃏'} Carta jugada</div>`
+      : '';
+    return `
+      <div class="team-panel ${t.hasPlayed ? 'selected locked' : ''}" onclick="openTeamModal(${i})" id="tPanel${i}">
+        <div class="tp-emoji">${t.emoji}</div>
+        <div class="tp-name">${t.name.toUpperCase()}</div>
+        <div class="tp-score">${t.score} pts</div>
+        <div class="tp-status ${statusClass}">${statusText}</div>
+        ${toolIcons ? `<div class="tp-tools">${toolIcons}</div>` : ''}
+        ${playedCard}
+      </div>
+    `;
+  }).join('');
+  updateReadyCount();
+}
+
+// Actualiza el contador "X/6 LISTOS" y habilita/deshabilita el botón Revelar
+function updateReadyCount() {
+  const ready = state.teams.filter(t => t.hasPlayed).length;
+  document.getElementById('teamReadyCount').textContent = `${ready}/${state.teams.length} LISTOS`;
+  document.getElementById('btnReveal').disabled = ready === 0;
+}
+
+// ─── MODAL DE SELECCIÓN DE CARTA ──────────────────────────────
+// Abre un modal mostrando la mano del equipo seleccionado.
+// El facilitador hace clic en una carta de defensa, herramienta,
+// o en "Pasar turno" para registrar la jugada del equipo.
+function openTeamModal(teamIdx) {
+  if (state.teams[teamIdx].hasPlayed) return;
+
+  const team = state.teams[teamIdx];
+  const attack = ATTACK_CARDS[state.currentRound];
+
+  document.getElementById('modalTitle').textContent = `${team.emoji} ${team.name} — Seleccionar carta`;
+
+  // Cartas de defensa disponibles
+  const defCards = team.defenseHand.map(dId => {
+    const card = findDefense(dId);
+    const used = team.usedDefense.includes(dId);
+    return `
+      <div class="hand-card ${used ? 'used' : ''}" onclick="${used ? '' : `playCard(${teamIdx},'${dId}','defense')`}">
+        <div class="hc-emoji">${card.emoji}</div>
+        <div class="hc-name">${card.name}</div>
+        <div class="hc-desc">${card.desc}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Cartas de herramienta disponibles (no activadas aún)
+  const toolCards = team.toolHand.filter(tid => !team.activeTools.includes(tid)).map(tid => {
+    const card = findTool(tid);
+    return `
+      <div class="hand-card tool-card" onclick="playCard(${teamIdx},'${tid}','tool')">
+        <div class="hc-emoji">${card.emoji}</div>
+        <div class="hc-name">${card.name}</div>
+        <div class="hc-desc">${card.desc}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Herramientas ya activas
+  const activeStr = team.activeTools.length
+    ? team.activeTools.map(tid => { const c = findTool(tid); return `<span class="at-chip">${c.emoji} ${c.name}</span>`; }).join('')
+    : '<span class="at-chip empty">Ninguna activa</span>';
+
+  const html = `
+    <div class="hand-section-title">// HERRAMIENTAS ACTIVAS</div>
+    <div class="active-tools-row" style="margin-bottom:1.25rem;">${activeStr}</div>
+
+    <div class="hand-section-title">// CARTAS DE DEFENSA (${team.defenseHand.length - team.usedDefense.length} disponibles)</div>
+    <div class="hand-grid">${defCards || '<span style="color:var(--muted);font-size:0.8rem;">Sin cartas de defensa disponibles</span>'}</div>
+
+    ${toolCards ? `
+      <div class="hand-section-title">// HERRAMIENTAS (activar permanentemente)</div>
+      <div class="hand-grid">${toolCards}</div>
+    ` : ''}
+
+    <button class="pass-btn" onclick="playCard(${teamIdx},'pass','pass')">⏭ PASAR TURNO (−200 pts)</button>
+  `;
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+// ─── JUGAR CARTA ──────────────────────────────────────────────
+// Registra la carta que un equipo decidió jugar en esta ronda.
+// Actualiza el estado del equipo y cierra el modal.
+// - defense: la carta se marca como usada y se registra como jugada
+// - tool: la herramienta se activa permanentemente
+// - pass: el equipo pierde 200 pts
+function playCard(teamIdx, cardId, cardType) {
+  const team = state.teams[teamIdx];
+  if (team.hasPlayed) return;
+
+  state.playOrder++;
+  team.playOrder = state.playOrder;
+  team.hasPlayed = true;
+  team.currentPlay = { id: cardId, type: cardType };
+
+  if (cardType === 'defense') {
+    team.usedDefense.push(cardId);
+  } else if (cardType === 'tool') {
+    team.activeTools.push(cardId);
+  }
+
+  closeModal();
+  renderTeamPanels();
+}
+
+// ─── TIMER ────────────────────────────────────────────────────
+// Countdown de 45 segundos. Actualiza el anillo SVG y cambia de
+// color: verde → amarillo (≤15s) → rojo (≤5s). Al llegar a 0
+// se detiene pero NO fuerza la revelación — el facilitador decide.
+function startTimer() {
+  clearInterval(state.timerInterval);
+  state.timeLeft = 45;
+  updateTimerDisplay(45);
+  state.timerInterval = setInterval(() => {
+    state.timeLeft--;
+    updateTimerDisplay(state.timeLeft);
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
     }
   }, 1000);
-
-  // Simulate teams answering (demo)
-  simulateTeamAnswers(q.correct);
 }
 
-// Simula que los otros 5 equipos van respondiendo con retrasos
-// aleatorios (5 a 25 segundos). Cuando todos tienen su punto verde,
-// llama automáticamente a revealAnswer() —igual que si el usuario
-// hubiera respondido. Llamada por: showQuestion().
-function simulateTeamAnswers(correct) {
-  TEAMS.forEach((_, i) => {
-    const delay = 5000 + Math.random() * 20000;
-    setTimeout(() => {
-      if (!answered) {
-        teamAnswered[i] = true;
-        document.getElementById(`dot${i}`).classList.add('answered');
-        // Check if all answered
-        if (teamAnswered.every(Boolean)) {
-          clearInterval(timer);
-          revealAnswer(correct);
-        }
-      }
-    }, delay);
-  });
-}
-
-// Actualiza el número del timer y el arco SVG (strokeDashoffset).
-// Cambia el color: verde → amarillo (≤20s) → rojo (≤10s).
-// Llamada cada segundo por el setInterval dentro de showQuestion().
-function updateTimer(t) {
-  document.getElementById('timerNum').textContent = t;
+function updateTimerDisplay(t) {
+  const display = Math.max(0, t);
+  document.getElementById('timerNum').textContent = display;
   const circle = document.getElementById('timerCircle');
-  const pct = t / 60;
-  circle.style.strokeDashoffset = 220 * (1 - pct);
-  circle.style.stroke = t > 20 ? 'var(--green)' : t > 10 ? 'var(--warn)' : 'var(--danger)';
-  document.getElementById('timerNum').style.color = t > 20 ? 'var(--green)' : t > 10 ? 'var(--warn)' : 'var(--danger)';
+  const pct = Math.max(0, t) / 45;
+  circle.style.strokeDashoffset = 188 * (1 - pct);
+  const color = t > 15 ? 'var(--green)' : t > 5 ? 'var(--warn)' : 'var(--danger)';
+  circle.style.stroke = color;
+  document.getElementById('timerNum').style.color = color;
 }
 
-// Llamada cuando el usuario hace clic en una opción (botón HTML).
-// Si ya respondió, sale inmediatamente (guard clause).
-// Detiene el timer y delega todo el trabajo a revealAnswer().
-function selectAnswer(idx) {
-  if (answered) return;
-  clearInterval(timer);
-  revealAnswer(idx);
-}
+// ─── REVELAR RESULTADOS ───────────────────────────────────────
+// Calcula los puntos de cada equipo para esta ronda y muestra
+// los resultados. Lógica de puntuación:
+// 1. Defensa correcta: puntos base de la carta (×2 si Ataque Masivo)
+// 2. Herramienta relevante activa: +200 pts automático
+// 3. Velocidad: primeros 2 equipos en responder: +100 pts
+// 4. Herramienta activada en ronda óptima: +300 pts bonus
+// 5. Pass: -200 pts
+// 6. Defensa incorrecta: 0 pts
+function revealRound() {
+  clearInterval(state.timerInterval);
+  state.phase = 'reveal';
+  const attack = ATTACK_CARDS[state.currentRound];
+  const multiplier = state.doubleNextRound ? 2 : 1;
+  const basePoints = attack.points * multiplier;
 
-// Muestra la respuesta correcta: pinta opciones verde/rojo,
-// suma puntos proporcionales al tiempo restante si acertó,
-// y después de 1.5s cambia a screenReveal con la explicación.
-// selected=-1 significa que nadie respondió (timer expiró).
-// Llamada por: selectAnswer() y simulateTeamAnswers().
-function revealAnswer(selected) {
-  if (answered) return;
-  answered = true;
-  clearInterval(timer);
-  const q = QUESTIONS[currentQ];
+  // Calcular puntos por equipo
+  const roundResults = state.teams.map((team, i) => {
+    let pts = 0;
+    let breakdown = [];
+    let resultType = 'wrong'; // correct, wrong, tool, pass
 
-  document.querySelectorAll('.option-btn').forEach((btn, i) => {
-    btn.classList.add('disabled');
-    if (i === q.correct) btn.classList.add('correct');
-    else if (i === selected && selected !== q.correct) btn.classList.add('wrong');
-  });
-
-  setTimeout(() => {
-    const isCorrect = selected === q.correct;
-    if (isCorrect) {
-      const pts = Math.round(q.points * (timeLeft / 60) * 0.5 + q.points * 0.5);
-      TEAMS[0].score += pts;
+    if (!team.hasPlayed || !team.currentPlay) {
+      // No jugó — mismo que pass
+      pts = -200;
+      breakdown.push('No jugó: -200');
+      resultType = 'pass';
+    } else if (team.currentPlay.type === 'pass') {
+      pts = -200;
+      breakdown.push('Pasó: -200');
+      resultType = 'pass';
+    } else if (team.currentPlay.type === 'tool') {
+      // Activó herramienta — chequear si es óptima (relevante al ataque actual)
+      resultType = 'tool';
+      const toolId = team.currentPlay.id;
+      if (attack.relevantTools.includes(toolId)) {
+        pts += 300;
+        breakdown.push('Herramienta óptima: +300');
+      } else {
+        breakdown.push('Herramienta activada (sin bonus)');
+      }
+    } else if (team.currentPlay.type === 'defense') {
+      const defId = team.currentPlay.id;
+      if (attack.validDefense.includes(defId)) {
+        pts += basePoints;
+        breakdown.push(`Defensa correcta: +${basePoints}`);
+        resultType = 'correct';
+      } else {
+        breakdown.push('Defensa incorrecta: 0');
+        resultType = 'wrong';
+      }
     }
 
-    document.getElementById('revealIcon').textContent = isCorrect ? '✅' : '⚠️';
-    document.getElementById('revealTitle').textContent = isCorrect ? '¡AMENAZA NEUTRALIZADA!' : 'AMENAZA NO DETECTADA';
-    document.getElementById('revealTitle').style.color = isCorrect ? 'var(--green)' : 'var(--warn)';
-    document.getElementById('revealText').textContent = q.explanation;
-    document.getElementById('revealPoints').textContent = isCorrect ? `+${q.points} PTS` : '0 PTS';
-    document.getElementById('revealPoints').style.color = isCorrect ? 'var(--green)' : 'var(--muted)';
-    showScreen('screenReveal');
-  }, 1500);
+    // Bonus por herramientas activas relevantes (automático)
+    team.activeTools.forEach(toolId => {
+      if (attack.relevantTools.includes(toolId)) {
+        pts += 200;
+        const tc = findTool(toolId);
+        breakdown.push(`${tc.emoji} ${tc.name}: +200`);
+      }
+    });
+
+    // Bonus velocidad (primeros 2 que jugaron)
+    if (team.hasPlayed && team.playOrder <= 2 && team.currentPlay.type !== 'pass') {
+      pts += 100;
+      breakdown.push('Bonus velocidad: +100');
+    }
+
+    team.score += pts;
+    if (team.score < 0) team.score = 0;
+
+    return { teamIdx: i, pts, breakdown, resultType };
+  });
+
+  // Desactivar el doble de la próxima ronda si estaba activo
+  state.doubleNextRound = false;
+
+  // Renderizar resultados
+  renderRevealScreen(attack, roundResults);
+  showScreen('screenReveal');
 }
 
-// Avanza al siguiente paso. Llamada desde el botón "SIGUIENTE →".
-// Incrementa currentQ y decide a dónde ir:
-//   → todavía hay preguntas: llama a showQuestion()
-//   → se acabaron: llama a showFinalScore()
-function nextQuestion() {
-  currentQ++;
-  if (currentQ >= QUESTIONS.length) {
+// ─── PANTALLA DE RESULTADOS ───────────────────────────────────
+// Construye el HTML de la pantalla de resultados con: carta de
+// ataque mini, tarjetas de resultado por equipo, explicación
+// educativa, mini ranking actualizado, y botón de siguiente ronda.
+function renderRevealScreen(attack, results) {
+  const correctDefNames = attack.validDefense.map(id => {
+    const c = findDefense(id);
+    return c ? `${c.emoji} ${c.name}` : id;
+  }).join(' o ');
+
+  const resultsHTML = results.map(r => {
+    const team = state.teams[r.teamIdx];
+    let playedEmoji = '⏭';
+    let playedName = 'Pasó turno';
+    let typeClass = 'rc-pass';
+
+    if (team.currentPlay && team.currentPlay.type === 'defense') {
+      const dc = findDefense(team.currentPlay.id);
+      playedEmoji = dc.emoji;
+      playedName = dc.name;
+      typeClass = r.resultType === 'correct' ? 'rc-correct' : 'rc-wrong';
+    } else if (team.currentPlay && team.currentPlay.type === 'tool') {
+      const tc = findTool(team.currentPlay.id);
+      playedEmoji = tc.emoji;
+      playedName = `🔧 ${tc.name}`;
+      typeClass = 'rc-tool';
+    }
+
+    const ptsColor = r.pts > 0 ? 'var(--green)' : r.pts < 0 ? 'var(--danger)' : 'var(--muted)';
+    const ptsText = r.pts > 0 ? `+${r.pts}` : `${r.pts}`;
+
+    return `
+      <div class="result-card ${typeClass} slide-in" style="animation-delay:${r.teamIdx * 0.1}s">
+        <div class="rc-team-name">${team.emoji} ${team.name}</div>
+        <div class="rc-played">${playedEmoji}</div>
+        <div class="rc-played-name">${playedName}</div>
+        <div class="rc-points" style="color:${ptsColor}">${ptsText} pts</div>
+        <div class="rc-breakdown">${r.breakdown.join('<br>')}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Mini ranking
+  const sorted = [...state.teams].sort((a, b) => b.score - a.score);
+  const maxScore = Math.max(sorted[0].score, 1);
+  const rankingHTML = sorted.map((t, i) => `
+    <div class="mr-row">
+      <div class="mr-pos">${String(i + 1).padStart(2, '0')}</div>
+      <div class="mr-name">${t.emoji} ${t.name}</div>
+      <div class="mr-bar-wrap"><div class="mr-bar" style="width:${(t.score / maxScore) * 100}%"></div></div>
+      <div class="mr-pts">${t.score} pts</div>
+    </div>
+  `).join('');
+
+  const isLastRound = state.currentRound >= ATTACK_CARDS.length - 1;
+  const nextBtnText = isLastRound ? 'VER RESULTADO FINAL' : 'SIGUIENTE RONDA →';
+  const nextBtnAction = isLastRound ? 'showFinalScore()' : 'nextRound()';
+
+  document.getElementById('revealContent').innerHTML = `
+    <div class="reveal-attack-mini">
+      <div class="ram-emoji">${attack.emoji}</div>
+      <div style="flex:1">
+        <div class="ram-name">${attack.name}</div>
+        <div class="ram-correct">Defensa correcta: ${correctDefNames}</div>
+      </div>
+      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--muted);">RONDA ${state.currentRound + 1}</div>
+    </div>
+
+    <div class="results-grid">${resultsHTML}</div>
+
+    <div class="explanation-box">
+      <div class="eb-title">💡 ¿Por qué?</div>
+      <div class="eb-text">${attack.explanation}</div>
+    </div>
+
+    <div style="font-family:'Syne Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:0.5rem;">// RANKING ACTUALIZADO</div>
+    <div class="mini-ranking">${rankingHTML}</div>
+
+    <div style="text-align:center;">
+      <button class="btn" onclick="${nextBtnAction}">${nextBtnText}</button>
+    </div>
+  `;
+}
+
+// ─── SIGUIENTE RONDA ──────────────────────────────────────────
+function nextRound() {
+  state.currentRound++;
+  if (state.currentRound >= ATTACK_CARDS.length) {
     showFinalScore();
   } else {
-    showQuestion();
+    startRound();
   }
 }
 
-// Genera puntajes aleatorios para los equipos sin datos reales (demo),
-// los ordena de mayor a menor con sort(), y construye el ranking HTML.
-// Llamada por: nextQuestion() cuando currentQ >= QUESTIONS.length.
+// ─── EVENTOS ──────────────────────────────────────────────────
+// Abre el modal con las cartas de evento disponibles. El facilitador
+// puede jugar hasta 2 eventos durante toda la partida.
+function showEventModal() {
+  document.getElementById('modalTitle').textContent = '⚡ Jugar Carta de Evento';
+  const html = EVENT_CARDS.map(ev => {
+    const used = state.eventsPlayed.includes(ev.id);
+    return `
+      <div class="event-card ${used ? 'used' : ''}" style="display:inline-block;vertical-align:top;margin:0.5rem;" onclick="${used ? '' : `playEvent('${ev.id}')`}">
+        <div class="ec-emoji">${ev.emoji}</div>
+        <div class="ec-name">${ev.name}</div>
+        <div class="ec-desc">${ev.desc}</div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('modalBody').innerHTML = `
+    <div style="text-align:center;margin-bottom:1rem;">
+      <span style="font-size:0.75rem;color:var(--muted);font-family:'Syne Mono',monospace;">${2 - state.eventsPlayed.length} evento(s) restante(s)</span>
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">${html}</div>
+  `;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+// ─── EJECUTAR EVENTO ──────────────────────────────────────────
+// Aplica el efecto del evento a todos los equipos y lo marca como usado.
+function playEvent(eventId) {
+  if (state.eventsPlayed.includes(eventId)) return;
+  state.eventsPlayed.push(eventId);
+
+  const ev = EVENT_CARDS.find(e => e.id === eventId);
+
+  if (eventId === 'brecha') {
+    // Todos pierden 150 excepto quien tenga Backup activo
+    state.teams.forEach(t => {
+      if (!t.activeTools.includes('backup')) {
+        t.score = Math.max(0, t.score - 150);
+      }
+    });
+  } else if (eventId === 'auditoria') {
+    // Quien tenga Capacitación completada gana +300
+    state.teams.forEach(t => {
+      if (t.activeTools.includes('capacitacion')) {
+        t.score += 300;
+      }
+    });
+  } else if (eventId === 'ataque-masivo') {
+    // Duplicar puntos de la próxima ronda
+    state.doubleNextRound = true;
+  }
+
+  closeModal();
+
+  // Mostrar banner del evento
+  const ebArea = document.getElementById('eventBannerArea');
+  ebArea.innerHTML = `<div class="event-banner pop"><div class="event-banner-text">${ev.emoji} <span class="event-banner-name">${ev.name}</span> — ${ev.desc}</div></div>`;
+  state.currentEventBanner = eventId;
+
+  // Actualizar paneles (scores pudieron cambiar)
+  renderTeamPanels();
+  document.getElementById('roundScoreStrip').innerHTML = state.teams.map(t =>
+    `<div class="rs-team">${t.emoji} <span>${t.score}</span></div>`
+  ).join('');
+
+  // Actualizar botón de eventos
+  const eventsLeft = 2 - state.eventsPlayed.length;
+  document.getElementById('btnEvent').style.display = eventsLeft > 0 ? '' : 'none';
+  document.getElementById('btnEvent').textContent = `JUGAR EVENTO (${eventsLeft})`;
+}
+
+// ─── SCOREBOARD FINAL ─────────────────────────────────────────
+// Ordena los equipos por puntaje y muestra el ranking final
+// con barras de progreso proporcionales al máximo.
 function showFinalScore() {
-  // Give random scores to other teams for demo
-  TEAMS.forEach((t, i) => {
-    if (i > 0) t.score = Math.floor(Math.random() * 5000) + 2000;
-  });
-  const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
-  const max = sorted[0].score;
+  state.phase = 'final';
+  clearInterval(state.timerInterval);
   document.getElementById('progressFill').style.width = '100%';
+
+  const sorted = [...state.teams].sort((a, b) => b.score - a.score);
+  const maxScore = Math.max(sorted[0].score, 1);
 
   document.getElementById('scoreList').innerHTML = sorted.map((t, i) => `
     <div class="score-row">
-      <div class="score-pos">${['01','02','03','04','05','06'][i]}</div>
+      <div class="score-pos">${String(i + 1).padStart(2, '0')}</div>
       <div class="score-name">${t.emoji} ${t.name}</div>
-      <div class="score-bar-wrap"><div class="score-bar" style="width:${(t.score/max)*100}%"></div></div>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:${(t.score / maxScore) * 100}%"></div></div>
       <div class="score-pts">${t.score.toLocaleString()} pts</div>
     </div>
   `).join('');
-  showScreen('screenScore');
+
+  showScreen('screenFinal');
 }
 
-// Vuelve al estado inicial: puntajes a 0, currentQ a 0,
-// barra de progreso vacía, pantalla de lobby.
-// Llamada desde el botón "NUEVA SESIÓN".
+// ─── RESET ────────────────────────────────────────────────────
+// Restaura todo el estado del juego al inicio. Llamada desde
+// el botón "Nueva Sesión" en la pantalla final.
 function resetGame() {
-  TEAMS.forEach(t => t.score = 0);
-  currentQ = 0;
+  clearInterval(state.timerInterval);
+  state.currentRound = 0;
+  state.phase = 'lobby';
+  state.eventsPlayed = [];
+  state.doubleNextRound = false;
+  state.playOrder = 0;
+  initTeamState();
   document.getElementById('progressFill').style.width = '0%';
-  showScreen('screenLobby');
+  if (state.mode === 'team') {
+    teamRound = 0;
+    teamPhase = 'playing';
+    renderTeamPlayScreen();
+    showScreen('screenTeamPlay');
+  } else {
+    renderLobby();
+    showScreen('screenLobby');
+  }
 }
 
-initTeams();
+// ─── MODAL ────────────────────────────────────────────────────
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+// Cerrar modal al hacer clic fuera del box
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// MODO EQUIPO — Vista desde cada laptop
+//
+// Flujo:
+// 1. El equipo abre el archivo con ?equipo=N
+// 2. Confirma su equipo en la pantalla de selección
+// 3. Ve la ronda actual con la carta de ataque + su mano
+// 4. Selecciona una carta (se muestra "Esperando revelación")
+// 5. Avanza de ronda manualmente sincronizándose con el facilitador
+// ═══════════════════════════════════════════════════════════════
+
+let teamRound = 0;
+let teamPhase = 'playing'; // 'playing' o 'waiting'
+
+// Pantalla de selección de equipo (solo si se accede con ?equipo=N,
+// confirma el equipo asignado).
+function renderTeamSelectScreen() {
+  const i = state.teamIndex;
+  const t = TEAMS_BASE[i];
+  document.getElementById('teamSelectGrid').innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;">
+      <div class="ts-card" onclick="confirmTeam()" style="display:inline-block;width:200px;">
+        <div class="ts-emoji" style="font-size:3rem;">${t.emoji}</div>
+        <div class="ts-name" style="font-size:1.2rem;margin-top:0.5rem;">${t.name}</div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem;">Clic para confirmar</div>
+      </div>
+    </div>
+  `;
+}
+
+function confirmTeam() {
+  teamRound = 0;
+  teamPhase = 'playing';
+  initTeamState();
+  renderTeamPlayScreen();
+  showScreen('screenTeamPlay');
+}
+
+// ─── PANTALLA DE JUEGO DEL EQUIPO ─────────────────────────────
+// Muestra la carta de ataque actual, la mano del equipo, sus
+// herramientas activas, y permite seleccionar qué jugar.
+function renderTeamPlayScreen() {
+  const i = state.teamIndex;
+  const team = state.teams[i];
+  const attack = ATTACK_CARDS[teamRound];
+
+  if (!attack) {
+    // Juego terminado
+    document.getElementById('teamPlayContent').innerHTML = `
+      <div style="text-align:center;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🏆</div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--green);margin-bottom:0.5rem;">¡PARTIDA TERMINADA!</div>
+        <div style="font-size:1rem;color:var(--muted);margin-bottom:1rem;">Tu puntuación: ${team.score} pts</div>
+        <button class="btn" onclick="resetGame()">NUEVA SESIÓN</button>
+      </div>
+    `;
+    return;
+  }
+
+  // Cartas de defensa
+  const defCards = team.defenseHand.map(dId => {
+    const card = findDefense(dId);
+    const used = team.usedDefense.includes(dId);
+    return `
+      <div class="hand-card ${used ? 'used' : ''}" onclick="${used || teamPhase === 'waiting' ? '' : `teamPlayCard('${dId}','defense')`}">
+        <div class="hc-emoji">${card.emoji}</div>
+        <div class="hc-name">${card.name}</div>
+        <div class="hc-desc">${card.desc}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Herramientas no activadas
+  const toolCards = team.toolHand.filter(tid => !team.activeTools.includes(tid)).map(tid => {
+    const card = findTool(tid);
+    return `
+      <div class="hand-card tool-card" onclick="${teamPhase === 'waiting' ? '' : `teamPlayCard('${tid}','tool')`}">
+        <div class="hc-emoji">${card.emoji}</div>
+        <div class="hc-name">${card.name}</div>
+        <div class="hc-desc">${card.desc}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Herramientas activas
+  const activeStr = team.activeTools.length
+    ? team.activeTools.map(tid => { const c = findTool(tid); return `<span class="at-chip">${c.emoji} ${c.name}</span>`; }).join('')
+    : '<span class="at-chip empty">Ninguna activa aún</span>';
+
+  document.getElementById('teamPlayContent').innerHTML = `
+    <div class="team-attack-mini">
+      <div class="tam-header">
+        <div class="tam-round">RONDA ${teamRound + 1} DE ${ATTACK_CARDS.length}</div>
+        <div class="tam-type">⚡ ${attack.type}</div>
+      </div>
+      <div class="tam-body">
+        <div class="tam-emoji">${attack.emoji}</div>
+        <div class="tam-info">
+          <div class="tam-name">${attack.name}</div>
+          <div class="tam-desc">${attack.description}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+      <div style="font-family:'Syne Mono',monospace;font-size:0.8rem;color:var(--green);font-weight:700;">${team.score} PTS</div>
+      <div style="font-family:'Syne Mono',monospace;font-size:0.65rem;color:var(--muted);">${team.defenseHand.length - team.usedDefense.length} defensas disponibles</div>
+    </div>
+
+    <div class="team-tools-area">
+      <div class="tta-title">// HERRAMIENTAS ACTIVAS</div>
+      <div class="active-tools-row">${activeStr}</div>
+    </div>
+
+    <div class="team-hand-area">
+      <div class="hand-section-title">// TU MANO — Elegí una carta para jugar</div>
+      <div class="hand-grid">${defCards}</div>
+
+      ${toolCards ? `
+        <div class="hand-section-title" style="margin-top:1rem;">// HERRAMIENTAS (activar permanentemente)</div>
+        <div class="hand-grid">${toolCards}</div>
+      ` : ''}
+
+      ${teamPhase === 'playing' ? `
+        <button class="pass-btn" onclick="teamPlayCard('pass','pass')">⏭ PASAR TURNO (−200 pts)</button>
+      ` : ''}
+    </div>
+  `;
+}
+
+// ─── JUGAR CARTA (MODO EQUIPO) ────────────────────────────────
+// El equipo selecciona una carta desde su laptop. Muestra una
+// confirmación y luego pasa a la pantalla de espera.
+function teamPlayCard(cardId, cardType) {
+  if (teamPhase !== 'playing') return;
+
+  let cardName = '';
+  if (cardType === 'defense') {
+    const c = findDefense(cardId);
+    cardName = `${c.emoji} ${c.name}`;
+  } else if (cardType === 'tool') {
+    const c = findTool(cardId);
+    cardName = `🔧 ${c.emoji} ${c.name}`;
+  } else {
+    cardName = '⏭ Pasar turno';
+  }
+
+  // Pedir confirmación
+  if (!confirm(`¿Confirmar jugada?\n\n${cardName}\n\nEsta acción no se puede deshacer.`)) return;
+
+  const team = state.teams[state.teamIndex];
+
+  if (cardType === 'defense') {
+    team.usedDefense.push(cardId);
+    team.currentPlay = { id: cardId, type: 'defense' };
+  } else if (cardType === 'tool') {
+    team.activeTools.push(cardId);
+    team.currentPlay = { id: cardId, type: 'tool' };
+  } else {
+    team.currentPlay = { id: 'pass', type: 'pass' };
+  }
+  team.hasPlayed = true;
+
+  teamPhase = 'waiting';
+
+  // Mostrar pantalla de espera
+  const attack = ATTACK_CARDS[teamRound];
+  document.getElementById('teamWaitContent').innerHTML = `
+    <div class="twm-icon">✓</div>
+    <div class="twm-title">Carta jugada</div>
+    <div class="twm-card">${cardName}</div>
+    <div class="twm-sub" style="margin-bottom:2rem;">Esperá a que el facilitador revele los resultados...</div>
+    <button class="btn btn-ghost btn-sm" onclick="teamNextRound()">AVANZAR A LA SIGUIENTE RONDA →</button>
+    <div style="margin-top:0.5rem;font-size:0.6rem;color:var(--muted);font-family:'Syne Mono',monospace;">
+      Presioná cuando el facilitador anuncie la siguiente ronda
+    </div>
+  `;
+  showScreen('screenTeamWait');
+}
+
+// ─── AVANZAR RONDA (MODO EQUIPO) ─────────────────────────────
+// El equipo avanza manualmente a la siguiente ronda. Se sincroniza
+// con el facilitador visualmente (el facilitador proyecta el número
+// de ronda, el equipo avanza cuando corresponde).
+function teamNextRound() {
+  teamRound++;
+  teamPhase = 'playing';
+  if (teamRound >= ATTACK_CARDS.length) {
+    renderTeamPlayScreen(); // mostrará la pantalla de fin
+    showScreen('screenTeamPlay');
+  } else {
+    // Reset play state para la nueva ronda
+    state.teams[state.teamIndex].currentPlay = null;
+    state.teams[state.teamIndex].hasPlayed = false;
+    renderTeamPlayScreen();
+    showScreen('screenTeamPlay');
+  }
+}
+
+// ─── ARRANQUE ─────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>
