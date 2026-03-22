@@ -191,6 +191,42 @@
   .rank-score { font-family: 'DM Mono', monospace; font-size: 0.9rem; color: var(--info); font-weight: 700; }
   .rank-row:first-child { border-color: var(--gold); background: var(--gold-light); }
   .rank-row:first-child .rank-pos { color: var(--gold); }
+
+  /* ── BUDGET SYSTEM ── */
+  .tb-budget { display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13); border-radius: 4px; padding: 0.3rem 0.75rem; }
+  .tb-budget-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; color: #8a7d70; }
+  .tb-budget-val { font-family: 'DM Mono', monospace; font-size: 0.9rem; font-weight: 700; color: #e8e0d5; }
+  .tb-budget-val.flash-red { animation: budgetFlash 1.3s ease; color: var(--accent) !important; }
+  .tb-budget-val.flash-amber { animation: budgetFlash 1.3s ease; color: #e6a817 !important; }
+  @keyframes budgetFlash { 0%,100%{transform:scale(1)} 30%{transform:scale(1.16)} }
+  #budgetToast { position: fixed; top: 4rem; right: 1.5rem; z-index: 9999; padding: 0.55rem 1.1rem; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 0.9rem; font-weight: 700; pointer-events: none; opacity: 0; }
+  #budgetToast.toast-red { background: var(--accent); color: white; animation: toastAnim 2.3s ease forwards; }
+  #budgetToast.toast-amber { background: #b8720a; color: white; animation: toastAnim 2.3s ease forwards; }
+  @keyframes toastAnim { 0%{opacity:0;transform:translateX(20px)} 15%{opacity:1;transform:translateX(0)} 75%{opacity:1} 100%{opacity:0;transform:translateX(8px)} }
+  .inv-card { background: var(--surface); border: 1px solid #e8d5a0; border-radius: 8px; overflow: hidden; }
+  .inv-header { padding: 0.7rem 1.25rem; border-bottom: 1px solid #e8d5a0; background: var(--gold-light); display: flex; align-items: center; justify-content: space-between; }
+  .inv-title { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--gold); }
+  .inv-budget-note { font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); }
+  .inv-body { padding: 0.9rem 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .inv-opt { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+  .inv-opt:hover { border-color: var(--gold); background: var(--gold-light); }
+  .inv-opt.inv-done { opacity: 0.55; cursor: default; background: var(--bg); }
+  .inv-opt.inv-done:hover { border-color: var(--border); background: var(--bg); }
+  .inv-cost { font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--gold); flex-shrink: 0; min-width: 76px; }
+  .inv-info { flex: 1; }
+  .inv-name { font-size: 0.83rem; font-weight: 500; margin-bottom: 0.15rem; }
+  .inv-benefit { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
+  .inv-badge { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--success); flex-shrink: 0; align-self: center; }
+  .budget-sheet { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .bs-title { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 1rem; text-transform: uppercase; }
+  .bs-row { display: flex; justify-content: space-between; align-items: center; padding: 0.38rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .bs-row:last-child { border-bottom: none; }
+  .bs-row.bs-total { font-weight: 600; font-size: 0.88rem; padding-top: 0.6rem; }
+  .bs-val { font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+  .bs-green { color: var(--success); }
+  .bs-red { color: var(--accent); }
+  .bs-blue { color: var(--info); }
+  .bs-bonus-row { margin-top: 0.75rem; background: var(--success-light); border: 1px solid #b8d8c8; border-radius: 6px; padding: 0.7rem 1rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--success); line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -235,6 +271,7 @@
     <div class="tb-brand">CONSEJO DE <span>CRISIS</span> — INCIDENTE EN CURSO</div>
     <div class="tb-meta">
       <span id="roundLabel">RONDA 1 DE 4</span>
+      <div class="tb-budget"><span class="tb-budget-label">BUDGET CISO</span><span class="tb-budget-val" id="budgetVal">$500,000</span></div>
       <span class="tb-timer" id="gameTimer">90:00</span>
     </div>
   </div>
@@ -311,11 +348,14 @@
       </div>
     </div>
     <div class="fr">
+      <div id="budgetSheetArea"></div>
       <div class="ir-title" style="margin-bottom:1.25rem;">Ranking de equipos</div>
       <div class="ranking-list" id="rankingList"></div>
     </div>
   </div>
 </div>
+
+<div id="budgetToast"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -355,6 +395,14 @@ let consequences = [];
 let decisionsThisRound = {};
 let unreadNotifs = 0;
 let currentSbTab = 'info';
+
+// BUDGET STATE
+let budget = 500000;
+let totalInvested = 0;
+let totalPenalties = 0;
+let penaltyShield = 0;
+let wiseInvestments = 0;
+let investmentsDone = {};
 
 const TEAMS_CRISIS = [
   { name: 'Equipo 1', score: 0, decided: false, active: true },
@@ -519,6 +567,49 @@ const ROUNDS = [
   }
 ];
 
+// INVERSIONES estratégicas disponibles por ronda.
+// bonusType: 'pts' → suma puntos al confirmar decisión óptima (best)
+//            'shield' → reduce la siguiente penalización en bonusValue
+//            'info'   → desbloquea una notificación extra
+//            'multiplier' → aplica ×1.5 a los puntos de budget restante al final
+// wise: true → marcadas como inversiones estratégicamente correctas
+const INVESTMENTS = [
+  // Ronda 1 — Primera respuesta
+  [
+    { name: 'Contratar forensics externos', cost: 80000, benefit: '+200 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 200, wise: true },
+    { name: 'Activar SOC 24hs', cost: 50000, benefit: 'Reduce la siguiente penalización automática en $30,000', bonusType: 'shield', bonusValue: 30000 },
+    { name: 'Notificar al regulador proactivamente', cost: 30000, benefit: 'Desbloquea información estratégica del regulador bancario', bonusType: 'info' },
+  ],
+  // Ronda 2 — Comunicación con clientes
+  [
+    { name: 'Agencia de comunicación de crisis', cost: 60000, benefit: '+200 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 200, wise: true },
+    { name: 'Call center dedicado', cost: 40000, benefit: 'Reduce la siguiente penalización automática en $25,000', bonusType: 'shield', bonusValue: 25000 },
+    { name: 'Monitoreo de reputación online', cost: 25000, benefit: 'Desbloquea alerta de impacto reputacional en tiempo real', bonusType: 'info' },
+  ],
+  // Ronda 3 — Medidas técnicas
+  [
+    { name: 'Implementar MFA empresa completa', cost: 90000, benefit: '+250 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 250, wise: true },
+    { name: 'Pentesting externo', cost: 70000, benefit: '+150 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 150 },
+    { name: 'Capacitación urgente todos los empleados', cost: 45000, benefit: 'Reduce la siguiente penalización automática en $20,000', bonusType: 'shield', bonusValue: 20000 },
+  ],
+  // Ronda 4 — Lecciones aprendidas
+  [
+    { name: 'Programa anual de concientización', cost: 120000, benefit: 'Aplica ×1.5 a los puntos obtenidos por budget restante al final', bonusType: 'multiplier', wise: true },
+    { name: 'Plataforma de gestión de incidentes', cost: 85000, benefit: '+300 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 300 },
+    { name: 'Seguro de ciberseguridad', cost: 60000, benefit: '+200 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 200 },
+  ],
+];
+
+// Penalizaciones automáticas por tier de decisión (en $).
+// poor = decisión incorrecta, ok = decisión subóptima.
+// La penalización se aplica con un pequeño delay tras confirmar.
+const PENALTIES = [
+  { poor: 100000, ok: 40000 },  // Ronda 1
+  { poor: 120000, ok: 35000 },  // Ronda 2
+  { poor: 80000,  ok: 50000 },  // Ronda 3
+  { poor: 90000,  ok: 30000 },  // Ronda 4
+];
+
 // Notificaciones por ronda — aparecen como alertas en el panel lateral
 const NOTIFICATIONS = {
   start: [
@@ -556,6 +647,67 @@ const NOTIFICATIONS = {
     ],
   ]
 };
+
+// ─── BUDGET FUNCTIONS ─────────────────────────────────────────────────────────
+// fmt: formatea un número como $X,XXX (valor absoluto, separador de miles en-US).
+function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US'); }
+
+// updateBudget: ajusta el estado del budget y actualiza el display en el topbar.
+// delta negativo = gasto. type 'penalty' suma a totalPenalties, 'investment' a totalInvested.
+function updateBudget(delta, type) {
+  budget += delta;
+  if (type === 'penalty')    totalPenalties -= delta;
+  if (type === 'investment') totalInvested  -= delta;
+  const valEl = document.getElementById('budgetVal');
+  if (valEl) {
+    valEl.textContent = (budget < 0 ? '-' : '') + fmt(budget);
+    const fc = type === 'penalty' ? 'flash-red' : 'flash-amber';
+    valEl.classList.remove('flash-red', 'flash-amber');
+    void valEl.offsetWidth;
+    valEl.classList.add(fc);
+    setTimeout(() => valEl.classList.remove(fc), 1400);
+  }
+  showBudgetToast(delta, type);
+}
+
+// showBudgetToast: muestra el monto descontado/invertido como notificación flotante.
+function showBudgetToast(delta, type) {
+  const toast = document.getElementById('budgetToast');
+  if (!toast) return;
+  toast.className = '';
+  toast.textContent = (delta < 0 ? '−' : '+') + fmt(Math.abs(delta));
+  void toast.offsetWidth;
+  toast.className = type === 'penalty' ? 'toast-red' : 'toast-amber';
+  setTimeout(() => { toast.className = ''; }, 2400);
+}
+
+// purchaseInvestment: ejecuta la compra de una inversión voluntaria.
+// Descuenta del budget, aplica efecto inmediato (shield/info) y actualiza la UI.
+function purchaseInvestment(roundIdx, invIdx) {
+  const key = `${roundIdx}-${invIdx}`;
+  if (investmentsDone[key]) return;
+  const inv = INVESTMENTS[roundIdx][invIdx];
+  investmentsDone[key] = true;
+  if (inv.wise) wiseInvestments++;
+  if (inv.bonusType === 'shield') penaltyShield += inv.bonusValue;
+  if (inv.bonusType === 'info') {
+    const msgs = {
+      '0-2': 'REGULADOR BANCARIO: Notificación proactiva recibida y registrada. Las entidades que notifican en menos de 24h históricamente reciben hasta un 40% de reducción en sanciones administrativas.',
+      '1-2': 'ALERTA REPUTACIONAL: Monitoreo detectó 3 publicaciones virales sobre el incidente. Una cuenta con 51K seguidores publicó "¿hackeo masivo al banco?" — 18K interacciones. Ventana de respuesta óptima: menos de 2 horas.',
+    };
+    pushNotif({ time: 'INV.', text: msgs[key] || 'Información estratégica desbloqueada por la inversión.', type: 'info' });
+  }
+  updateBudget(-inv.cost, 'investment');
+  const btn = document.getElementById(`invOpt-${roundIdx}-${invIdx}`);
+  if (btn) {
+    btn.classList.add('inv-done');
+    btn.onclick = null;
+    const badge = btn.querySelector('.inv-badge');
+    if (badge) badge.textContent = '✓ ADQUIRIDO';
+  }
+  const note = document.getElementById('invBudgetNote');
+  if (note) note.textContent = 'Budget disponible: ' + (budget < 0 ? '-' : '') + fmt(budget);
+}
 
 // ─── SIDEBAR TABS ────────────────────────────────────────────────────────────
 // Cambia entre los tres paneles del sidebar: SITUACIÓN / ALERTAS / EQUIPOS.
@@ -665,6 +817,28 @@ function renderRound(n) {
   document.getElementById('roundLabel').textContent = `RONDA ${n+1} DE ${ROUNDS.length}`;
   const r = ROUNDS[n];
 
+  const invSection = INVESTMENTS[n] ? `
+    <div class="inv-card">
+      <div class="inv-header">
+        <div class="inv-title">// INVERSIONES ESTRATÉGICAS DISPONIBLES · RONDA ${n+1}</div>
+        <div class="inv-budget-note" id="invBudgetNote">Budget disponible: ${(budget < 0 ? '-' : '') + fmt(budget)}</div>
+      </div>
+      <div class="inv-body">
+        ${INVESTMENTS[n].map((inv, i) => {
+          const key = `${n}-${i}`;
+          const done = !!investmentsDone[key];
+          return `<div class="inv-opt${done ? ' inv-done' : ''}" id="invOpt-${n}-${i}"${done ? '' : ` onclick="purchaseInvestment(${n},${i})"`}>
+            <div class="inv-cost">${fmt(inv.cost)}</div>
+            <div class="inv-info">
+              <div class="inv-name">${inv.name}</div>
+              <div class="inv-benefit">${inv.benefit}</div>
+            </div>
+            <div class="inv-badge">${done ? '✓ ADQUIRIDO' : ''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
   document.getElementById('gameMain').innerHTML = `
     <div class="incident-card">
       <div class="ic-status-bar"><div class="ic-dot"></div>${r.status}</div>
@@ -699,6 +873,7 @@ function renderRound(n) {
         <button class="btn btn-dark" id="confirmBtn" onclick="confirmDecision(${n})" disabled style="opacity:0.4;cursor:default">Confirmar decisión →</button>
       </div>
     </div>
+    ${invSection}
     <div id="revealArea"></div>
   `;
 
@@ -768,6 +943,31 @@ function confirmDecision(round) {
   document.getElementById('tScore0').textContent = `${totalScore} pts`;
   TEAMS_CRISIS[0].decided = true;
   document.getElementById('tDec0').style.display = 'block';
+
+  // ── Budget: penalización automática por decisión incorrecta/subóptima ──
+  const pen = PENALTIES[round];
+  if (pen) {
+    let penAmt = opt.tier === 'poor' ? pen.poor : opt.tier === 'ok' ? pen.ok : 0;
+    if (penAmt > 0) {
+      const shielded = Math.min(penaltyShield, penAmt);
+      penaltyShield = Math.max(0, penaltyShield - shielded);
+      penAmt -= shielded;
+      if (penAmt > 0) setTimeout(() => updateBudget(-penAmt, 'penalty'), 700);
+    }
+  }
+  // ── Budget: bonus de inversiones si la decisión fue óptima (best) ──
+  if (opt.tier === 'best') {
+    let bonusPts = 0;
+    INVESTMENTS[round].forEach((inv, idx) => {
+      if (investmentsDone[`${round}-${idx}`] && inv.bonusType === 'pts') bonusPts += inv.bonusValue;
+    });
+    if (bonusPts > 0) {
+      totalScore += bonusPts;
+      TEAMS_CRISIS[0].score = totalScore;
+      document.getElementById('metScore').textContent = totalScore;
+      document.getElementById('tScore0').textContent = `${totalScore} pts`;
+    }
+  }
 
   // Add to consequence history
   consequences.unshift({ tier: opt.tier, text: `R${round+1}: ${opt.consequence}` });
@@ -852,11 +1052,18 @@ function simulateOtherTeams() {
   });
 }
 
-// Termina el juego. Asigna puntajes aleatorios a los equipos simulados,
-// ordena todos con sort() y construye el ranking final.
+// Termina el juego. Calcula el bonus de budget, construye el balance sheet,
+// asigna puntajes a equipos simulados y arma el ranking final.
 // Llamada por: startTimer() (tiempo agotado) o el botón "Ver resultado final →".
 function showFinal() {
   clearInterval(timerInt);
+
+  // ── Budget bonus: $1,000 restante = 1 pt. ×1.5 si se compró "Programa anual de concientización" ──
+  let budgetPts = Math.floor(budget / 1000); // puede ser negativo
+  const hasMultiplier = !!investmentsDone['3-0'];
+  if (hasMultiplier && budget > 0) budgetPts = Math.floor(budgetPts * 1.5);
+  totalScore += budgetPts;
+
   TEAMS_CRISIS.forEach((t, i) => {
     if (i > 0) t.score = Math.floor(Math.random() * 2200) + 400;
   });
@@ -864,6 +1071,27 @@ function showFinal() {
   const sorted = [...TEAMS_CRISIS].sort((a, b) => b.score - a.score);
 
   document.getElementById('finalScoreNum').textContent = totalScore.toLocaleString();
+
+  // ── Balance presupuestario ──
+  const budgetPos = budget >= 0;
+  let bonusLine = '';
+  if (budgetPts > 0) {
+    bonusLine = `<div class="bs-bonus-row">+${budgetPts.toLocaleString()} pts adicionales por gestión eficiente del presupuesto${hasMultiplier && budget > 0 ? ' (×1.5 aplicado por inversión en concientización)' : ''}</div>`;
+  } else if (budgetPts < 0) {
+    bonusLine = `<div class="bs-bonus-row" style="background:var(--accent-light);border-color:var(--accent-border);color:var(--accent)">${budgetPts.toLocaleString()} pts por exceder el presupuesto asignado</div>`;
+  } else {
+    bonusLine = `<div class="bs-bonus-row" style="opacity:0.65">Budget agotado — sin puntos adicionales de presupuesto</div>`;
+  }
+  document.getElementById('budgetSheetArea').innerHTML = `
+    <div class="budget-sheet">
+      <div class="bs-title">// BALANCE PRESUPUESTARIO DE LA CRISIS</div>
+      <div class="bs-row"><span>Budget inicial del CISO</span><span class="bs-val bs-blue">$500,000</span></div>
+      <div class="bs-row"><span>Total en inversiones estratégicas</span><span class="bs-val bs-red">−${fmt(totalInvested)}</span></div>
+      <div class="bs-row"><span>Total en penalizaciones por decisiones</span><span class="bs-val bs-red">−${fmt(totalPenalties)}</span></div>
+      <div class="bs-row bs-total"><span>Budget restante</span><span class="bs-val ${budgetPos ? 'bs-green' : 'bs-red'}">${budgetPos ? '' : '−'}${fmt(budget)}</span></div>
+      ${bonusLine}
+    </div>`;
+
   document.getElementById('rankingList').innerHTML = sorted.map((t, i) => `
     <div class="rank-row">
       <div class="rank-pos">${String(i+1).padStart(2,'0')}</div>
@@ -885,9 +1113,13 @@ function resetGame() {
   bestDec = 0; goodDec = 0; poorDec = 0; totalScore = 0;
   consequences = []; decisionsThisRound = {};
   unreadNotifs = 0;
+  budget = 500000; totalInvested = 0; totalPenalties = 0;
+  penaltyShield = 0; wiseInvestments = 0; investmentsDone = {};
   TEAMS_CRISIS.forEach(t => { t.score = 0; t.decided = false; });
   document.getElementById('notifFeed').innerHTML = '';
   document.getElementById('notifBadge').style.display = 'none';
+  document.getElementById('budgetVal').textContent = '$500,000';
+  document.getElementById('budgetSheetArea').innerHTML = '';
   document.getElementById('screenFinal').classList.remove('active');
   document.getElementById('screenGame').classList.remove('active');
   document.getElementById('screenIntro').classList.add('active');
