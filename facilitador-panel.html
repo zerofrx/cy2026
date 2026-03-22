@@ -326,30 +326,30 @@
     <div class="ws-card">
       <div class="ws-card-title">Checklist pre-sesión</div>
       <div class="ws-check-list" id="checkList">
-        <label class="ws-check-item" onclick="toggleCheck(this)">
-          <input type="checkbox"><div class="ws-check-box"></div>
+        <div class="ws-check-item" onclick="toggleCheck(this)">
+          <div class="ws-check-box"></div>
           <span class="ws-check-label">Proyector / pantalla encendida y visible</span>
-        </label>
-        <label class="ws-check-item" onclick="toggleCheck(this)">
-          <input type="checkbox"><div class="ws-check-box"></div>
+        </div>
+        <div class="ws-check-item" onclick="toggleCheck(this)">
+          <div class="ws-check-box"></div>
           <span class="ws-check-label">Navegador en pantalla completa (F11)</span>
-        </label>
-        <label class="ws-check-item" onclick="toggleCheck(this)">
-          <input type="checkbox"><div class="ws-check-box"></div>
+        </div>
+        <div class="ws-check-item" onclick="toggleCheck(this)">
+          <div class="ws-check-box"></div>
           <span class="ws-check-label">6 grupos formados, 5 integrantes cada uno</span>
-        </label>
-        <label class="ws-check-item" onclick="toggleCheck(this)">
-          <input type="checkbox"><div class="ws-check-box"></div>
+        </div>
+        <div class="ws-check-item" onclick="toggleCheck(this)">
+          <div class="ws-check-box"></div>
           <span class="ws-check-label">Vocero designado por cada equipo</span>
-        </label>
-        <label class="ws-check-item" onclick="toggleCheck(this)">
-          <input type="checkbox"><div class="ws-check-box"></div>
+        </div>
+        <div class="ws-check-item" onclick="toggleCheck(this)">
+          <div class="ws-check-box"></div>
           <span class="ws-check-label">Variante seleccionada (A, B o C)</span>
-        </label>
-        <label class="ws-check-item" onclick="toggleCheck(this)">
-          <input type="checkbox"><div class="ws-check-box"></div>
+        </div>
+        <div class="ws-check-item" onclick="toggleCheck(this)">
+          <div class="ws-check-box"></div>
           <span class="ws-check-label">Guión del facilitador revisado</span>
-        </label>
+        </div>
       </div>
       <div class="ws-check-count" id="checkCount">0 / 6 completados</div>
     </div>
@@ -392,11 +392,11 @@
       </div>
       <div class="ws-info-row">
         <span class="ws-info-key">Duración estimada</span>
-        <span class="ws-info-val">75 – 90 min</span>
+        <span class="ws-info-val">50 – 60 min</span>
       </div>
       <div class="ws-info-row">
         <span class="ws-info-key">Timer predeterminado</span>
-        <span class="ws-info-val">90:00 min</span>
+        <span class="ws-info-val">60:00 min</span>
       </div>
       <div class="ws-info-row">
         <span class="ws-info-key">Respuestas cargadas</span>
@@ -488,7 +488,7 @@
       <div class="nav-label">SESIÓN</div>
       <div style="padding:0.75rem;background:var(--bg);border-radius:6px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;">TIEMPO RESTANTE</div>
-        <div class="timer-big" id="mainTimer">90:00</div>
+        <div class="timer-big" id="mainTimer">60:00</div>
         <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
           <button class="btn btn-ghost btn-sm" id="timerBtn" onclick="toggleTimer()">▶ Iniciar</button>
           <button class="btn btn-ghost btn-sm" onclick="resetTimer()">↺</button>
@@ -546,7 +546,7 @@
             <div class="vc-desc">Decisiones estratégicas con consecuencias. El facilitador proyecta el incidente y evoluciona.</div>
             <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
               <div class="vc-stat">Rondas: <span>4</span></div>
-              <div class="vc-stat">Tiempo: <span>90 min</span></div>
+              <div class="vc-stat">Tiempo: <span>60 min</span></div>
               <div class="vc-stat">Dificultad: <span>Alta</span></div>
             </div>
             <div class="vc-actions">
@@ -617,7 +617,7 @@
           <div class="script-note note-facilitador"><div class="note-label">FACILITADOR</div><div class="note-text">Pararse frente a la sala. Esperar silencio completo antes de hablar.</div></div>
           <div class="script-note note-pantalla"><div class="note-label">PANTALLA</div><div class="note-text">Proyectar pantalla de lobby de la variante elegida.</div></div>
           <div class="script-box">
-            "Bienvenidos. En los próximos 90 minutos van a ser el equipo de ciberseguridad de una empresa real que está bajo ataque.
+            "Bienvenidos. En los próximos 60 minutos van a ser el equipo de ciberseguridad de una empresa real que está bajo ataque.
             <br><br>
             No hay respuestas 'de manual' aquí. Las decisiones que tomen van a tener consecuencias reales dentro del juego — exactamente como ocurre en el mundo real.
             <br><br>
@@ -809,7 +809,7 @@
 
 // ESTADO del timer del facilitador (independiente de los juegos)
 let timerRunning = false;
-let timerSecs = 5400;
+let timerSecs = 3600;
 let timerInterval = null;
 
 // Alterna entre iniciar y pausar el countdown de la sesión.
@@ -838,13 +838,13 @@ function toggleTimer() {
   }
 }
 
-// Detiene el timer y lo devuelve a 90:00.
+// Detiene el timer y lo devuelve a 60:00.
 // No llama a addLog (operación silenciosa).
 function resetTimer() {
   clearInterval(timerInterval);
   timerRunning = false;
-  timerSecs = 5400;
-  document.getElementById('mainTimer').textContent = '90:00';
+  timerSecs = 3600;
+  document.getElementById('mainTimer').textContent = '60:00';
   document.getElementById('mainTimer').className = 'timer-big';
   document.getElementById('timerBtn').textContent = '▶ Iniciar';
 }
