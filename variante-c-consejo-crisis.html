@@ -318,6 +318,32 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════
+// FLUJO GENERAL — cómo se conectan las funciones
+//
+// startCrisis()
+//   ├─ initSidebar()      → dibuja indicadores y lista de equipos
+//   ├─ renderRound(0)     → construye el HTML de la ronda actual
+//   ├─ startTimer()       → inicia el countdown de 90 min
+//   ├─ simulateOtherTeams() → anima los otros equipos en segundo plano
+//   └─ loadNotifs(start)  → dispara las primeras alertas con delay
+//
+// El usuario interactúa con la ronda:
+//   selectDecision() → habilita el botón "Confirmar"
+//   confirmDecision()
+//     ├─ Revela los tiers de todas las opciones
+//     ├─ Actualiza puntaje y métricas en la barra lateral
+//     └─ Muestra el botón "Siguiente ronda →" o "Ver resultado →"
+//
+// nextRound() → renderRound(n+1)   [loop por 4 rondas]
+// showFinal() → pantalla de resultado con ranking
+// resetGame() → vuelve a la intro con todo en cero
+//
+// pushNotif() / loadNotifs() ← alimentan el panel ALERTAS del sidebar
+// switchSbTab()              ← cambia entre SITUACIÓN / ALERTAS / EQUIPOS
+// ═══════════════════════════════════════════════════════════════
+
+// ESTADO — variables que cambian durante la partida
 let timerSecs = 5400;
 let timerInt = null;
 let currentRound = 0;
@@ -338,6 +364,12 @@ const TEAMS_CRISIS = [
   { name: 'Equipo 5', score: 0, decided: false, active: false },
   { name: 'Equipo 6', score: 0, decided: false, active: false },
 ];
+
+// DATOS — el juego usa estos arrays como "base de datos".
+// TEAMS_CRISIS: 6 equipos; el índice 0 es el equipo real, los demás son simulados.
+// TIER_CONFIG: describe los 4 niveles de decisión (mejor → peor) con colores y clases CSS.
+// ROUNDS: 4 rondas; cada una tiene narrativa, pregunta y 4 opciones con tier y puntos.
+// NOTIFICATIONS: alertas que aparecen en el sidebar por ronda (simulan tensión en tiempo real).
 
 // TIER system: 'best' = decisión óptima, 'good' = buena decisión,
 //              'ok' = decisión parcial, 'poor' = oportunidad perdida
@@ -526,6 +558,9 @@ const NOTIFICATIONS = {
 };
 
 // ─── SIDEBAR TABS ────────────────────────────────────────────────────────────
+// Cambia entre los tres paneles del sidebar: SITUACIÓN / ALERTAS / EQUIPOS.
+// Cuando el usuario abre ALERTAS, resetea el contador de no leídas
+// y oculta el badge rojo. Patrón: toggle 'active' en tabs y paneles a la vez.
 function switchSbTab(tab) {
   currentSbTab = tab;
   ['info', 'notif', 'scores'].forEach(t => {
@@ -539,6 +574,12 @@ function switchSbTab(tab) {
 }
 
 // ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+// pushNotif: agrega UNA alerta al panel ALERTAS. Usa insertBefore para que
+//   las nuevas aparezcan arriba. Si el usuario no está en ese tab, incrementa
+//   el badge rojo de no leídas.
+// loadNotifs: llama a pushNotif() varias veces con setTimeout, una por alerta,
+//   espaciadas 1.2s para simular que llegan en tiempo real.
+//   Llamada por: startCrisis() (alertas iniciales) y renderRound() (por ronda).
 function pushNotif(notif) {
   const feed = document.getElementById('notifFeed');
   const el = document.createElement('div');
@@ -561,6 +602,9 @@ function loadNotifs(notifArray, delay = 0) {
 }
 
 // ─── GAME INIT ────────────────────────────────────────────────────────────────
+// Punto de entrada del juego. Oculta la intro, muestra la pantalla de juego,
+// y dispara todo lo demás: sidebar, primera ronda, timer, simulación y alertas.
+// Es la única función que llama directamente a todas las demás de inicio.
 function startCrisis() {
   document.getElementById('screenIntro').classList.remove('active');
   document.getElementById('screenGame').classList.add('active');
@@ -572,6 +616,10 @@ function startCrisis() {
   loadNotifs(NOTIFICATIONS.start, 800);
 }
 
+// Inicia el countdown de 90 minutos (5400 segundos).
+// Cada segundo actualiza el texto del timer y cambia el color:
+//   blanco → amarillo (<20 min) → rojo parpadeante (<5 min).
+// Si llega a 0, llama a showFinal() automáticamente.
 function startTimer() {
   timerInt = setInterval(() => {
     timerSecs--;
@@ -585,6 +633,10 @@ function startTimer() {
   }, 1000);
 }
 
+// Construye los elementos fijos del sidebar: los 4 puntos de rondas
+// (indicador de progreso) y la lista de equipos con sus puntajes.
+// Solo se llama una vez desde startCrisis(). Los puntos se actualizan
+// luego en nextRound() al ir completando rondas.
 function initSidebar() {
   const ri = document.getElementById('roundIndicator');
   ri.innerHTML = ROUNDS.map((_, i) =>
@@ -602,6 +654,11 @@ function initSidebar() {
 }
 
 // ─── ROUND RENDER ─────────────────────────────────────────────────────────────
+// Construye todo el HTML del área principal para la ronda n.
+// Inyecta la tarjeta de incidente, la tarjeta de decisión (con las opciones),
+// y el área vacía donde aparecerá el resultado (#revealArea).
+// También dispara las notificaciones de esa ronda con un delay de 3 segundos.
+// Llamada por: startCrisis() y nextRound().
 function renderRound(n) {
   currentRound = n;
   decisionsThisRound = {};
@@ -654,6 +711,9 @@ function renderRound(n) {
   }
 }
 
+// Marca visualmente la opción elegida y habilita el botón "Confirmar".
+// Guarda el índice en decisionsThisRound._selected para que confirmDecision()
+// sepa qué eligió el usuario. Si ya se confirmó, sale sin hacer nada.
 function selectDecision(round, idx) {
   if (decisionsThisRound._confirmed) return;
   document.querySelectorAll('.dec-opt').forEach(o => o.classList.remove('selected'));
@@ -665,6 +725,12 @@ function selectDecision(round, idx) {
   btn.disabled = false;
 }
 
+// La función más compleja del juego. Cuando el usuario confirma:
+//   1. Revela el tier (color) de TODAS las opciones, no solo la elegida.
+//   2. Suma los puntos al puntaje total y actualiza las métricas del sidebar.
+//   3. Agrega la consecuencia al historial (panel SITUACIÓN).
+//   4. Renderiza el bloque de resultado (#revealArea) con el tier y la decisión óptima.
+//   5. Desactiva el botón confirmar para que no se pueda clickear dos veces.
 function confirmDecision(round) {
   const sel = decisionsThisRound._selected;
   if (sel === undefined) return;
@@ -743,6 +809,8 @@ function confirmDecision(round) {
   document.getElementById('confirmBtn').style.opacity = '0.4';
 }
 
+// Avanza a la siguiente ronda. Marca el punto de la ronda actual como
+// 'done' (verde) y el siguiente como 'active'. Llama a renderRound(n+1).
 function nextRound() {
   const prev = document.getElementById(`riDot${currentRound}`);
   prev.classList.remove('active');
@@ -752,6 +820,10 @@ function nextRound() {
   renderRound(currentRound + 1);
 }
 
+// Simula que los otros 5 equipos van tomando decisiones a lo largo del juego.
+// Usa setInterval + setTimeout anidados: cada ~55–90 segundos el equipo i
+// "decide" y recibe puntos aleatorios según un tier simulado (70% chance buena).
+// El marcador del sidebar se actualiza en vivo. Es puramente visual/narrativo.
 function simulateOtherTeams() {
   TEAMS_CRISIS.forEach((t, i) => {
     if (i === 0) return;
@@ -780,6 +852,9 @@ function simulateOtherTeams() {
   });
 }
 
+// Termina el juego. Asigna puntajes aleatorios a los equipos simulados,
+// ordena todos con sort() y construye el ranking final.
+// Llamada por: startTimer() (tiempo agotado) o el botón "Ver resultado final →".
 function showFinal() {
   clearInterval(timerInt);
   TEAMS_CRISIS.forEach((t, i) => {
@@ -801,6 +876,8 @@ function showFinal() {
   document.getElementById('screenFinal').classList.add('active');
 }
 
+// Vuelve todo a cero: timer, ronda, puntajes, decisiones, notificaciones.
+// Lleva de vuelta a la pantalla de intro. Llamada desde "Nueva sesión".
 function resetGame() {
   clearInterval(timerInt);
   timerSecs = 5400;

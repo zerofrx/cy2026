@@ -502,10 +502,28 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════
+// PANEL FACILITADOR — este archivo NO es un juego, es una
+// herramienta de control. Su JS es independiente de los juegos.
+//
+// Funciones y cómo se conectan:
+//   toggleTimer()  ←→  botón "Iniciar/Pausar"
+//   resetTimer()   ←→  botón "↺"
+//   switchTab(tab) ←→  clicks en tabs y nav lateral
+//   openVariante(v)←→  botones "Abrir juego →"  →  abre nueva pestaña
+//   addLog(msg)    ←   llamada por toggleTimer(), openVariante()
+//                       y los botones de "Acciones rápidas"
+// ═══════════════════════════════════════════════════════════════
+
+// ESTADO del timer del facilitador (independiente de los juegos)
 let timerRunning = false;
 let timerSecs = 5400;
 let timerInterval = null;
 
+// Alterna entre iniciar y pausar el countdown de la sesión.
+// Cuando inicia: crea un setInterval que descuenta un segundo por tick
+// y actualiza el texto + colores del elemento #mainTimer.
+// Siempre llama a addLog() para registrar la acción.
 function toggleTimer() {
   if (timerRunning) {
     clearInterval(timerInterval);
@@ -528,6 +546,8 @@ function toggleTimer() {
   }
 }
 
+// Detiene el timer y lo devuelve a 90:00.
+// No llama a addLog (operación silenciosa).
 function resetTimer() {
   clearInterval(timerInterval);
   timerRunning = false;
@@ -537,6 +557,10 @@ function resetTimer() {
   document.getElementById('timerBtn').textContent = '▶ Iniciar';
 }
 
+// Muestra la pestaña solicitada y oculta las demás.
+// Actualiza tanto los botones .tab como los paneles .tab-content
+// usando el patrón: quitar 'active' de todos, ponérselo solo al elegido.
+// Llamada desde los tabs y desde los items del nav lateral.
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -545,12 +569,19 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 }
 
+// Abre el juego en una nueva pestaña del navegador.
+// Usa window.open() con '_blank' para no cerrar el panel.
+// Llama a addLog() para registrar qué variante se abrió.
 function openVariante(v) {
   const urls = { a: 'variante-a-cazadores.html', b: 'variante-b-escape-room.html', c: 'variante-c-consejo-crisis.html' };
   addLog(`Abriendo Variante ${v.toUpperCase()}`, 'info');
   window.open(urls[v], '_blank');
 }
 
+// Agrega una entrada al log de actividad en el sidebar derecho.
+// Crea un div con timestamp real (new Date()) y lo inserta arriba.
+// Si hay más de 10 entradas, elimina la más vieja (log circular).
+// Llamada por: toggleTimer(), openVariante(), y los botones de acciones rápidas.
 function addLog(msg, type) {
   const log = document.getElementById('alertLog');
   const now = new Date();

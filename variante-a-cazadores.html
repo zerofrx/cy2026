@@ -177,6 +177,29 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════
+// FLUJO GENERAL — cómo se conectan las funciones
+//
+// Al cargar la página: initTeams() dibuja el lobby automáticamente.
+//
+// Facilitador pulsa "Iniciar":
+//   startGame() → showQuestion()
+//     ├─ showQuestion() arranca el timer y llama a simulateTeamAnswers()
+//     ├─ Usuario hace clic: selectAnswer() → revealAnswer()
+//     └─ Timer llega a 0: revealAnswer(-1)  (sin respuesta elegida)
+//
+// Facilitador pulsa "Siguiente amenaza →":
+//   nextQuestion()
+//     ├─ Si quedan preguntas → showQuestion()  [vuelve al loop]
+//     └─ Si terminaron todas → showFinalScore()
+//
+// showScreen(id) es una utilidad que usan casi todas las funciones
+// para cambiar de pantalla (lobby / pregunta / reveal / score).
+// ═══════════════════════════════════════════════════════════════
+
+// DATOS — el juego vive en estos dos arrays.
+// TEAMS: 6 equipos con nombre, emoji y puntaje (empieza en 0).
+// QUESTIONS: 8 preguntas con opciones, índice correcto y puntos.
 const TEAMS = [
   { name: 'Equipo 1', emoji: '🛡️', score: 0 },
   { name: 'Equipo 2', emoji: '🔍', score: 0 },
@@ -261,13 +284,21 @@ const QUESTIONS = [
   }
 ];
 
+// ESTADO — estas variables cambian durante la partida.
+// currentQ: índice de la pregunta actual (empieza en 0).
+// timer: referencia al setInterval del contador; se guarda para poder detenerlo.
+// timeLeft: segundos que quedan para responder (arranca en 60).
+// answered: bloquea doble respuesta en la misma pregunta.
+// teamAnswered: array de booleanos, uno por equipo → true cuando "respondió".
 let currentQ = 0;
 let timer = null;
 let timeLeft = 60;
 let answered = false;
 let teamAnswered = [];
 
-// INIT TEAMS
+// Dibuja las tarjetas de equipo en el lobby usando el array TEAMS.
+// Se llama sola al final del archivo (última línea: initTeams()).
+// No llama a ninguna otra función, solo construye HTML.
 function initTeams() {
   const grid = document.getElementById('teamsGrid');
   grid.innerHTML = TEAMS.map((t, i) => `
@@ -287,17 +318,26 @@ function initTeams() {
   }, 500);
 }
 
+// Punto de entrada del juego. Resetea todos los puntajes a 0
+// y arranca la primera pregunta. Llama a: showQuestion().
 function startGame() {
   TEAMS.forEach(t => t.score = 0);
   currentQ = 0;
   showQuestion();
 }
 
+// Utilidad para cambiar de pantalla: quita 'active' de todas y se
+// la pone solo a la del id recibido. La llaman showQuestion(),
+// revealAnswer(), nextQuestion() y showFinalScore().
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
+// Función central del loop. Lee QUESTIONS[currentQ], construye los
+// botones de opciones, y arranca el timer con setInterval.
+// También llama a simulateTeamAnswers() para animar los puntos de equipo.
+// Llamada por: startGame() y nextQuestion().
 function showQuestion() {
   showScreen('screenQuestion');
   const q = QUESTIONS[currentQ];
@@ -346,6 +386,10 @@ function showQuestion() {
   simulateTeamAnswers(q.correct);
 }
 
+// Simula que los otros 5 equipos van respondiendo con retrasos
+// aleatorios (5 a 25 segundos). Cuando todos tienen su punto verde,
+// llama automáticamente a revealAnswer() —igual que si el usuario
+// hubiera respondido. Llamada por: showQuestion().
 function simulateTeamAnswers(correct) {
   TEAMS.forEach((_, i) => {
     const delay = 5000 + Math.random() * 20000;
@@ -363,6 +407,9 @@ function simulateTeamAnswers(correct) {
   });
 }
 
+// Actualiza el número del timer y el arco SVG (strokeDashoffset).
+// Cambia el color: verde → amarillo (≤20s) → rojo (≤10s).
+// Llamada cada segundo por el setInterval dentro de showQuestion().
 function updateTimer(t) {
   document.getElementById('timerNum').textContent = t;
   const circle = document.getElementById('timerCircle');
@@ -372,12 +419,20 @@ function updateTimer(t) {
   document.getElementById('timerNum').style.color = t > 20 ? 'var(--green)' : t > 10 ? 'var(--warn)' : 'var(--danger)';
 }
 
+// Llamada cuando el usuario hace clic en una opción (botón HTML).
+// Si ya respondió, sale inmediatamente (guard clause).
+// Detiene el timer y delega todo el trabajo a revealAnswer().
 function selectAnswer(idx) {
   if (answered) return;
   clearInterval(timer);
   revealAnswer(idx);
 }
 
+// Muestra la respuesta correcta: pinta opciones verde/rojo,
+// suma puntos proporcionales al tiempo restante si acertó,
+// y después de 1.5s cambia a screenReveal con la explicación.
+// selected=-1 significa que nadie respondió (timer expiró).
+// Llamada por: selectAnswer() y simulateTeamAnswers().
 function revealAnswer(selected) {
   if (answered) return;
   answered = true;
@@ -407,6 +462,10 @@ function revealAnswer(selected) {
   }, 1500);
 }
 
+// Avanza al siguiente paso. Llamada desde el botón "SIGUIENTE →".
+// Incrementa currentQ y decide a dónde ir:
+//   → todavía hay preguntas: llama a showQuestion()
+//   → se acabaron: llama a showFinalScore()
 function nextQuestion() {
   currentQ++;
   if (currentQ >= QUESTIONS.length) {
@@ -416,6 +475,9 @@ function nextQuestion() {
   }
 }
 
+// Genera puntajes aleatorios para los equipos sin datos reales (demo),
+// los ordena de mayor a menor con sort(), y construye el ranking HTML.
+// Llamada por: nextQuestion() cuando currentQ >= QUESTIONS.length.
 function showFinalScore() {
   // Give random scores to other teams for demo
   TEAMS.forEach((t, i) => {
@@ -436,6 +498,9 @@ function showFinalScore() {
   showScreen('screenScore');
 }
 
+// Vuelve al estado inicial: puntajes a 0, currentQ a 0,
+// barra de progreso vacía, pantalla de lobby.
+// Llamada desde el botón "NUEVA SESIÓN".
 function resetGame() {
   TEAMS.forEach(t => t.score = 0);
   currentQ = 0;

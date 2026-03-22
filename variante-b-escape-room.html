@@ -327,7 +327,49 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════
+// FLUJO GENERAL — cómo se conectan las funciones
+//
+// startEscape()
+//   ├─ initTeamStatus()     → dibuja los equipos en el sidebar
+//   ├─ renderStep(0)        → construye el HTML del reto actual
+//   ├─ startTimer()         → countdown de 60 min
+//   ├─ simulateOtherTeams() → anima progreso de otros equipos
+//   └─ pushNotif() x3       → alertas iniciales escalonadas
+//
+// El usuario responde preguntas de radio dentro del reto:
+//   selectRadio(groupKey, idx, isCorrect)
+//     ├─ Stage 0 / 1: si es correcta → bloquea el grupo y llama
+//     │   a checkStageDone(). Si es incorrecta → deshabilita solo
+//     │   esa opción (el usuario puede reintentar con las otras).
+//     └─ Stage 2: cualquier respuesta bloquea el grupo → checkStageDone(2)
+//
+//   checkStageDone(stageNum)
+//     → revisa si todos los grupos de STAGE_REQUIRED están bloqueados
+//     → si sí: muestra feedback y llama a completeStep() con 1.8s delay
+//
+// El Reto 4 usa un input de texto:
+//   checkCode() → si el valor es '72' → llama a completeStep(3)
+//
+// completeStep(n)
+//   → marca el paso ✓ en el sidebar izquierdo
+//   → llama a renderStep(n+1) para el siguiente reto
+//   → si n+1 === 4 → showSuccess()
+//
+// Notificaciones (sidebar derecho):
+//   loadStageNotifs(n) → llama a pushNotif() con delays escalonados
+//   switchSbTab()      → alterna entre ALERTAS y EQUIPOS
+// ═══════════════════════════════════════════════════════════════
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
+// ESTADO — variables que cambian durante la partida.
+// timerInterval: referencia al setInterval del timer; se guarda para detenerlo.
+// seconds: segundos restantes (3600 = 60 min). Se descuenta cada segundo.
+// currentStep: reto actual (0–3). Avanza en completeStep().
+// lockedGroups: objeto { '0-0': true, '2a': true, ... }
+//   → un grupo "bloqueado" significa que ya fue respondido; no acepta más clics.
+// stageCorrect: cuántas respuestas correctas se acumularon por stage [0,0,0,0].
+// STAGE_REQUIRED: define qué grupos HAY que bloquear para completar cada stage.
 let timerInterval = null;
 let seconds = 3600;
 let currentStep = 0;
@@ -723,6 +765,8 @@ const TEAMS_DATA = [
 ];
 
 // ─── GAME FLOW ────────────────────────────────────────────────────────────────
+// Punto de entrada. Cambia a la pantalla de juego y dispara todo lo demás.
+// Es la única función que no es llamada por otra — la llama el botón HTML.
 function startEscape() {
   document.getElementById('screenIntro').classList.remove('active');
   document.getElementById('screenGame').classList.add('active');
@@ -735,6 +779,9 @@ function startEscape() {
   NOTIFICATIONS.start.forEach((n, i) => setTimeout(() => pushNotif(n), 800 + i * 1800));
 }
 
+// Countdown de 60 minutos. Cada segundo actualiza el texto y cambia de color:
+//   normal → warning (<10 min) → critical (<3 min, parpadea).
+// Llamada una sola vez por startEscape().
 function startTimer() {
   timerInterval = setInterval(() => {
     seconds--;
@@ -747,6 +794,9 @@ function startTimer() {
   }, 1000);
 }
 
+// Construye la lista de equipos en el sidebar derecho (tab EQUIPOS).
+// Usa TEAMS_DATA para crear las filas. Cada fila tiene un punto de color
+// y un texto "0/4" que simulateOtherTeams() va actualizando.
 function initTeamStatus() {
   document.getElementById('teamStatusList').innerHTML = TEAMS_DATA.map((t, i) => `
     <div class="ts-row" id="tsRow${i}">
@@ -757,6 +807,9 @@ function initTeamStatus() {
   `).join('');
 }
 
+// Simula el progreso de los otros 5 equipos con 4 setTimeout por equipo.
+// Cada equipo avanza de 0/4 a 4/4 en un tiempo aleatorio.
+// No interactúa con la lógica real del juego — es solo animación visual.
 function simulateOtherTeams() {
   TEAMS_DATA.forEach((t, i) => {
     if (i === 0) return;
@@ -768,6 +821,11 @@ function simulateOtherTeams() {
   });
 }
 
+// Renderiza el reto n en el área central. CHALLENGES[n] es una función
+// que devuelve HTML como string (template literal). Inyectar ese string
+// con innerHTML también registra los onclick de los radio buttons.
+// Resetea lockedGroups para que el nuevo reto empiece sin bloqueos.
+// Llamada por: startEscape() y completeStep().
 function renderStep(n) {
   document.getElementById('challengeArea').innerHTML = CHALLENGES[n]();
   lockedGroups = {};
@@ -775,6 +833,13 @@ function renderStep(n) {
 }
 
 // ─── RADIO SELECTION ──────────────────────────────────────────────────────────
+// Maneja todos los clics en opciones de radio. La clave groupKey identifica
+// a qué pregunta pertenece la opción (ej: '0-1', '2a').
+// Lógica según el stage:
+//   Stage 0/1 → correcto: bloquea el grupo + llama checkStageDone()
+//             → incorrecto: deshabilita solo esa opción, permite reintentar
+//   Stage 2   → siempre bloquea el grupo + llama checkStageDone(2)
+// Llamada directamente desde los onclick en el HTML generado por renderStep().
 function selectRadio(groupKey, idx, isCorrect) {
   if (lockedGroups[groupKey]) return;
 
@@ -818,6 +883,11 @@ function selectRadio(groupKey, idx, isCorrect) {
   }
 }
 
+// Verifica si el stage está completo chequeando que todos los grupos
+// de STAGE_REQUIRED[stageNum] estén en lockedGroups.
+// Usa dataset.done como guardia: evita que se ejecute dos veces si
+// selectRadio() llama a checkStageDone() desde múltiples grupos a la vez.
+// Si está completo: muestra el feedback y llama a completeStep() con delay.
 function checkStageDone(stageNum) {
   const required = STAGE_REQUIRED[stageNum];
   if (!required) return;
@@ -844,6 +914,9 @@ function checkStageDone(stageNum) {
 }
 
 // ─── CODE CHECK (Stage 3) ─────────────────────────────────────────────────────
+// Verifica el input de texto del Reto 4. Solo acepta '72' (horas regulatorias).
+// Si es correcto: aplica clase 'success' al input y llama a completeStep(3).
+// Si es incorrecto: anima el input con 'error' (CSS shake) y lo limpia.
 function checkCode() {
   const val = document.getElementById('codeInput').value.trim();
   const input = document.getElementById('codeInput');
@@ -863,6 +936,11 @@ function checkCode() {
 }
 
 // ─── STEP COMPLETION ──────────────────────────────────────────────────────────
+// Marca el paso n como completado (✓ verde en el sidebar izquierdo),
+// actualiza el progreso de Equipo 1 en el sidebar derecho,
+// y carga el siguiente reto con renderStep(n+1).
+// Si n+1 === 4 (todos los retos completos), llama a showSuccess().
+// Llamada por: checkStageDone() y checkCode(), siempre con un delay.
 function completeStep(n) {
   stepsDone[n] = true;
   const el = document.getElementById(`stepEl${n}`);
@@ -887,11 +965,16 @@ function completeStep(n) {
   setTimeout(() => renderStep(currentStep), 600);
 }
 
+// Muestra la pista en un alert nativo del navegador y cuenta cuántas
+// pistas se usaron (hintsUsed). Ese contador aparece en la pantalla final.
 function showHint(msg) {
   hintsUsed++;
   alert('💡 PISTA: ' + msg);
 }
 
+// Calcula las estadísticas finales (tiempo restante, precisión, pistas)
+// y muestra la pantalla de éxito. Detiene el timer.
+// Llamada por: completeStep() cuando currentStep llega a 4.
 function showSuccess() {
   clearInterval(timerInterval);
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -903,6 +986,10 @@ function showSuccess() {
   document.getElementById('screenSuccess').classList.add('active');
 }
 
+// Resetea todo el estado del juego y vuelve a la pantalla de intro.
+// Es importante que resetee lockedGroups y stageCorrect, ya que son
+// objetos/arrays que persisten entre sesiones si no se limpian.
+// Llamada desde el botón "NUEVA SESIÓN" en la pantalla de éxito.
 function resetGame() {
   clearInterval(timerInterval);
   seconds = 3600;
