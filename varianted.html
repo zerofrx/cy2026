@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banco Ñandutí — Simulacro de Crisis SWIFT</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f4ef; --surface:#ffffff; --border:#e0dbd2;
+  --text:#161210; --muted:#7a6e65; --accent:#b82c1f;
+  --accent-light:#fceeed; --accent-border:#f2b8b3;
+  --gold:#9c720a; --gold-light:#fdf7ea;
+  --success:#145c30; --success-light:#eaf4ef;
+  --info:#153d7a; --info-light:#edf2fb;
+  --dark:#161210; --purple:#5a2d82; --purple-light:#f3eefa;
+  --tier-best:#145c30; --tier-best-bg:#eaf4ef;
+  --tier-good:#153d7a; --tier-good-bg:#edf2fb;
+  --tier-ok:#9c720a;  --tier-ok-bg:#fdf7ea;
+  --tier-poor:#7a6e65; --tier-poor-bg:#f4f0ea;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--dark);color:#e5ddd5;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;border-bottom:1px solid rgba(255,255,255,.06);}
+.tb-brand{font-family:'Playfair Display',serif;font-size:.95rem;letter-spacing:.06em;}
+.tb-brand span{color:var(--accent);}
+.tb-meta{display:flex;align-items:center;gap:1.4rem;font-size:.72rem;color:#7a6e65;font-family:'DM Mono',monospace;}
+.tb-timer{font-size:1rem;font-weight:700;color:#e5ddd5;}
+.tb-timer.warn{color:#e6a817;}
+.tb-timer.crit{color:var(--accent);animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.tb-budget{display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:.28rem .7rem;}
+.tb-budget-label{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.15em;color:#7a6e65;}
+.tb-budget-val{font-family:'DM Mono',monospace;font-size:.88rem;font-weight:700;color:#e5ddd5;}
+.tb-budget-val.flash-red{animation:bFlash 1.3s ease;color:var(--accent)!important;}
+.tb-budget-val.flash-green{animation:bFlash 1.3s ease;color:#3aaa6a!important;}
+.tb-budget-val.flash-amber{animation:bFlash 1.3s ease;color:#e6a817!important;}
+@keyframes bFlash{0%,100%{transform:scale(1)}30%{transform:scale(1.15)}}
+
+/* ── INTRO ── */
+.intro-layout{flex:1;display:grid;grid-template-columns:1fr 1fr;}
+.intro-left{background:var(--dark);color:#e5ddd5;padding:4rem 3rem;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.intro-left::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,44,31,.12) 0%,transparent 60%);pointer-events:none;}
+.il-eyebrow{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.22em;color:var(--accent);margin-bottom:1.5rem;}
+.il-title{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3.5vw,3.2rem);line-height:1.1;margin-bottom:1.25rem;}
+.il-desc{font-size:.9rem;line-height:1.85;color:#9a8e85;margin-bottom:2rem;}
+.il-facts{display:flex;flex-direction:column;gap:.6rem;margin-bottom:2.5rem;}
+.il-fact{display:flex;gap:.75rem;align-items:flex-start;font-size:.78rem;color:#7a6e65;}
+.il-fact-icon{color:var(--accent);flex-shrink:0;margin-top:.1rem;}
+.intro-right{background:var(--surface);padding:3rem;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;}
+.ir-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1.25rem;}
+.scenario-box{background:var(--accent-light);border:1px solid var(--accent-border);border-left:3px solid var(--accent);border-radius:4px;padding:1.2rem;margin-bottom:1.5rem;font-size:.87rem;line-height:1.75;}
+.sp-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--accent);margin-bottom:.5rem;}
+.roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.75rem;}
+.role-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.7rem .9rem;}
+.role-title{font-size:.72rem;font-weight:600;margin-bottom:.1rem;}
+.role-desc{font-size:.68rem;color:var(--muted);line-height:1.4;}
+.btn{padding:.7rem 1.75rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:500;cursor:pointer;transition:all .2s;border:none;}
+.btn-dark{background:var(--dark);color:#e5ddd5;}
+.btn-dark:hover{background:#2a2018;transform:translateY(-1px);}
+.btn-accent{background:var(--accent);color:white;}
+.btn-accent:hover{opacity:.9;transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--text);}
+
+/* ── GAME LAYOUT ── */
+.game-layout{flex:1;display:grid;grid-template-columns:1fr 340px;min-height:0;}
+.game-main{padding:1.75rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.4rem;}
+.game-sidebar{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-tabs{display:flex;border-bottom:1px solid var(--border);}
+.sb-tab{flex:1;padding:.55rem .4rem;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-align:center;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;position:relative;}
+.sb-tab.active{color:var(--dark);border-bottom-color:var(--dark);}
+.sb-panel{display:none;flex:1;overflow-y:auto;padding:1.1rem;flex-direction:column;gap:1.1rem;}
+.sb-panel.active{display:flex;}
+.sb-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.65rem;text-transform:uppercase;}
+
+/* ── SCORE METRICS ── */
+.score-metrics{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;}
+.sm-box{background:var(--bg);border-radius:6px;padding:.65rem;text-align:center;border:1px solid var(--border);}
+.sm-val{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:700;}
+.sm-label{font-size:.62rem;color:var(--muted);margin-top:.1rem;line-height:1.3;}
+
+/* ── BUDGET SIDEBAR ── */
+.budget-live{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.bl-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.75rem;}
+.bl-row:last-child{border-bottom:none;}
+.bl-row.total{font-weight:600;font-size:.8rem;padding-top:.5rem;}
+.bl-val{font-family:'DM Mono',monospace;font-size:.75rem;}
+.bl-green{color:var(--success);}
+.bl-red{color:var(--accent);}
+.bl-blue{color:var(--info);}
+
+/* ── PATH TRACKER ── */
+.path-tracker{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.75rem;}
+.pt-title{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;color:var(--muted);margin-bottom:.55rem;}
+.pt-flow{display:flex;flex-direction:column;gap:.2rem;}
+.pt-node{display:flex;align-items:center;gap:.45rem;font-size:.7rem;}
+.pt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.pt-line{width:1px;height:9px;background:var(--border);margin-left:3px;}
+
+/* ── NOTIF ── */
+.notif-feed{display:flex;flex-direction:column;gap:.45rem;}
+.notif-item{display:flex;gap:.65rem;padding:.7rem;border-radius:6px;border:1px solid;font-size:.76rem;line-height:1.5;animation:nIn .4s ease;}
+@keyframes nIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.notif-info{background:var(--info-light);border-color:#b0c8f0;color:var(--info);}
+.notif-warn{background:var(--gold-light);border-color:#e8d090;color:var(--gold);}
+.notif-alert{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent);}
+.notif-branch{background:var(--purple-light);border-color:#c8a0e0;color:var(--purple);}
+.notif-recovery{background:var(--success-light);border-color:#a0d0b8;color:var(--success);}
+.notif-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;margin-top:5px;}
+.notif-time{font-family:'DM Mono',monospace;font-size:.58rem;flex-shrink:0;opacity:.75;margin-top:2px;}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:15px;height:15px;background:var(--accent);border-radius:50%;font-size:.52rem;color:white;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;}
+
+/* ── TEAMS ── */
+.team-rows{display:flex;flex-direction:column;gap:.45rem;}
+.team-row{display:flex;align-items:center;gap:.65rem;padding:.55rem .7rem;border:1px solid var(--border);border-radius:6px;}
+.tr-name{flex:1;font-size:.78rem;font-weight:500;}
+.tr-score{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--info);font-weight:700;}
+.tr-decided{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--success);}
+
+/* ── INCIDENT CARD ── */
+.incident-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.ic-status-bar{background:var(--accent);color:white;padding:.48rem 1.2rem;display:flex;align-items:center;gap:.7rem;font-size:.72rem;font-family:'DM Mono',monospace;}
+.ic-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5);animation:pulse2 1s infinite;}
+@keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.ic-body{padding:1.4rem;}
+.ic-eyebrow{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.65rem;}
+.ic-title{font-family:'Playfair Display',serif;font-size:1.35rem;margin-bottom:.65rem;}
+.ic-narrative{font-size:.88rem;line-height:1.85;color:var(--muted);margin-bottom:1.1rem;}
+.ic-update{background:var(--gold-light);border:1px solid #e0c880;border-left:3px solid var(--gold);border-radius:4px;padding:.7rem .95rem;margin-bottom:1rem;font-size:.83rem;color:var(--gold);}
+.ic-update-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;margin-bottom:.2rem;}
+.branch-ctx{background:var(--purple-light);border:1px solid #c8a0e0;border-left:3px solid var(--purple);border-radius:4px;padding:.8rem .95rem;margin-bottom:1rem;font-size:.82rem;color:var(--purple);}
+.branch-ctx-label{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.12em;margin-bottom:.3rem;opacity:.8;}
+
+/* ── DECISION CARD ── */
+.decision-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.dc-header{padding:.95rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.dc-question{font-family:'Playfair Display',serif;font-size:1rem;}
+.dc-body{padding:1.1rem 1.4rem;}
+.decision-opts{display:flex;flex-direction:column;gap:.55rem;}
+.dec-opt{display:flex;align-items:flex-start;gap:.9rem;padding:.9rem 1.1rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .22s;}
+.dec-opt:hover{border-color:var(--text);background:var(--bg);}
+.dec-opt.selected{border-color:var(--dark);background:var(--dark);color:#e5ddd5;}
+.dec-opt.selected .do-key{border-color:rgba(255,255,255,.25);color:#e5ddd5;}
+.dec-opt.selected .do-sub{color:#9a8e85;}
+.dec-opt.tier-best{border-color:var(--tier-best);background:var(--tier-best-bg);color:var(--tier-best);}
+.dec-opt.tier-good{border-color:var(--tier-good);background:var(--tier-good-bg);color:var(--tier-good);}
+.dec-opt.tier-ok{border-color:var(--tier-ok);background:var(--tier-ok-bg);color:var(--tier-ok);}
+.dec-opt.tier-poor{border-color:var(--tier-poor);background:var(--tier-poor-bg);color:var(--tier-poor);}
+.do-key{font-family:'DM Mono',monospace;font-size:.62rem;width:26px;height:26px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.do-content{flex:1;}
+.do-text{font-size:.87rem;font-weight:500;line-height:1.4;margin-bottom:.18rem;}
+.do-sub{font-size:.72rem;color:var(--muted);}
+.do-budget{font-family:'DM Mono',monospace;font-size:.68rem;font-weight:700;flex-shrink:0;display:none;text-align:right;min-width:70px;}
+.dc-footer{padding:.7rem 1.4rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.impact-badge{font-family:'DM Mono',monospace;font-size:.62rem;padding:.22rem .55rem;border-radius:3px;}
+.impact-high{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);}
+.impact-med{background:var(--gold-light);color:var(--gold);border:1px solid #e0c880;}
+
+/* ── CONSEQUENCE REVEAL ── */
+.consequence-reveal{border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.cr-header{padding:.95rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.7rem;}
+.cr-title{font-family:'Playfair Display',serif;font-size:1.05rem;flex:1;}
+.cr-pts{font-family:'DM Mono',monospace;font-size:.95rem;font-weight:700;}
+.cr-body{padding:1.4rem;display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.cr-item{padding:.9rem;border-radius:6px;}
+.cr-item-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;margin-bottom:.45rem;}
+.cr-item-text{font-size:.82rem;line-height:1.55;}
+.cr-best-bg{background:var(--tier-best-bg);color:var(--tier-best);}
+.cr-good-bg{background:var(--tier-good-bg);color:var(--tier-good);}
+.cr-ok-bg{background:var(--tier-ok-bg);color:var(--tier-ok);}
+.cr-poor-bg{background:var(--tier-poor-bg);color:var(--tier-poor);}
+.cr-optimal{background:var(--tier-best-bg);color:var(--tier-best);}
+.cr-budget-impact{padding:.8rem 1.4rem;background:var(--bg);border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.cbi-box{padding:.65rem;border-radius:6px;font-size:.78rem;}
+.cbi-label{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;margin-bottom:.3rem;opacity:.8;}
+.cbi-val{font-family:'DM Mono',monospace;font-size:.95rem;font-weight:700;}
+.cr-branch{padding:.8rem 1.4rem;background:var(--purple-light);border-top:1px solid #c8a0e0;font-size:.8rem;color:var(--purple);}
+.cr-branch-label{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;margin-bottom:.3rem;}
+
+/* ── INVESTMENTS ── */
+.inv-card{background:var(--surface);border:1px solid #e0c880;border-radius:8px;overflow:hidden;}
+.inv-header{padding:.65rem 1.1rem;border-bottom:1px solid #e0c880;background:var(--gold-light);display:flex;align-items:center;justify-content:space-between;}
+.inv-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--gold);}
+.inv-budget-note{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);}
+.inv-body{padding:.85rem 1.1rem;display:flex;flex-direction:column;gap:.45rem;}
+.inv-opt{display:flex;align-items:flex-start;gap:.7rem;padding:.65rem .85rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s;}
+.inv-opt:hover{border-color:var(--gold);background:var(--gold-light);}
+.inv-opt.inv-done{opacity:.5;cursor:default;background:var(--bg);}
+.inv-opt.inv-done:hover{border-color:var(--border);background:var(--bg);}
+.inv-cost{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700;color:var(--gold);flex-shrink:0;min-width:72px;}
+.inv-info{flex:1;}
+.inv-name{font-size:.8rem;font-weight:500;margin-bottom:.12rem;}
+.inv-benefit{font-size:.68rem;color:var(--muted);line-height:1.4;}
+.inv-badge{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--success);flex-shrink:0;align-self:center;}
+
+/* ── ROUND INDICATOR ── */
+.round-indicator{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;}
+.ri-dot{width:7px;height:7px;border-radius:50%;background:var(--border);}
+.ri-dot.done{background:var(--success);}
+.ri-dot.active{background:var(--accent);}
+.cons-list{display:flex;flex-direction:column;gap:.45rem;}
+.cons-item{padding:.65rem;border-radius:6px;font-size:.76rem;line-height:1.5;}
+.cons-best{background:var(--tier-best-bg);border-left:3px solid var(--tier-best);color:var(--tier-best);}
+.cons-good{background:var(--tier-good-bg);border-left:3px solid var(--tier-good);color:var(--tier-good);}
+.cons-ok{background:var(--tier-ok-bg);border-left:3px solid var(--tier-ok);color:var(--tier-ok);}
+.cons-poor{background:var(--tier-poor-bg);border-left:3px solid var(--tier-poor);color:var(--tier-poor);}
+
+/* ── FINAL ── */
+.final-screen{flex:1;display:grid;grid-template-columns:1fr 1fr;}
+.fl{background:var(--dark);color:#e5ddd5;padding:3.5rem 3rem;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.fl::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 80%,rgba(184,44,31,.15) 0%,transparent 55%);pointer-events:none;}
+.fl-eyebrow{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;margin-bottom:1rem;}
+.fl-title{font-family:'Playfair Display',serif;font-size:2.8rem;line-height:1.1;margin-bottom:.9rem;}
+.fl-sub{font-size:.88rem;line-height:1.75;color:#9a8e85;margin-bottom:2.2rem;}
+.score-big{font-family:'DM Mono',monospace;font-size:3.6rem;font-weight:700;margin-bottom:.4rem;}
+.score-big-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;color:#7a6e65;margin-bottom:2rem;}
+.fr{background:var(--surface);padding:2.5rem;display:flex;flex-direction:column;overflow-y:auto;}
+.fr-title{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.1rem;}
+
+/* ── BUDGET NARRATIVE ── */
+.budget-narrative{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem;}
+.bn-title{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.85rem;text-transform:uppercase;}
+.bn-story{font-size:.82rem;line-height:1.75;color:var(--text);margin-bottom:1rem;}
+.bn-sheet{display:flex;flex-direction:column;gap:0;}
+.bn-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+.bn-row:last-child{border-bottom:none;}
+.bn-row.bn-total{font-weight:600;padding-top:.5rem;}
+.bn-val{font-family:'DM Mono',monospace;font-size:.78rem;}
+.bn-green{color:var(--success);}
+.bn-red{color:var(--accent);}
+.bn-blue{color:var(--info);}
+.bn-bonus{margin-top:.7rem;background:var(--success-light);border:1px solid #90c8a8;border-radius:5px;padding:.6rem .85rem;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--success);line-height:1.5;}
+
+/* ── RANKING ── */
+.ranking-list{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.75rem;}
+.rank-row{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.1rem;border:1px solid var(--border);border-radius:6px;}
+.rank-pos{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);width:18px;}
+.rank-name{flex:1;font-weight:500;font-size:.88rem;}
+.rank-score{font-family:'DM Mono',monospace;font-size:.88rem;color:var(--info);font-weight:700;}
+.rank-row:first-child{border-color:var(--gold);background:var(--gold-light);}
+.rank-row:first-child .rank-pos{color:var(--gold);}
+
+/* ── PATH SUMMARY FINAL ── */
+.path-summary{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem;}
+.ps-title{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.8rem;}
+.ps-chain{display:flex;flex-direction:column;gap:.35rem;}
+.ps-node{font-size:.76rem;padding:.38rem .55rem;border-radius:4px;display:flex;gap:.45rem;align-items:flex-start;}
+.ps-node-best{background:var(--tier-best-bg);color:var(--tier-best);}
+.ps-node-good{background:var(--tier-good-bg);color:var(--tier-good);}
+.ps-node-ok{background:var(--tier-ok-bg);color:var(--tier-ok);}
+.ps-node-poor{background:var(--tier-poor-bg);color:var(--tier-poor);}
+.ps-rnd{font-family:'DM Mono',monospace;font-size:.58rem;flex-shrink:0;opacity:.7;margin-top:.1rem;}
+
+/* ── ROLES FORM ── */
+.roles-form{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem;}
+.rf-team-row{display:flex;flex-direction:column;gap:.35rem;}
+.rf-team-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--accent);margin-bottom:.1rem;}
+.rf-inputs{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;}
+.rf-field{display:flex;flex-direction:column;gap:.18rem;}
+.rf-field-label{font-size:.65rem;font-weight:600;color:var(--text);}
+.rf-field-role{font-size:.6rem;color:var(--muted);}
+.rf-input{border:1px solid var(--border);border-radius:4px;padding:.42rem .6rem;font-family:'DM Sans',sans-serif;font-size:.78rem;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s;}
+.rf-input:focus{border-color:var(--accent);background:var(--surface);}
+.rf-input::placeholder{color:#b0a898;font-size:.75rem;}
+.rf-team-name-row{display:flex;flex-direction:column;gap:.18rem;margin-bottom:.3rem;}
+.rf-team-name-input{border:1px solid var(--border);border-radius:4px;padding:.5rem .7rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s;width:100%;}
+.rf-team-name-input:focus{border-color:var(--accent);background:var(--surface);}
+.rf-team-name-input::placeholder{color:#b0a898;}
+
+/* ── TOASTS ── */
+#budgetToast{position:fixed;top:4rem;right:1.5rem;z-index:9999;padding:.5rem 1rem;border-radius:6px;font-family:'DM Mono',monospace;font-size:.88rem;font-weight:700;pointer-events:none;opacity:0;}
+#budgetToast.toast-red{background:var(--accent);color:white;animation:toastAnim 2.3s ease forwards;}
+#budgetToast.toast-green{background:var(--success);color:white;animation:toastAnim 2.3s ease forwards;}
+#budgetToast.toast-amber{background:#9c720a;color:white;animation:toastAnim 2.3s ease forwards;}
+@keyframes toastAnim{0%{opacity:0;transform:translateX(20px)}15%{opacity:1;transform:translateX(0)}75%{opacity:1}100%{opacity:0;transform:translateX(8px)}}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- INTRO -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="screen active" id="screenIntro">
+  <div class="topbar">
+    <div class="tb-brand">BANCO <span>ÑANDUTÍ</span> · SIMULACRO DE CRISIS</div>
+    <div class="tb-meta"><span>MODO FACILITADOR</span><span>6 EQUIPOS · 30 PERSONAS</span><span>ASUNCIÓN, PARAGUAY</span></div>
+  </div>
+  <div class="intro-layout">
+    <div class="intro-left">
+      <div class="il-eyebrow">// ATAQUE SWIFT · CASO REAL RECREADO</div>
+      <div class="il-title">Un jueves de mayo.<br>9.000 pantallas<br>en negro.</div>
+      <div class="il-desc">Banco Ñandutí, el segundo banco más grande de Paraguay, está siendo atacado en este momento. El malware ya corre. Las transferencias SWIFT ya salieron. El BCP todavía no sabe nada. Tienen 90 minutos para gestionar la peor crisis cibernética de la historia bancaria paraguaya.</div>
+      <div class="il-facts">
+        <div class="il-fact"><span class="il-fact-icon">▸</span>El ataque empezó meses antes — en una sucursal de Ciudad del Este</div>
+        <div class="il-fact"><span class="il-fact-icon">▸</span>El malware fue una pantalla. El verdadero robo fue vía SWIFT</div>
+        <div class="il-fact"><span class="il-fact-icon">▸</span>USD 9.8 millones salieron hacia cuentas en Hong Kong</div>
+        <div class="il-fact"><span class="il-fact-icon">▸</span>Cada decisión afecta el presupuesto, el puntaje y la historia</div>
+      </div>
+    </div>
+    <div class="intro-right">
+      <div class="ir-title">El escenario de hoy</div>
+      <div class="scenario-box">
+        <div class="sp-label">// BRIEFING CONFIDENCIAL — 07:31hs · JUEVES</div>
+        El SOC del banco acaba de activar la alerta máxima. Computadoras en las sucursales de Asunción no encienden. El sistema de monitoreo muestra que los discos de arranque están siendo borrados en cascada. Hay 9.000 terminales y 500 servidores afectados. El Gerente General está en reunión con el directorio. Nadie sabe todavía que, mientras tanto, el sistema SWIFT está ejecutando transferencias automáticamente.
+      </div>
+      <div class="ir-title" style="margin-bottom:.65rem;">Comité de crisis — ¿Quiénes son?</div>
+      <div class="roles-form">
+        <div class="rf-team-name-row">
+          <div style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.18rem;">NOMBRE DEL EQUIPO</div>
+          <input class="rf-team-name-input" id="inputTeamName" type="text" placeholder="ej. Equipo Rojo, Los Tigres, Grupo A…" maxlength="30">
+        </div>
+        <div style="height:1px;background:var(--border);margin:.1rem 0 .3rem;"></div>
+        <div class="rf-inputs">
+          <div class="rf-field">
+            <div class="rf-field-label">CISO <span style="font-weight:400;color:var(--accent);font-size:.6rem">líder</span></div>
+            <div class="rf-field-role">Decisiones técnicas y de seguridad</div>
+            <input class="rf-input" id="inputCISO" type="text" placeholder="Nombre del participante" maxlength="30">
+          </div>
+          <div class="rf-field">
+            <div class="rf-field-label">Legal / Compliance</div>
+            <div class="rf-field-role">Riesgo regulatorio ante el BCP</div>
+            <input class="rf-input" id="inputLegal" type="text" placeholder="Nombre del participante" maxlength="30">
+          </div>
+          <div class="rf-field">
+            <div class="rf-field-label">Comunicaciones</div>
+            <div class="rf-field-role">Mensajes internos y externos</div>
+            <input class="rf-input" id="inputComms" type="text" placeholder="Nombre del participante" maxlength="30">
+          </div>
+          <div class="rf-field">
+            <div class="rf-field-label">Operaciones</div>
+            <div class="rf-field-role">Continuidad del negocio</div>
+            <input class="rf-input" id="inputOps" type="text" placeholder="Nombre del participante" maxlength="30">
+          </div>
+        </div>
+        <div class="rf-field">
+          <div class="rf-field-label">Gerente General</div>
+          <div class="rf-field-role">Autoridad máxima del comité — aprueba las decisiones críticas</div>
+          <input class="rf-input" id="inputGM" type="text" placeholder="Nombre del participante" maxlength="30" style="width:100%">
+        </div>
+        <div style="font-size:.68rem;color:var(--muted);line-height:1.5;">Todos los campos son opcionales. Los nombres aparecerán en las alertas, decisiones y resultado final.</div>
+      </div>
+      <div style="display:flex;gap:.65rem;">
+        <button class="btn btn-dark" onclick="startCrisis()">INICIAR CRISIS →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- GAME -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="screen" id="screenGame">
+  <div class="topbar">
+    <div class="tb-brand">BANCO <span>ÑANDUTÍ</span> — INCIDENTE EN CURSO</div>
+    <div class="tb-meta">
+      <span id="roundLabel">STAGE 1 DE 5</span>
+      <span id="teamNameLabel" style="color:#e5ddd5;font-weight:500"></span>
+      <div class="tb-budget"><span class="tb-budget-label">BUDGET USD</span><span class="tb-budget-val" id="budgetVal">$2,000,000</span></div>
+      <span class="tb-timer" id="gameTimer">90:00</span>
+    </div>
+  </div>
+  <div class="game-layout">
+    <div class="game-main" id="gameMain"></div>
+    <div class="game-sidebar">
+      <div class="sb-tabs">
+        <div class="sb-tab active" id="stab-info" onclick="switchTab('info')">SITUACIÓN</div>
+        <div class="sb-tab" id="stab-notif" onclick="switchTab('notif')">ALERTAS<span class="notif-badge" id="notifBadge" style="display:none">0</span></div>
+        <div class="sb-tab" id="stab-scores" onclick="switchTab('scores')">EQUIPOS</div>
+      </div>
+      <div class="sb-panel active" id="sp-info">
+        <div>
+          <div class="sb-label">Progreso del incidente</div>
+          <div class="round-indicator" id="roundIndicator"></div>
+        </div>
+        <div>
+          <div class="sb-label">Métricas del equipo</div>
+          <div class="score-metrics">
+            <div class="sm-box"><div class="sm-val" id="metScore" style="color:var(--info)">0</div><div class="sm-label">Puntos</div></div>
+            <div class="sm-box"><div class="sm-val" id="metBest" style="color:var(--tier-best)">0</div><div class="sm-label">Óptimas</div></div>
+            <div class="sm-box"><div class="sm-val" id="metGood" style="color:var(--tier-good)">0</div><div class="sm-label">Buenas</div></div>
+            <div class="sm-box"><div class="sm-val" id="metPoor" style="color:var(--tier-poor)">0</div><div class="sm-label">Perdidas</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="sb-label">Budget en tiempo real</div>
+          <div class="budget-live" id="budgetLive">
+            <div class="bl-row"><span>Budget inicial</span><span class="bl-val bl-blue">$2,000,000</span></div>
+            <div class="bl-row"><span>Costos operativos</span><span class="bl-val bl-red" id="blCosts">$0</span></div>
+            <div class="bl-row"><span>Penalizaciones</span><span class="bl-val bl-red" id="blPenalties">$0</span></div>
+            <div class="bl-row"><span>Recuperaciones</span><span class="bl-val bl-green" id="blRecoveries">$0</span></div>
+            <div class="bl-row total"><span>Disponible</span><span class="bl-val" id="blAvailable" style="color:var(--info)">$2,000,000</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="sb-label">Camino tomado</div>
+          <div class="path-tracker"><div class="pt-title">// ÁRBOL DE DECISIONES</div><div class="pt-flow" id="ptFlow"><span style="font-size:.7rem;color:var(--muted)">Sin decisiones aún</span></div></div>
+        </div>
+        <div>
+          <div class="sb-label">Historial</div>
+          <div class="cons-list" id="consList"><div style="font-size:.77rem;color:var(--muted)">Aún no hay decisiones.</div></div>
+        </div>
+      </div>
+      <div class="sb-panel" id="sp-notif">
+        <div><div class="sb-label">Centro de alertas</div><div class="notif-feed" id="notifFeed"></div></div>
+      </div>
+      <div class="sb-panel" id="sp-scores">
+        <div><div class="sb-label">Equipos en sala</div><div class="team-rows" id="teamRows"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- FINAL -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="screen" id="screenFinal">
+  <div class="topbar">
+    <div class="tb-brand">BANCO <span>ÑANDUTÍ</span> · RESULTADO FINAL</div>
+    <div class="tb-meta"><span>SIMULACRO COMPLETADO</span><span>ASUNCIÓN, PARAGUAY</span></div>
+  </div>
+  <div class="final-screen">
+    <div class="fl">
+      <div class="fl-eyebrow" id="finalEyebrow" style="color:var(--success)">// RESULTADO DE GESTIÓN</div>
+      <div class="fl-title" id="finalTitle">Crisis<br>gestionada</div>
+      <div class="fl-sub" id="finalSub">El simulacro finalizó.</div>
+      <div class="score-big" id="finalScore" style="color:var(--success)">0</div>
+      <div class="score-big-label">PUNTOS FINALES · TU EQUIPO</div>
+      <div id="finalTeamLabel" style="margin-bottom:1.2rem;"></div>
+      <div style="margin-bottom:1.5rem;font-family:'DM Mono',monospace;font-size:.72rem;color:#7a6e65;" id="finalFormula"></div>
+      <div style="display:flex;gap:.65rem;">
+        <button class="btn btn-outline" style="border-color:rgba(255,255,255,.2);color:#e5ddd5;" onclick="resetGame()">Nueva sesión</button>
+      </div>
+    </div>
+    <div class="fr">
+      <div id="pathSummaryArea"></div>
+      <div id="budgetNarrativeArea"></div>
+      <div class="fr-title">Ranking de equipos</div>
+      <div class="ranking-list" id="rankingList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="budgetToast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ════════════════════════════════════════════════════════
+let timerSecs=5400,timerInt=null,currentRound=0;
+let bestDec=0,goodDec=0,poorDec=0,totalScore=0;
+let consequences=[],dtRound={},unreadNotifs=0,currentTab='info';
+let budget=2000000,totalCosts=0,totalPenalties=0,totalRecoveries=0;
+let penaltyShield=0,investmentsDone={};
+let decisionPath=[];
+
+// Nombres del comité (se cargan al iniciar)
+let committee={team:'',ciso:'',legal:'',comms:'',ops:'',gm:''};
+const role = key => committee[key] || {ciso:'el CISO',legal:'Legal',comms:'Comunicaciones',ops:'Operaciones',gm:'el Gerente General'}[key];
+const teamName = () => committee.team || 'Equipo 1';
+
+const TEAMS=[
+  {name:'Equipo 1',score:0,decided:false,active:true},
+  {name:'Equipo 2',score:0,decided:false},
+  {name:'Equipo 3',score:0,decided:false},
+  {name:'Equipo 4',score:0,decided:false},
+  {name:'Equipo 5',score:0,decided:false},
+  {name:'Equipo 6',score:0,decided:false},
+];
+
+const TIER={
+  best:{label:'⭐⭐⭐ Decisión óptima', color:'var(--tier-best)', css:'tier-best', cons:'cons-best', cr:'cr-best-bg'},
+  good:{label:'⭐⭐ Buena decisión',   color:'var(--tier-good)', css:'tier-good', cons:'cons-good', cr:'cr-good-bg'},
+  ok:  {label:'⭐ Decisión parcial',   color:'var(--tier-ok)',   css:'tier-ok',   cons:'cons-ok',   cr:'cr-ok-bg'},
+  poor:{label:'◻ Oportunidad perdida', color:'var(--tier-poor)', css:'tier-poor', cons:'cons-poor',  cr:'cr-poor-bg'},
+};
+
+const fmt = n => '$' + Math.abs(Math.round(n)).toLocaleString('en-US');
+
+// ════════════════════════════════════════════════════════
+// ÁRBOL DE DECISIONES — 5 STAGES
+// Cada stage puede tener variantes según el camino previo
+// ════════════════════════════════════════════════════════
+const STAGES = [
+
+// ── STAGE 1: El jueves negro ──────────────────────────
+{
+  variants:{
+    default:{
+      status:'ALERTA MÁXIMA · JUEVES 07:31hs',
+      title:'El jueves negro',
+      narrative:'El SOC acaba de confirmar la alerta más grave en la historia del banco. En los últimos 18 minutos, 9.000 terminales y 500 servidores dejaron de responder. Las pantallas muestran un mensaje de error en el disco de arranque — el malware KillMBR está borrando los discos en cascada. Las sucursales están paralizadas. El equipo de IT no puede reiniciar ningún equipo. Nadie sabe todavía de dónde viene ni qué busca.',
+      update:null,
+      branchContext:null,
+      question:'¿Cuál es la primera acción del Comité de Crisis?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Aislar inmediatamente los servidores SWIFT y los sistemas de transferencias internacionales',
+          sub:'Priorización técnica · Protege el sistema de pagos internacionales',
+          tier:'best', points:800,
+          cost:120000, penalty:0, recovery:0,
+          consequence:'La decisión de aislar SWIFT en los primeros minutos fue clave. Se bloquearon 2 de las 4 transferencias fraudulentas. El daño quedó limitado a USD 4.2M.',
+          branchNote:'SWIFT parcialmente protegido → Stage 2 inicia con 2 transferencias bloqueadas',
+          budgetNote:'Costo de desconexión de emergencia + SOC externo activado'
+        },
+        {
+          text:'Apagar toda la red del banco por sectores para contener el malware',
+          sub:'Contención total · Detiene la propagación sacrificando operaciones',
+          tier:'good', points:500,
+          cost:200000, penalty:0, recovery:0,
+          consequence:'El apagado masivo detuvo el malware, pero también cortó el monitoreo del SWIFT. Las 4 transferencias se ejecutaron mientras la red estaba caída.',
+          branchNote:'Red apagada sin logs SWIFT → Stage 2 con daño completo y sin evidencia',
+          budgetNote:'Más horas-hombre + recuperación de más sistemas afectados'
+        },
+        {
+          text:'Desconectar solo los terminales visiblemente afectados y esperar el diagnóstico completo',
+          sub:'Respuesta selectiva · Actúa sobre lo conocido sin apagar todo',
+          tier:'ok', points:220,
+          cost:280000, penalty:80000, recovery:0,
+          consequence:'La respuesta parcial dejó al malware activo por 40 minutos adicionales. Se destruyeron 3.200 equipos más. Las transferencias SWIFT continuaron.',
+          branchNote:'Malware activo más tiempo → Stage 2 con mayor daño colateral',
+          budgetNote:'El malware siguió corriendo — más destrucción, más costo de recuperación'
+        },
+        {
+          text:'Convocar al directorio y al Gerente General antes de tomar cualquier acción técnica',
+          sub:'Escalada ejecutiva · Asegura autorización antes de actuar',
+          tier:'poor', points:50,
+          cost:150000, penalty:200000, recovery:0,
+          consequence:'La demora de 45 minutos esperando instrucciones permitió que el malware destruyera el 80% de los sistemas y que las 4 transferencias SWIFT se completaran.',
+          branchNote:'Daño máximo sin contención → Stage 2 en modo crisis total',
+          budgetNote:'La parálisis tiene costo: destrucción masiva + todo el daño SWIFT sin frenar'
+        },
+      ]
+    }
+  },
+  penalties:{poor:200000, ok:80000}
+},
+
+// ── STAGE 2: La pantalla de humo ──────────────────────
+{
+  variants:{
+    best:{
+      status:'REVELACIÓN CRÍTICA · HORA +90MIN',
+      title:'La pantalla de humo — daño parcialmente contenido',
+      narrative:'Mientras el equipo apagaba terminales, el analista de SWIFT encontró algo que heló la sala: 4 órdenes de transferencia internacional ejecutadas automáticamente en los últimos 45 minutos. Dos fueron bloqueadas gracias al aislamiento temprano. Dos llegaron a destino. El malware no era el ataque — era la distracción. El verdadero robo fue vía SWIFT. USD 4.2 millones ya están en cuentas en Hong Kong.',
+      update:'⚡ Confirmado: las transferencias tienen origen en el operador SWIFT interno. Alguien con acceso al sistema colocó las órdenes. Los fondos son del banco, no de los clientes.',
+      branchContext:'🔀 El aislamiento temprano bloqueó 2 transferencias. El daño es la mitad del peor escenario.',
+      question:'¿Cómo reacciona el comité ante el descubrimiento del robo SWIFT?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Activar el protocolo de fraude SWIFT + contactar a los bancos corresponsales para intentar revertir las transferencias',
+          sub:'Acción inmediata · Hay una ventana de horas para revertir transferencias SWIFT',
+          tier:'best', points:900,
+          cost:90000, penalty:0, recovery:400000,
+          consequence:'Los corresponsales bloquearon parcialmente los fondos. Se recuperaron USD 400.000 antes de que llegaran a la cuenta final. La ventana SWIFT es estrecha pero existe.',
+          branchNote:'Recuperación parcial lograda → Stage 3 con evidencia de los corresponsales',
+          budgetNote:'Costo de gestión internacional + honorarios bancarios de emergencia'
+        },
+        {
+          text:'Dividir el equipo: la mitad sigue con el malware, la mitad investiga las transferencias SWIFT',
+          sub:'Respuesta paralela · Atiende los dos frentes al mismo tiempo',
+          tier:'good', points:550,
+          cost:150000, penalty:0, recovery:0,
+          consequence:'El equipo dividido logró contener el malware y documentar las transferencias, pero la respuesta fue más lenta en ambos frentes. Sin corresponsales, los fondos no se recuperaron.',
+          branchNote:'Documentación sin recuperación → Stage 3 con buena evidencia pero sin fondos',
+          budgetNote:'Más recursos humanos, menos eficiencia en cada frente'
+        },
+        {
+          text:'Priorizar la recuperación de los sistemas operativos para reabrir las sucursales',
+          sub:'Operativa · La continuidad del negocio es la prioridad',
+          tier:'ok', points:200,
+          cost:180000, penalty:120000, recovery:0,
+          consequence:'Las sucursales reabrieron en 3 horas, pero las transferencias SWIFT quedaron sin atender. La ventana para revertirlas se cerró. El dinero salió definitivamente.',
+          branchNote:'Fondos perdidos definitivamente → Stage 3 sin posibilidad de recuperación SWIFT',
+          budgetNote:'Costo de recuperación operativa + penalización por no actuar sobre el SWIFT'
+        },
+        {
+          text:'Escalar al Gerente General y esperar instrucciones antes de contactar a cualquier entidad externa',
+          sub:'Escalada total · Asegura alineación ejecutiva antes de actuar',
+          tier:'poor', points:60,
+          cost:100000, penalty:300000, recovery:0,
+          consequence:'La espera de 2 horas para obtener autorización cerró definitivamente la ventana SWIFT. Los USD 4.2M están en Hong Kong sin posibilidad de revertir.',
+          branchNote:'Sin acción → Stage 3 con daño total y sin evidencia de corresponsales',
+          budgetNote:'La parálisis post-descubrimiento tiene el costo más alto del juego'
+        },
+      ]
+    },
+    good:{
+      status:'REVELACIÓN CRÍTICA · HORA +90MIN',
+      title:'La pantalla de humo — red sin logs',
+      narrative:'Con la red apagada, el analista encontró las 4 transferencias SWIFT en los registros previos al corte. Las 4 se ejecutaron mientras el equipo apagaba la red. USD 9.8 millones ya están en tránsito hacia Hong Kong. El peor dato: el apagado masivo borró los logs del sistema SWIFT de los últimos 30 minutos. No tienen evidencia completa de cómo entró el atacante.',
+      update:'⚡ El responsable de SWIFT confirmó: las órdenes fueron firmadas digitalmente con credenciales válidas de un operador interno. Hay un insider o las credenciales fueron robadas meses atrás.',
+      branchContext:'🔀 El apagado masivo protegió los sistemas pero borró evidencia SWIFT crítica. El daño es completo.',
+      question:'¿Cómo proceden con el daño completo y la evidencia incompleta?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Contactar corresponsales SWIFT de emergencia aunque los logs estén incompletos',
+          sub:'Acción inmediata · Intentar recuperación aunque la evidencia sea parcial',
+          tier:'best', points:800,
+          cost:110000, penalty:0, recovery:200000,
+          consequence:'Con evidencia parcial lograron bloquear USD 200.000 en tránsito. Los corresponsales requirieron documentación adicional que retrasó el proceso.',
+          branchNote:'Recuperación mínima → Stage 3 con investigación forense urgente por logs faltantes',
+          budgetNote:'Gestión internacional compleja con evidencia incompleta'
+        },
+        {
+          text:'Reconstruir los logs desde los backups antes de contactar a nadie externo',
+          sub:'Evidencia primero · Asegurar la documentación antes de actuar',
+          tier:'good', points:480,
+          cost:160000, penalty:0, recovery:0,
+          consequence:'La reconstrucción parcial tomó 4 horas. Para cuando contactaron corresponsales, los fondos ya estaban dispersos en múltiples cuentas.',
+          branchNote:'Logs parcialmente recuperados → Stage 3 con mejor evidencia pero fondos perdidos',
+          budgetNote:'Costo de análisis forense urgente de backups'
+        },
+        {
+          text:'Notificar al BCP antes de intentar cualquier recuperación para seguir el protocolo',
+          sub:'Regulatoria · Cumplir el proceso formal ante el Banco Central',
+          tier:'ok', points:220,
+          cost:100000, penalty:150000, recovery:0,
+          consequence:'El BCP respondió en 6 horas. Para entonces la ventana de reversión SWIFT estaba cerrada. El regulador quedó informado pero sin poder actuar.',
+          branchNote:'BCP notificado tardíamente → Stage 3 con presión regulatoria activa',
+          budgetNote:'Demora regulatoria + costo de ventana perdida'
+        },
+        {
+          text:'Mantener silencio total hasta tener el panorama completo',
+          sub:'Sigilosa · No actuar sin certeza total',
+          tier:'poor', points:40,
+          cost:80000, penalty:350000, recovery:0,
+          consequence:'El silencio de 8 horas fue interpretado como ocultamiento. Los fondos se dispersaron. El BCP se enteró por un reporte externo. La situación se complicó gravemente.',
+          branchNote:'Silencio interpretado como ocultamiento → Stage 3 con crisis regulatoria severa',
+          budgetNote:'La inacción tiene el costo máximo: fondos perdidos + penalización regulatoria'
+        },
+      ]
+    },
+    ok:{
+      status:'REVELACIÓN CRÍTICA · HORA +90MIN',
+      title:'La pantalla de humo — más daño colateral',
+      narrative:'La respuesta parcial dejó el malware activo por 40 minutos adicionales. Ahora también están afectados los servidores de respaldo. El analista encontró las transferencias SWIFT: las 4 se ejecutaron. USD 9.8M salieron. Pero hay más: el malware accedió a la base de datos de clientes durante esos 40 minutos adicionales. No es seguro si exportó datos.',
+      update:'⚡ IT confirma: hay evidencia de acceso a la base de datos de 180.000 clientes. No se sabe si los datos fueron extraídos. El equipo de seguridad está analizando los logs.',
+      branchContext:'🔀 La respuesta tardía amplió el ataque. Ahora hay dos crisis: el robo SWIFT y la posible filtración de datos de clientes.',
+      question:'¿Cuál crisis priorizan con recursos limitados?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Investigar la filtración de datos de clientes en paralelo con las transferencias SWIFT',
+          sub:'Paralela · Ambas crisis tienen consecuencias regulatorias críticas',
+          tier:'best', points:750,
+          cost:200000, penalty:0, recovery:0,
+          consequence:'La investigación paralela confirmó que los datos NO fueron extraídos — solo accedidos. La notificación proactiva al BCP sobre ambos vectores fue valorada.',
+          branchNote:'Doble investigación exitosa → Stage 3 con evidencia completa de ambos vectores',
+          budgetNote:'Doble investigación tiene costo alto pero evita peores escenarios'
+        },
+        {
+          text:'Priorizar las transferencias SWIFT — el daño financiero es más urgente que los datos',
+          sub:'Financiera · El robo tiene ventana de recuperación; los datos no',
+          tier:'good', points:430,
+          cost:170000, penalty:0, recovery:0,
+          consequence:'Contactaron corresponsales pero sin éxito. La filtración de datos quedó sin investigar por 6 horas, lo que complicó la respuesta regulatoria posterior.',
+          branchNote:'Datos sin investigar → Stage 3 con incertidumbre sobre filtración activa',
+          budgetNote:'Foco en SWIFT sin resolver el tema de datos prolonga la crisis'
+        },
+        {
+          text:'Priorizar la filtración de datos — 180.000 clientes deben ser protegidos primero',
+          sub:'Clientes primero · La protección de datos es la obligación mayor',
+          tier:'ok', points:210,
+          cost:180000, penalty:120000, recovery:0,
+          consequence:'La investigación de datos confirmó que no hubo extracción, pero perdieron la ventana SWIFT. Los USD 9.8M salieron sin posibilidad de recuperación.',
+          branchNote:'SWIFT cerrado → Stage 3 sin posibilidad de recuperación financiera',
+          budgetNote:'Decisión costosa: protegieron datos pero cerraron la ventana de recuperación'
+        },
+        {
+          text:'Contratar una firma externa de ciberseguridad y esperar su diagnóstico',
+          sub:'Externa · Delegar la investigación a expertos externos',
+          tier:'poor', points:60,
+          cost:250000, penalty:200000, recovery:0,
+          consequence:'La firma tardó 12 horas en llegar. Ambas ventanas se cerraron. El BCP se enteró por Twitter antes de recibir cualquier comunicación del banco.',
+          branchNote:'Demora total → Stage 3 con crisis regulatoria y reputacional simultáneas',
+          budgetNote:'Contratar externos en pánico tiene costo alto y demora operativa'
+        },
+      ]
+    },
+    poor:{
+      status:'CRISIS MÁXIMA · HORA +90MIN',
+      title:'La pantalla de humo — daño sin precedentes',
+      narrative:'La demora de 45 minutos fue catastrófica. El malware destruyó el 80% de los sistemas. Las 4 transferencias SWIFT se completaron — USD 9.8M en Hong Kong. El acceso fue tan prolongado que los atacantes también extrajeron credenciales de 42 empleados con acceso privilegiado. El banco está operando en modo manual. El BCP acaba de llamar porque recibió alertas automáticas del sistema de monitoreo.',
+      update:'⚡ CRÍTICO: El BCP llama en este momento. Están pidiendo un informe ejecutivo inmediato. El Gerente General está siendo buscado por tres periodistas de ABC Color y Última Hora.',
+      branchContext:'🔀 La parálisis inicial generó el peor escenario. El BCP ya está encima. La prensa también.',
+      question:'¿Cómo responden a la llamada del BCP en este momento crítico?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Atender la llamada, reconocer el incidente y pedir 24 horas para un informe formal completo',
+          sub:'Proactiva · Honestidad inmediata con el regulador',
+          tier:'best', points:650,
+          cost:120000, penalty:0, recovery:0,
+          consequence:'El BCP valoró la transparencia inmediata. Concedieron las 24 horas. El banco ganó tiempo para organizar la respuesta sin perder la confianza regulatoria.',
+          branchNote:'BCP como aliado → Stage 3 con 24h de margen regulatorio',
+          budgetNote:'La transparencia tiene costo mínimo y evita penalizaciones mayores'
+        },
+        {
+          text:'Pedir 2 horas al BCP para tener el panorama completo antes de informar',
+          sub:'Cautelosa · No informar hasta tener datos sólidos',
+          tier:'good', points:380,
+          cost:100000, penalty:0, recovery:0,
+          consequence:'El BCP aceptó a regañadientes. Las 2 horas se usaron bien para documentar. La relación regulatoria quedó tensa pero funcional.',
+          branchNote:'BCP en modo supervisión estricta → Stage 3 con presión regulatoria moderada',
+          budgetNote:'Costo moderado: gestión regulatoria sin penalización inmediata'
+        },
+        {
+          text:'Derivar la llamada a Legal mientras el CISO sigue trabajando en la respuesta técnica',
+          sub:'Técnica primero · El CISO no puede distraerse ahora',
+          tier:'ok', points:160,
+          cost:150000, penalty:180000, recovery:0,
+          consequence:'Legal no tenía información suficiente. La conversación con el BCP fue confusa y contradictoria. El regulador inició un proceso de supervisión especial.',
+          branchNote:'BCP en supervisión especial → Stage 3 con auditoría regulatoria activa',
+          budgetNote:'La confusión con el BCP tiene costo regulatorio directo'
+        },
+        {
+          text:'No atender la llamada del BCP — priorizar absolutamente la respuesta interna',
+          sub:'Interna total · El banco primero, el regulador después',
+          tier:'poor', points:0,
+          cost:80000, penalty:400000, recovery:0,
+          consequence:'No atender al BCP fue interpretado como obstrucción. El regulador escaló la situación. A las 3 horas llegó una notificación formal de inicio de proceso sancionatorio.',
+          branchNote:'Proceso sancionatorio del BCP → Stage 3 con crisis regulatoria máxima',
+          budgetNote:'No atender al regulador tiene la penalización más alta del juego'
+        },
+      ]
+    }
+  },
+  penalties:{poor:400000, ok:120000}
+},
+
+// ── STAGE 3: El origen ────────────────────────────────
+{
+  variants:{
+    strong:{
+      status:'INVESTIGACIÓN FORENSE · HORA +6H',
+      title:'El origen — meses de infiltración',
+      narrative:'Microsoft y el equipo forense externo llegaron al banco. Después de 4 horas de análisis, la conclusión es impactante: el malware no entró hoy. Entró hace 6 meses, en la sucursal de Ciudad del Este, a través de un email enviado a un empleado de back-office. El virus estuvo latente, mapeando la red, hasta hoy. Lo más preocupante: los atacantes necesitaban credenciales del sistema SWIFT. Alguien con acceso privilegiado las facilitó — o fueron robadas sin que nadie lo notara.',
+      update:'⚡ Forense encontró un patrón de acceso inusual: un operador SWIFT realizó consultas de saldo en cuentas de corresponsales a las 2am durante los últimos 3 meses. Ese mismo operador no estaba de guardia esas noches.',
+      branchContext:'🔀 La gestión sólida les da tiempo y recursos para investigar en profundidad.',
+      question:'¿Cómo manejan el hallazgo del posible insider?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Suspender preventivamente al operador SWIFT identificado y auditar todos los accesos privilegiados',
+          sub:'Decisiva · Elimina la amenaza interna mientras se investiga',
+          tier:'best', points:850,
+          cost:180000, penalty:0, recovery:0,
+          consequence:'La suspensión fue correcta. La auditoría reveló que el operador tenía un acuerdo con el grupo atacante. Se identificó el vector completo. La evidencia fue clave para la PDI.',
+          branchNote:'Insider identificado → Stage 4 con evidencia sólida para la PDI',
+          budgetNote:'Auditoría completa de accesos privilegiados + asesoría legal para la suspensión'
+        },
+        {
+          text:'Investigar al operador en secreto sin suspenderlo para no alertar a posibles cómplices',
+          sub:'Sigilosa · Mantener al sospechoso activo para obtener más evidencia',
+          tier:'good', points:580,
+          cost:140000, penalty:0, recovery:0,
+          consequence:'La investigación silenciosa acumuló más evidencia, pero el operador detectó la vigilancia y borró registros adicionales antes de ser identificado formalmente.',
+          branchNote:'Evidencia parcial → Stage 4 con investigación abierta pero incompleta',
+          budgetNote:'Investigación encubierta + recuperación de registros borrados'
+        },
+        {
+          text:'Reportar el hallazgo a la PDI inmediatamente y dejar que ellos investiguen al operador',
+          sub:'Legal · Delegar la investigación a las autoridades competentes',
+          tier:'ok', points:270,
+          cost:100000, penalty:80000, recovery:0,
+          consequence:'La PDI tardó 48 horas en asignarlo. En ese tiempo el operador fue alertado por un colega y desapareció. La investigación quedó sin su testimonio.',
+          branchNote:'Insider desaparecido → Stage 4 con investigación incompleta y sospechoso prófugo',
+          budgetNote:'Pérdida de evidencia clave + costo de coordinación con PDI'
+        },
+        {
+          text:'No actuar sobre el operador — puede ser una coincidencia y acusar en falso sería peor',
+          sub:'Cautelosa · Evitar señalar sin pruebas sólidas',
+          tier:'poor', points:70,
+          cost:60000, penalty:160000, recovery:0,
+          consequence:'El operador siguió en funciones. Días después filtró información interna a los medios. Las notas de ABC Color tenían detalles que solo alguien con acceso podía saber.',
+          branchNote:'Insider activo → Stage 4 con filtración interna activa a la prensa',
+          budgetNote:'Inacción ante la amenaza interna tiene costo reputacional y financiero'
+        },
+      ]
+    },
+    mixed:{
+      status:'INVESTIGACIÓN FORENSE · HORA +6H',
+      title:'El origen — presión simultánea',
+      narrative:'El equipo forense confirmó que el malware entró hace 6 meses desde Ciudad del Este. Pero la investigación está siendo más difícil: los logs incompletos y la respuesta inicial dispareja dejaron huecos en la evidencia. Los atacantes necesitaban credenciales SWIFT — lo obtuvieron de algún modo. Mientras tanto, un portal de noticias paraguayo publicó una nota titulada "Hackeo masivo al Banco Ñandutí" basada en información de fuentes anónimas.',
+      update:'⚡ El BCP llama por segunda vez. Quieren saber si los datos de clientes están comprometidos. La nota de prensa ya tiene 15.000 visualizaciones. El call center está desbordado.',
+      branchContext:'🔀 La gestión mixta dejó frentes abiertos. Ahora tienen presión forense, regulatoria y mediática al mismo tiempo.',
+      question:'¿Cuál frente priorizan con el equipo fragmentado?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Responder al BCP con un informe parcial + activar comunicado oficial para frenar la narrativa mediática',
+          sub:'Paralela · Atiende al regulador y a la prensa al mismo tiempo',
+          tier:'best', points:800,
+          cost:200000, penalty:0, recovery:0,
+          consequence:'El comunicado oficial encuadró la narrativa. El BCP recibió el informe y suspendió la presión por 48 horas. El equipo forense ganó espacio para trabajar.',
+          branchNote:'Narrativa controlada → Stage 4 con margen operativo para la investigación',
+          budgetNote:'Comunicaciones de crisis + asesoría regulatoria de emergencia'
+        },
+        {
+          text:'Priorizar el informe al BCP — el regulador tiene jerarquía sobre los medios',
+          sub:'Regulatoria · El BCP es el frente más importante',
+          tier:'good', points:500,
+          cost:160000, penalty:0, recovery:0,
+          consequence:'El BCP quedó satisfecho, pero la narrativa mediática se instaló durante 6 horas sin respuesta oficial. Los clientes empezaron a retirar dinero.',
+          branchNote:'Narrativa instalada → Stage 4 con corrida de clientes moderada',
+          budgetNote:'Costo de respuesta regulatoria + pérdidas por retiro de depósitos'
+        },
+        {
+          text:'Emitir primero el comunicado de prensa — la corrida de clientes es la amenaza mayor',
+          sub:'Reputacional · La confianza del mercado es el activo más frágil',
+          tier:'ok', points:220,
+          cost:140000, penalty:120000, recovery:0,
+          consequence:'El comunicado frenó la corrida, pero el BCP interpretó que el banco priorizó la imagen sobre la transparencia regulatoria. Inició supervisión especial.',
+          branchNote:'BCP en supervisión especial → Stage 4 bajo escrutinio regulatorio',
+          budgetNote:'La priorización de imagen sobre regulador tiene costo formal'
+        },
+        {
+          text:'No comunicar nada hasta tener certeza total — comunicar a medias puede empeorar todo',
+          sub:'Silencio · Esperar certeza antes de hablar',
+          tier:'poor', points:60,
+          cost:100000, penalty:200000, recovery:0,
+          consequence:'El silencio de 8 horas fue devastador. Los medios llenaron el vacío con especulaciones. El BCP inició un proceso formal de sanción por falta de reporte oportuno.',
+          branchNote:'Crisis reputacional + regulatoria → Stage 4 en modo control de daños',
+          budgetNote:'El silencio tiene el costo más alto en una crisis pública'
+        },
+      ]
+    },
+    weak:{
+      status:'INVESTIGACIÓN FORENSE · HORA +6H',
+      title:'El origen — triple crisis activa',
+      narrative:'Con el daño máximo ya acumulado, los investigadores forenses trabajan en condiciones difíciles. El malware entró desde Ciudad del Este hace 6 meses — eso lo saben. Pero los sistemas destruidos y los logs borrados hacen casi imposible reconstruir el timeline completo. El BCP está en supervisión especial. Un periodista de Última Hora tiene información detallada que solo puede venir de adentro del banco.',
+      update:'⚡ CRÍTICO: Tres directores del banco publicaron en Twitter expresando "preocupación" por la gestión de la crisis. Es la primera vez que el directorio habla públicamente. El Gerente General no tenía conocimiento de estos mensajes.',
+      branchContext:'🔀 La gestión deficiente acumuló presiones que ahora estallan simultáneamente. Están en modo control de daños totales.',
+      question:'¿Cómo responden ante la crisis interna y el directorio desmarcándose?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Convocar una reunión de directorio de emergencia para alinear el mensaje institucional',
+          sub:'Unidad institucional · El directorio dividido es peor que el ataque',
+          tier:'best', points:700,
+          cost:150000, penalty:0, recovery:0,
+          consequence:'La reunión logró unificar el mensaje. Los directores retiraron sus tweets y emitieron una declaración conjunta de respaldo a la gestión de la crisis.',
+          branchNote:'Directorio unificado → Stage 4 con frente institucional sólido',
+          budgetNote:'Reunión de emergencia + asesoría legal para manejo de comunicaciones del directorio'
+        },
+        {
+          text:'Contactar individualmente a los directores para pedirles que suspendan los comentarios públicos',
+          sub:'Contenida · Resolver la crisis interna sin reunión formal',
+          tier:'good', points:430,
+          cost:120000, penalty:0, recovery:0,
+          consequence:'Dos de los tres directores accedieron. El tercero siguió comentando. El mensaje quedó parcialmente dividido pero más controlado.',
+          branchNote:'Directorio parcialmente alineado → Stage 4 con incertidumbre institucional',
+          budgetNote:'Gestión individual tiene menor costo pero resultado parcial'
+        },
+        {
+          text:'Ignorar al directorio y enfocarse en la respuesta técnica y regulatoria',
+          sub:'Técnica · Los tweets del directorio son ruido, el BCP es lo que importa',
+          tier:'ok', points:180,
+          cost:100000, penalty:150000, recovery:0,
+          consequence:'Los tweets del directorio se amplificaron. Dos medios internacionales los recogieron. El BCP preguntó formalmente si hay gobernanza funcional en el banco.',
+          branchNote:'Gobernanza cuestionada → Stage 4 con auditoría de gobierno corporativo',
+          budgetNote:'La percepción de falta de gobernanza tiene costo regulatorio directo'
+        },
+        {
+          text:'Emitir un comunicado del Gerente General respondiendo públicamente al directorio',
+          sub:'Confrontacional · Hacer visible el conflicto interno para controlarlo',
+          tier:'poor', points:30,
+          cost:80000, penalty:300000, recovery:0,
+          consequence:'El comunicado confirmó públicamente que había una crisis de gobernanza. El BCP inició una auditoría especial. Las agencias de rating pusieron al banco en observación.',
+          branchNote:'Rating en observación → Stage 4 con crisis de reputación corporativa',
+          budgetNote:'Hacer público el conflicto interno tiene el peor costo posible'
+        },
+      ]
+    }
+  },
+  penalties:{poor:300000, ok:100000}
+},
+
+// ── STAGE 4: El rastro del dinero ─────────────────────
+{
+  variants:{
+    strong:{
+      status:'INVESTIGACIÓN JUDICIAL · DÍA +2',
+      title:'El rastro del dinero — ventana de recuperación',
+      narrative:'La PDI y Fiscalía Anticorrupción están en el banco. El fiscal asignado al caso confirmó que los fondos llegaron a dos cuentas en Hong Kong — una en un banco local y otra en una filial de un banco internacional. Hay una ventana de 72 horas para solicitar el congelamiento vía Asistencia Judicial Internacional. Con la buena investigación previa, tienen evidencia forense sólida para presentar. Al mismo tiempo, alguien envió información confidencial del caso a dos periodistas.',
+      update:'⚡ El banco corresponsal en Hong Kong respondió que pueden bloquear los fondos si reciben la documentación formal en las próximas 18 horas. La firma de abogados internacionales en contacto cotiza USD 220.000 por la gestión de emergencia.',
+      branchContext:'🔀 La gestión sólida les dio evidencia de calidad. La ventana de recuperación es real.',
+      question:'¿Cómo maximizan las chances de recuperar los fondos?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Contratar la firma internacional + cooperación total con la PDI + investigar la filtración interna en paralelo',
+          sub:'Total · Máxima presión en todos los frentes simultáneamente',
+          tier:'best', points:900,
+          cost:220000, penalty:0, recovery:600000,
+          consequence:'Los fondos fueron bloqueados en Hong Kong. Se congelaron USD 3.8M de los USD 4.2M. La filtración fue rastreada a un asistente legal que fue desvinculado.',
+          branchNote:'USD 3.8M bloqueados + filtración resuelta → Stage 5 con resultado concreto para el Senado',
+          budgetNote:'Alto costo de gestión internacional pero recuperación neta positiva'
+        },
+        {
+          text:'Contratar la firma internacional y cooperar con la PDI — la filtración puede esperar',
+          sub:'Financiera · Primero recuperar el dinero, después el control interno',
+          tier:'good', points:620,
+          cost:200000, penalty:0, recovery:300000,
+          consequence:'Se recuperaron USD 300.000. La gestión con corresponsales fue más lenta sin resolver la filtración que siguió generando notas de prensa durante el proceso.',
+          branchNote:'Recuperación parcial → Stage 5 con notas de prensa activas durante el proceso',
+          budgetNote:'Recuperación lograda pero menor por distracción de la filtración activa'
+        },
+        {
+          text:'Usar abogados locales para reducir costos — USD 220.000 es excesivo para esta gestión',
+          sub:'Eficiencia · Los abogados locales pueden hacer lo mismo más barato',
+          tier:'ok', points:250,
+          cost:120000, penalty:150000, recovery:0,
+          consequence:'Los abogados locales no tenían experiencia en asistencia judicial internacional con Hong Kong. El proceso tomó 6 días, la ventana se cerró, los fondos se dispersaron.',
+          branchNote:'Fondos perdidos por demora → Stage 5 sin recuperación que reportar',
+          budgetNote:'El ahorro en abogados resultó más caro que contratar a los especialistas'
+        },
+        {
+          text:'Esperar que la PDI gestione la recuperación sin contratar firma privada',
+          sub:'Institucional · Dejar que las autoridades competentes actúen',
+          tier:'poor', points:60,
+          cost:80000, penalty:350000, recovery:0,
+          consequence:'La PDI escaló a Interpol pero sin una firma privada de soporte la gestión tomó 3 semanas. Para entonces los fondos habían sido movidos a nuevas cuentas.',
+          branchNote:'Sin recuperación → Stage 5 sin logros financieros que presentar',
+          budgetNote:'La pasividad en la recuperación tiene el costo más alto posible'
+        },
+      ]
+    },
+    mixed:{
+      status:'INVESTIGACIÓN JUDICIAL · DÍA +2',
+      title:'El rastro del dinero — evidencia imperfecta',
+      narrative:'La PDI está trabajando con evidencia incompleta. Los logs faltantes complican la reconstrucción del timeline. El fiscal tiene dudas sobre si la documentación es suficiente para la asistencia judicial internacional. Los USD 9.8M están en Hong Kong, pero la ventana se está cerrando. Al mismo tiempo, un periodista de ABC Color publicó una nota con detalles internos del ataque — incluyendo el nombre del operador SWIFT sospechoso.',
+      update:'⚡ El operador SWIFT mencionado en la prensa presentó una denuncia por daño moral. Su abogado amenaza con medidas cautelares. El banco tiene 24 horas para responder legalmente.',
+      branchContext:'🔀 La gestión mixta deja la investigación complicada y la filtración activa genera nuevos problemas legales.',
+      question:'¿Cómo manejan la crisis judicial y la amenaza legal del operador?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Presentar toda la evidencia disponible a la PDI + responder la amenaza del operador con la evidencia forense',
+          sub:'Transparencia total · Usar la evidencia disponible aunque sea incompleta',
+          tier:'best', points:820,
+          cost:200000, penalty:0, recovery:150000,
+          consequence:'La evidencia, aunque incompleta, fue suficiente para iniciar el proceso en Hong Kong. Se bloquearon USD 150.000. La amenaza del operador se diluyó ante la evidencia forense.',
+          branchNote:'Proceso judicial iniciado → Stage 5 con argumento de cooperación ante la Cámara',
+          budgetNote:'Gestión legal doble: recuperación + defensa de la denuncia'
+        },
+        {
+          text:'Priorizar la respuesta legal al operador antes de avanzar con Hong Kong',
+          sub:'Defensiva · El banco debe protegerse de la demanda primero',
+          tier:'good', points:460,
+          cost:180000, penalty:0, recovery:0,
+          consequence:'La respuesta legal fue exitosa. La denuncia fue desestimada. Pero perdieron 3 días cruciales en Hong Kong y la ventana de recuperación se cerró.',
+          branchNote:'Sin recuperación financiera → Stage 5 sin logros concretos',
+          budgetNote:'Costo de defensa legal exitosa pero sin recuperación de fondos'
+        },
+        {
+          text:'Negociar un acuerdo confidencial con el operador para cerrar el tema rápido',
+          sub:'Negociación · Eliminar la amenaza legal con un acuerdo',
+          tier:'ok', points:200,
+          cost:300000, penalty:100000, recovery:0,
+          consequence:'El acuerdo se filtró a la prensa. Se interpretó como admisión de culpa. El BCP preguntó por qué se pagó compensación a un sospechoso del ataque.',
+          branchNote:'Acuerdo filtrado → Stage 5 con preguntas del BCP sobre el pago',
+          budgetNote:'El costo del acuerdo más la filtración es el peor escenario para este frente'
+        },
+        {
+          text:'Ignorar la amenaza del operador y concentrarse exclusivamente en Hong Kong',
+          sub:'Foco total · El dinero recuperado vale más que la denuncia',
+          tier:'poor', points:60,
+          cost:100000, penalty:200000, recovery:0,
+          consequence:'El operador obtuvo una medida cautelar que congeló temporalmente los registros del banco — los mismos que necesitaban para la asistencia judicial en Hong Kong.',
+          branchNote:'Fondos bloqueados por medida cautelar → Stage 5 con proceso judicial en pausa',
+          budgetNote:'Ignorar la denuncia tuvo consecuencias directas sobre la recuperación'
+        },
+      ]
+    },
+    weak:{
+      status:'INVESTIGACIÓN JUDICIAL · DÍA +2',
+      title:'El rastro del dinero — control de daños',
+      narrative:'Con el directorio en crisis, el BCP en supervisión especial y la prensa con información interna, la investigación judicial avanza en condiciones muy difíciles. El fiscal asignado expresó frustración con la falta de documentación organizada. Los USD 9.8M están distribuidos en múltiples cuentas — la ventana para bloquearlos se cerró hace 18 horas. Ahora el objetivo es reconstruir la evidencia para el proceso penal.',
+      update:'⚡ Una agencia de rating bajó la perspectiva del banco de "estable" a "negativa". El stock del holding cayó 8% en la apertura de hoy. Los accionistas principales están exigiendo una reunión de emergencia.',
+      branchContext:'🔀 Las decisiones deficientes convirtieron un ciberataque en una crisis corporativa. Ahora el objetivo es minimizar el daño restante.',
+      question:'¿Cómo responden ante la crisis corporativa que se sumó al incidente?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Convocar reunión de accionistas + presentar un plan de crisis integral con hitos medibles',
+          sub:'Gobernanza · Recuperar la confianza del mercado con un plan concreto',
+          tier:'best', points:700,
+          cost:200000, penalty:0, recovery:0,
+          consequence:'La reunión con accionistas calmó parcialmente los mercados. El plan de crisis fue bien recibido. La agencia de rating suspendió la baja definitiva por 90 días.',
+          branchNote:'Confianza parcialmente recuperada → Stage 5 con algo positivo que reportar',
+          budgetNote:'Gestión de crisis corporativa tiene costo alto pero evita daños mayores'
+        },
+        {
+          text:'Emitir un comunicado a los mercados con los avances de la investigación',
+          sub:'Transparencia · Informar lo que saben aunque sea poco',
+          tier:'good', points:400,
+          cost:150000, penalty:0, recovery:0,
+          consequence:'El comunicado fue recibido como insuficiente. La perspectiva negativa se mantuvo pero la caída se detuvo. Los accionistas exigieron más información.',
+          branchNote:'Estabilización mínima → Stage 5 con accionistas exigiendo resultados',
+          budgetNote:'Comunicado de mercado + asesoría financiera de emergencia'
+        },
+        {
+          text:'Contratar una firma de relaciones públicas para manejar la narrativa del mercado',
+          sub:'PR · Gestionar la percepción antes de gestionar los hechos',
+          tier:'ok', points:170,
+          cost:200000, penalty:150000, recovery:0,
+          consequence:'La firma de PR mejoró el tono de los medios temporalmente, pero sin hechos concretos el efecto duró 48 horas. Los analistas lo calificaron de maquillaje.',
+          branchNote:'PR sin sustancia → Stage 5 con credibilidad en mínimos',
+          budgetNote:'Gastar en imagen sin resolver los hechos tiene costo doble'
+        },
+        {
+          text:'Solicitar al BCP que emita una declaración de respaldo al banco para calmar los mercados',
+          sub:'Regulatoria · Usar la credibilidad del BCP como escudo',
+          tier:'poor', points:20,
+          cost:80000, penalty:300000, recovery:0,
+          consequence:'El BCP se negó públicamente a respaldar al banco mientras tenía una supervisión especial activa. La negativa empeoró la caída del stock.',
+          branchNote:'BCP negó el respaldo → Stage 5 en situación institucional crítica',
+          budgetNote:'Intentar usar al regulador como escudo y que lo niegue es el peor escenario'
+        },
+      ]
+    }
+  },
+  penalties:{poor:350000, ok:100000}
+},
+
+// ── STAGE 5: Ante la Cámara ───────────────────────────
+{
+  variants:{
+    strong:{
+      status:'COMPARECENCIA · DÍA +15 · CÁMARA DE DIPUTADOS',
+      title:'Ante la Cámara — posición de fortaleza',
+      narrative:'El Gerente General comparece ante la Comisión de Hacienda de la Cámara de Diputados. La gestión fue, en líneas generales, efectiva. Se logró bloquear parte de los fondos, se identificó el vector, se cooperó con la PDI. El BCP reconoció la respuesta. Los diputados están informados de estos avances. La pregunta central es: ¿qué garantías estructurales da el banco de que esto no se repita?',
+      update:'⚡ El presidente de la Comisión abre la sesión diciendo: "Banco Ñandutí gestionó mejor que lo esperado. Pero Paraguay no puede depender de que cada banco gestione bien — necesitamos saber qué cambia estructuralmente."',
+      branchContext:'🔀 Llegaron en posición de fortaleza. El foco es el futuro, no defenderse del pasado.',
+      question:'¿Qué propuesta estructural presentan a la Comisión?',
+      impact:'MEDIO',
+      options:[
+        {
+          text:'Proponer un protocolo nacional de respuesta a incidentes bancarios coordinado por el BCP, con simulacros obligatorios semestrales',
+          sub:'Sistémica · Va más allá del banco — propone cambiar el sistema',
+          tier:'best', points:1000,
+          cost:300000, penalty:0, recovery:200000,
+          consequence:'La propuesta fue recibida con entusiasmo. El BCP la adoptó como base de una resolución. El banco quedó posicionado como líder en ciberseguridad bancaria paraguaya. La multa regulatoria fue reducida.',
+          branchNote:'Posicionamiento de liderazgo → resultado final óptimo',
+          budgetNote:'Inversión en infraestructura preventiva comprometida públicamente + reducción de multa'
+        },
+        {
+          text:'Presentar un plan de inversión en ciberseguridad de USD 3M en los próximos 24 meses con hitos verificables',
+          sub:'Concreta · Compromisos medibles con el regulador y la Cámara',
+          tier:'good', points:700,
+          cost:200000, penalty:0, recovery:0,
+          consequence:'El plan fue aprobado por la Comisión. El BCP solicitó informes trimestrales. El banco mantuvo su licencia operativa sin restricciones adicionales.',
+          branchNote:'Plan aprobado → resultado final bueno con compromisos a largo plazo',
+          budgetNote:'Inversión preventiva comprometida públicamente'
+        },
+        {
+          text:'Reconocer las fallas sin proponer un plan específico — los plazos se definen con el BCP luego',
+          sub:'Honesta · Reconocimiento sin sobre-comprometerse',
+          tier:'ok', points:300,
+          cost:100000, penalty:150000, recovery:0,
+          consequence:'La Comisión valoró la honestidad pero quedó insatisfecha. El BCP impuso una auditoría obligatoria y condicionó renovaciones de productos al cumplimiento de mejoras.',
+          branchNote:'Auditoría impuesta → resultado final con restricciones regulatorias',
+          budgetNote:'Sin plan concreto + auditoría obligatoria tiene costo mayor'
+        },
+        {
+          text:'Argumentar que el ataque fue de sofisticación sin precedentes — ningún banco estaba preparado para esto',
+          sub:'Defensiva · El contexto global explica lo sucedido',
+          tier:'poor', points:50,
+          cost:80000, penalty:450000, recovery:0,
+          consequence:'Los diputados rechazaron el argumento. "Bangladesh, México y Chile también dijeron eso", respondió la presidenta de la Comisión. El BCP impuso la multa máxima regulatoria.',
+          branchNote:'Multa máxima → resultado final con daño financiero severo',
+          budgetNote:'La evasión de responsabilidad tiene el costo regulatorio máximo'
+        },
+      ]
+    },
+    mixed:{
+      status:'COMPARECENCIA · DÍA +15 · CÁMARA DE DIPUTADOS',
+      title:'Ante la Cámara — preguntas difíciles',
+      narrative:'El Gerente General comparece ante la Comisión de Hacienda en una atmósfera tensa. La gestión tuvo luces y sombras — algunas decisiones fueron correctas, otras no. Los diputados tienen información de múltiples fuentes, incluyendo la prensa. Uno de ellos tiene una copia de los tweets del directorio. Otro menciona que el BCP "expresó reservas" sobre la gestión. El banco sobrevivió el ataque, pero la credibilidad quedó dañada.',
+      update:'⚡ La presidenta de la Comisión dice antes de empezar: "Señor Gerente, queremos entender dos cosas: por qué tardaron en actuar en algunos momentos, y qué garantías nos dan de que si pasa de nuevo, la respuesta será mejor."',
+      branchContext:'🔀 La gestión inconsistente deja preguntas sin responder. Esta es la oportunidad de recuperar credibilidad.',
+      question:'¿Cómo se posicionan ante las preguntas difíciles de la Comisión?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Reconocer los errores específicos, explicar qué aprendieron y presentar un plan preventivo con compromisos concretos',
+          sub:'Accountability · Responsabilidad total + solución',
+          tier:'best', points:900,
+          cost:180000, penalty:0, recovery:0,
+          consequence:'La honestidad fue valorada. "Por primera vez un banco viene a esta Comisión y reconoce lo que hizo mal", dijo un diputado. El plan fue aprobado. La credibilidad se recuperó parcialmente.',
+          branchNote:'Credibilidad recuperada → resultado final con aprendizaje genuino',
+          budgetNote:'Inversión en credibilidad institucional tiene retorno a largo plazo'
+        },
+        {
+          text:'Enfocarse en los aciertos de la gestión y presentar el plan futuro sin detenerse en los errores',
+          sub:'Forward-looking · El futuro importa más que el pasado',
+          tier:'good', points:550,
+          cost:140000, penalty:0, recovery:0,
+          consequence:'El plan fue aprobado, pero los diputados notaron que no hubo autocrítica. "Esperamos más reflexión la próxima vez", cerró la presidenta de la Comisión.',
+          branchNote:'Aprobación con reservas → resultado final aceptable sin cierre emocional',
+          budgetNote:'Plan aprobado con menor compromiso político de la Cámara'
+        },
+        {
+          text:'Señalar que la Ley 861 no contempla explícitamente los protocolos para ciberataques — es un vacío legal',
+          sub:'Sistémica · El problema es el marco legal, no la gestión del banco',
+          tier:'ok', points:220,
+          cost:100000, penalty:200000, recovery:0,
+          consequence:'El argumento era parcialmente válido, pero fue interpretado como evasión. La Comisión solicitó un auditor externo independiente para evaluar la gestión.',
+          branchNote:'Auditor externo ordenado → resultado final bajo supervisión adicional',
+          budgetNote:'El argumento legal sin responsabilidad tiene costo de supervisión'
+        },
+        {
+          text:'Atribuir la responsabilidad al área de IT y al empleado de Ciudad del Este que abrió el email original',
+          sub:'Culpabilizadora · Señalar a los responsables directos del incidente',
+          tier:'poor', points:0,
+          cost:60000, penalty:500000, recovery:0,
+          consequence:'"Señor Gerente, usted gestiona a su equipo — la responsabilidad es suya", respondió la presidenta. El BCP inició un proceso de evaluación de idoneidad del directivo. La multa máxima fue aplicada.',
+          branchNote:'Proceso de idoneidad del Gerente → resultado final crítico',
+          budgetNote:'Culpar al equipo ante la Cámara tiene el peor costo posible'
+        },
+      ]
+    },
+    weak:{
+      status:'COMPARECENCIA · DÍA +15 · CÁMARA DE DIPUTADOS',
+      title:'Ante la Cámara — rendición de cuentas',
+      narrative:'El Gerente General llega a la Comisión de Hacienda en la peor situación posible: el BCP en supervisión especial, el rating en negativa, los fondos perdidos y la prensa con información interna. Los diputados tienen más información que el banco quisiera. El CFO presentó al directorio pérdidas por USD 12.8M incluyendo costos de gestión, multas y fondos no recuperados. Un diputado ya tiene esa cifra.',
+      update:'⚡ Antes de entrar a la sala, Legal avisa: el BCP notificó formalmente la apertura de un proceso de sanción por "gestión deficiente de incidente de ciberseguridad" bajo la Ley 861. Es el primer proceso de este tipo en la historia bancaria paraguaya.',
+      branchContext:'🔀 Las decisiones acumuladas convirtieron un ataque en una crisis institucional. Esta comparecencia determina si el banco puede continuar operando normalmente.',
+      question:'¿Cómo responden al proceso de sanción del BCP ante la Comisión?',
+      impact:'ALTO',
+      options:[
+        {
+          text:'Asumir responsabilidad total, presentar un plan de remediación detallado y solicitar formalmente la colaboración del BCP para implementarlo',
+          sub:'Accountability máximo · Responsabilidad + acción + cooperación regulatoria',
+          tier:'best', points:750,
+          cost:300000, penalty:0, recovery:0,
+          consequence:'La Comisión recomendó al BCP suspender el proceso sancionatorio condicionalmente. El plan de remediación fue aprobado con supervisión trimestral. El banco sobrevivió institucionalmente.',
+          branchNote:'Supervivencia institucional → resultado final de recuperación mínima',
+          budgetNote:'Inversión en remediación es el costo de la supervivencia institucional'
+        },
+        {
+          text:'Proponer traer un CISO externo de primer nivel y reestructurar el área de seguridad',
+          sub:'Pragmática · Admitir limitaciones y proponer el refuerzo correcto',
+          tier:'good', points:450,
+          cost:250000, penalty:0, recovery:0,
+          consequence:'La Comisión aceptó la propuesta. El BCP redujo la sanción. La reestructuración fue vista como señal de compromiso real con el cambio.',
+          branchNote:'Reestructuración aceptada → resultado final con reforma en marcha',
+          budgetNote:'Costo de reestructuración + nuevo CISO externo + reducción de sanción'
+        },
+        {
+          text:'Cuestionar la base legal del proceso sancionatorio — la Ley 861 no establece estándares específicos de ciberseguridad',
+          sub:'Legal · Disputar la validez del proceso antes de responder al fondo',
+          tier:'ok', points:180,
+          cost:200000, penalty:250000, recovery:0,
+          consequence:'El argumento legal fue válido pero contraproducente. El BCP lo interpretó como hostilidad regulatoria y aumentó el alcance de la supervisión especial.',
+          branchNote:'Supervisión ampliada → resultado final con escrutinio regulatorio máximo',
+          budgetNote:'Disputar al regulador tiene costo legal + mayor escrutinio'
+        },
+        {
+          text:'Solicitar la recusación del proceso alegando presión política sobre el BCP',
+          sub:'Confrontacional · Cuestionar la independencia del regulador',
+          tier:'poor', points:0,
+          cost:150000, penalty:600000, recovery:0,
+          consequence:'La acusación de presión política fue rechazada por el BCP, la Cámara y los medios. Se abrió un segundo proceso sancionatorio por "obstaculización regulatoria". El futuro operativo del banco quedó en duda.',
+          branchNote:'Doble proceso sancionatorio → resultado final en riesgo de licencia',
+          budgetNote:'El ataque al regulador tiene el costo más alto posible del juego'
+        },
+      ]
+    }
+  },
+  penalties:{poor:500000, ok:150000}
+}
+
+]; // fin STAGES
+
+// ════════════════════════════════════════════════════════
+// INVERSIONES
+// ════════════════════════════════════════════════════════
+const INVESTMENTS = [
+  // Stage 1
+  [
+    {name:'Equipo forense externo (Microsoft + firma local)',cost:80000,benefit:'+200 pts si confirman la decisión óptima · Documentación forense desde el día 1',bonusType:'pts',bonusValue:200,wise:true},
+    {name:'Activar SOC de monitoreo externo 24hs',cost:50000,benefit:'Reduce la siguiente penalización en $30.000',bonusType:'shield',bonusValue:30000},
+    {name:'Notificar preventivamente al BCP',cost:30000,benefit:'Desbloquea información estratégica del regulador + reduce presión en Stage 3',bonusType:'info',infoKey:'0-2'},
+  ],
+  // Stage 2
+  [
+    {name:'Firma de abogados internacionales en HK (anticipo)',cost:80000,benefit:'+200 pts en decisión óptima · Reserva capacidad legal para Stage 4',bonusType:'pts',bonusValue:200,wise:true},
+    {name:'Comunicaciones de crisis (agencia especializada)',cost:45000,benefit:'Reduce la siguiente penalización en $25.000',bonusType:'shield',bonusValue:25000},
+    {name:'Monitoreo de reputación online en tiempo real',cost:25000,benefit:'Desbloquea alerta de impacto reputacional con 2h de anticipación',bonusType:'info',infoKey:'1-2'},
+  ],
+  // Stage 3
+  [
+    {name:'Auditoría completa de accesos privilegiados SWIFT',cost:90000,benefit:'+250 pts en decisión óptima · Identifica el insider antes de Stage 4',bonusType:'pts',bonusValue:250,wise:true},
+    {name:'Pentesting externo de la red reconstruida',cost:70000,benefit:'+150 pts en decisión óptima',bonusType:'pts',bonusValue:150},
+    {name:'Capacitación de emergencia — empleados con acceso crítico',cost:40000,benefit:'Reduce la siguiente penalización en $20.000',bonusType:'shield',bonusValue:20000},
+  ],
+  // Stage 4
+  [
+    {name:'Firma internacional para asistencia judicial en HK',cost:120000,benefit:'+300 pts en decisión óptima · Maximiza la recuperación de fondos',bonusType:'pts',bonusValue:300,wise:true},
+    {name:'Asesoría regulatoria especializada ante el BCP',cost:80000,benefit:'+200 pts en decisión óptima',bonusType:'pts',bonusValue:200},
+    {name:'Seguro de ciberriesgo para próximos incidentes',cost:60000,benefit:'Aplica ×1.5 a los puntos por budget restante al final',bonusType:'multiplier'},
+  ],
+  // Stage 5
+  [
+    {name:'Plan de inversión en ciberseguridad estructurado',cost:150000,benefit:'+300 pts en decisión óptima · Credibilidad ante la Cámara',bonusType:'pts',bonusValue:300,wise:true},
+    {name:'Asesor externo en gobernanza y riesgo operacional',cost:90000,benefit:'+200 pts en decisión óptima',bonusType:'pts',bonusValue:200},
+    {name:'Programa de concientización para todo el banco',cost:50000,benefit:'Reduce la siguiente penalización en $30.000',bonusType:'shield',bonusValue:30000},
+  ],
+];
+
+// ════════════════════════════════════════════════════════
+// NOTIFICACIONES CONTEXTUALES
+// ════════════════════════════════════════════════════════
+const NOTIFS = {
+  start:[
+    {time:'07:31',text:'🚨 SOC activó alerta máxima. Equipos en cascada sin responder en sucursales de Asunción.',type:'alert'},
+    {time:'07:34',text:'IT reporta: el sistema de arranque de los equipos está siendo borrado activamente. Malware en propagación.',type:'alert'},
+    {time:'07:38',text:'Sucursal Central, Shopping del Sol y CDE sin operaciones. Clientes en fila sin atención.',type:'warn'},
+  ],
+  byStage:[
+    [{time:'07:45',text:'Prensa: un seguidor de Twitter publicó foto de pantallas negras en la sucursal de Shopping del Sol. 3.200 RT en 10 minutos.',type:'warn'},{time:'07:52',text:'IT confirma: 9.000 terminales y 500 servidores afectados. El malware borra el MBR (Master Boot Record).',type:'alert'},{time:'08:05',text:'El Gerente General interrumpió su reunión con el directorio. Está en camino al Centro de Operaciones.',type:'info'}],
+    [{time:'08:48',text:'⚡ CRÍTICO: Analista SWIFT encontró 4 transferencias internacionales no autorizadas ejecutadas entre 07:15 y 07:58hs.',type:'alert'},{time:'08:55',text:'Legal confirma: las transferencias tienen destino en dos bancos de Hong Kong. Total: USD 9.8 millones.',type:'alert'},{time:'09:10',text:'ABC Color: "Hackeo masivo al Banco Ñandutí paraliza sucursales en todo el país." La nota ya tiene 20.000 visitas.',type:'warn'},{time:'09:25',text:'BCP llamó por primera vez. Quieren un informe preliminar en 2 horas.',type:'warn'}],
+    [{time:'13:15',text:'Equipo forense de Microsoft llegó al Centro de Operaciones. Comenzaron el análisis de los logs disponibles.',type:'info'},{time:'14:30',text:'Forense preliminar: el malware tiene firma similar al Buhtrap, usado en ataques a bancos en Rusia y Chile en 2018.',type:'warn'},{time:'15:45',text:'Logs del sistema SWIFT muestran acceso inusual desde una IP interna a las 2:15am de 47 noches en los últimos 3 meses.',type:'alert'},{time:'16:20',text:'Última Hora: "Fuentes del banco confirman que el ataque se gestó hace meses desde adentro." ¿Quién filtró esto?',type:'alert'}],
+    [{time:'09:00 (día 2)',text:'PDI y Fiscalía Anticorrupción llegaron al banco con orden de allanamiento informativo.',type:'info'},{time:'10:15 (día 2)',text:'Corresponsal en Hong Kong: "Hay una ventana de 18 horas para solicitar el bloqueo de fondos vía asistencia judicial internacional."',type:'warn'},{time:'11:30 (día 2)',text:'Agencia de rating S&P puso al banco en "observación crediticia". El holding cotiza 6% abajo en la apertura.',type:'alert'},{time:'14:00 (día 2)',text:'BCP envió notificación formal: se inicia proceso de evaluación de gestión del incidente bajo Ley 861/96.',type:'alert'}],
+    [{time:'09:00 (día 15)',text:'Comisión de Hacienda convocó al Gerente General para las 10:00hs. Prensa aguarda en la entrada del Congreso.',type:'info'},{time:'09:45 (día 15)',text:'Diputado Martínez (oposición): "Si el BCP no tenía protocolos para ciberataques, alguien debe responder por eso."',type:'warn'},{time:'11:00 (día 15)',text:'BCP emitió comunicado: "La gestión del incidente será analizada a la luz de la normativa vigente."',type:'info'}],
+  ],
+  byPath:{
+    best_s1:{time:'08:10',text:'✅ Servidores SWIFT aislados. El sistema de transferencias está protegido. 2 transferencias bloqueadas automáticamente.',type:'recovery'},
+    good_s2:{time:'09:30',text:'Equipo forense reconstruyendo logs desde backups. Estimado: 4 horas para tener evidencia parcial.',type:'info'},
+    insider_found:{time:'16:45',text:'⚡ INSIDER IDENTIFICADO: El operador SWIFT fue suspendido preventivamente. Sus credenciales coinciden con las usadas en las transferencias fraudulentas.',type:'alert'},
+    hk_blocked:{time:'11:00 (día 2)',text:'✅ FONDOS BLOQUEADOS: El corresponsal en Hong Kong confirmó el congelamiento de fondos. Proceso judicial internacional iniciado.',type:'recovery'},
+    bcp_ally:{time:'10:30',text:'✅ BCP: "Valoramos la comunicación proactiva del banco. Extendemos el plazo del informe formal a 48 horas."',type:'recovery'},
+  }
+};
+
+// ════════════════════════════════════════════════════════
+// LÓGICA DE BIFURCACIÓN
+// ════════════════════════════════════════════════════════
+function getStageNotifs(n){
+  const base=NOTIFS.byStage[n]||[];
+  // Personalizar con nombres del comité donde aplica
+  return base.map(notif=>{
+    let t=notif.text;
+    if(committee.legal)  t=t.replace('Legal confirma','<strong>'+committee.legal+'</strong> (Legal) confirma').replace('Legal: r','<strong>'+committee.legal+'</strong>: R');
+    if(committee.gm)     t=t.replace('El Gerente General','<strong>'+committee.gm+'</strong> (Gerente General)');
+    if(committee.ciso)   t=t.replace('el CISO','<strong>'+committee.ciso+'</strong> (CISO)');
+    if(committee.comms)  t=t.replace('Comunicaciones','<strong>'+committee.comms+'</strong> (Comunicaciones)');
+    return {...notif,text:t};
+  });
+}
+
+function getVariantKey(stageIdx){
+  if(stageIdx===0) return 'default';
+  const prev=decisionPath[stageIdx-1];
+  if(!prev) return 'default';
+  if(stageIdx===1) return prev.tier;
+  if(stageIdx===2||stageIdx===3){
+    const tiers=decisionPath.slice(0,stageIdx).map(d=>d.tier);
+    const strongCount=tiers.filter(t=>t==='best'||t==='good').length;
+    const weakCount=tiers.filter(t=>t==='poor'||t==='ok').length;
+    if(strongCount>=tiers.length*0.6) return 'strong';
+    if(weakCount>=tiers.length*0.6) return 'weak';
+    return 'mixed';
+  }
+  if(stageIdx===4){
+    const tiers=decisionPath.slice(0,4).map(d=>d.tier);
+    const bests=tiers.filter(t=>t==='best').length;
+    const poors=tiers.filter(t=>t==='poor'||t==='ok').length;
+    if(bests>=2) return 'strong';
+    if(poors>=3) return 'weak';
+    return 'mixed';
+  }
+  return 'default';
+}
+
+function getStage(n){
+  const s=STAGES[n];
+  const key=getVariantKey(n);
+  return s.variants[key]||s.variants['default']||s.variants['mixed']||s.variants['strong']||s.variants['weak'];
+}
+
+function getPenalties(n){return STAGES[n].penalties;}
+
+// ════════════════════════════════════════════════════════
+// BUDGET
+// ════════════════════════════════════════════════════════
+function updateBudget(delta,type,label){
+  budget+=delta;
+  if(type==='cost') totalCosts-=delta;
+  if(type==='penalty') totalPenalties-=delta;
+  if(type==='recovery') totalRecoveries+=delta;
+  const el=document.getElementById('budgetVal');
+  if(el){
+    el.textContent=(budget<0?'-':'')+fmt(budget);
+    const fc=type==='penalty'?'flash-red':type==='recovery'?'flash-green':'flash-amber';
+    el.classList.remove('flash-red','flash-green','flash-amber');
+    void el.offsetWidth;
+    el.classList.add(fc);
+    setTimeout(()=>el.classList.remove(fc),1400);
+  }
+  updateBudgetSidebar();
+  showBudgetToast(delta,type);
+}
+
+function updateBudgetSidebar(){
+  const set=(id,val,neg)=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent=(neg&&val>0?'-':val<0?'+':'')+fmt(val);}
+  };
+  const av=document.getElementById('blAvailable');
+  if(av){
+    av.textContent=(budget<0?'-':'')+fmt(budget);
+    av.style.color=budget<0?'var(--accent)':budget<500000?'var(--gold)':'var(--info)';
+  }
+  document.getElementById('blCosts').textContent='-'+fmt(totalCosts);
+  document.getElementById('blPenalties').textContent='-'+fmt(totalPenalties);
+  document.getElementById('blRecoveries').textContent='+'+fmt(totalRecoveries);
+}
+
+function showBudgetToast(delta,type){
+  const t=document.getElementById('budgetToast');
+  if(!t) return;
+  t.className='';
+  t.textContent=(delta<0?'−':'+')+fmt(Math.abs(delta));
+  void t.offsetWidth;
+  t.className=type==='penalty'?'toast-red':type==='recovery'?'toast-green':'toast-amber';
+  setTimeout(()=>{t.className='';},2400);
+}
+
+// ════════════════════════════════════════════════════════
+// NOTIFICACIONES
+// ════════════════════════════════════════════════════════
+function pushNotif(n){
+  const feed=document.getElementById('notifFeed');
+  const el=document.createElement('div');
+  el.className=`notif-item notif-${n.type}`;
+  el.innerHTML=`<div class="notif-dot"></div><div style="flex:1"><div class="notif-time">${n.time}</div>${n.text}</div>`;
+  feed.insertBefore(el,feed.firstChild);
+  if(currentTab!=='notif'){
+    unreadNotifs++;
+    const b=document.getElementById('notifBadge');
+    b.textContent=unreadNotifs;b.style.display='flex';
+  }
+}
+function loadNotifs(arr,delay=0){arr.forEach((n,i)=>setTimeout(()=>pushNotif(n),delay+i*1200));}
+function switchTab(tab){
+  currentTab=tab;
+  ['info','notif','scores'].forEach(t=>{
+    document.getElementById(`stab-${t}`).classList.toggle('active',t===tab);
+    document.getElementById(`sp-${t}`).classList.toggle('active',t===tab);
+  });
+  if(tab==='notif'){unreadNotifs=0;document.getElementById('notifBadge').style.display='none';}
+}
+
+// ════════════════════════════════════════════════════════
+// PATH TRACKER
+// ════════════════════════════════════════════════════════
+function updatePathTracker(){
+  const flow=document.getElementById('ptFlow');
+  if(!flow) return;
+  if(decisionPath.length===0){flow.innerHTML='<span style="font-size:.7rem;color:var(--muted)">Sin decisiones aún</span>';return;}
+  const tierLabels={best:'Óptima',good:'Buena',ok:'Parcial',poor:'Perdida'};
+  const dotColors={best:'var(--tier-best)',good:'var(--tier-good)',ok:'var(--tier-ok)',poor:'var(--tier-poor)'};
+  flow.innerHTML=decisionPath.map((d,i)=>`
+    <div>
+      <div class="pt-node">
+        <div class="pt-dot" style="background:${dotColors[d.tier]}"></div>
+        <span style="color:${dotColors[d.tier]};font-size:.7rem"><strong>S${i+1}</strong> · ${tierLabels[d.tier]}</span>
+        <span style="font-size:.65rem;color:var(--muted);margin-left:auto">${d.points}pts</span>
+      </div>
+      ${i<decisionPath.length-1?'<div class="pt-line"></div>':''}
+      ${d.branchNote?`<div style="font-size:.63rem;color:var(--purple);padding:.12rem 0 .12rem 1.1rem;line-height:1.4">↳ ${d.branchNote}</div>`:''}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// INVERSIONES
+// ════════════════════════════════════════════════════════
+function purchaseInvestment(stageIdx,invIdx){
+  const key=`${stageIdx}-${invIdx}`;
+  if(investmentsDone[key]) return;
+  const inv=INVESTMENTS[stageIdx][invIdx];
+  if(budget<inv.cost){
+    pushNotif({time:'INV.',text:`⚠ Presupuesto insuficiente para "${inv.name}". Disponible: ${fmt(budget)}`,type:'warn'});
+    return;
+  }
+  investmentsDone[key]=true;
+  if(inv.bonusType==='shield') penaltyShield+=inv.bonusValue;
+  if(inv.bonusType==='info'){
+    const msgs={
+      '0-2':'BCP (respuesta a notificación preventiva): "Su comunicación proactiva fue registrada. Las entidades que notifican en <24h históricamente reciben hasta 40% de reducción en sanciones bajo la Ley 861/96."',
+      '1-2':'MONITOREO REPUTACIONAL: Se detectaron 5 publicaciones virales. Una cuenta con 80K seguidores tuiteó "¿Se robaron los ahorros del Banco Ñandutí?" — 22K interacciones en 30 min. Ventana óptima de respuesta: menos de 2 horas.',
+    };
+    pushNotif({time:'INV.',text:msgs[key]||'Información estratégica desbloqueada.',type:'branch'});
+  }
+  updateBudget(-inv.cost,'cost','inversión');
+  const btn=document.getElementById(`invOpt-${stageIdx}-${invIdx}`);
+  if(btn){btn.classList.add('inv-done');btn.onclick=null;const b=btn.querySelector('.inv-badge');if(b)b.textContent='✓ ADQUIRIDO';}
+  const note=document.getElementById('invBudgetNote');
+  if(note) note.textContent='Disponible: '+(budget<0?'-':'')+fmt(budget);
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+function startCrisis(){
+  // Leer nombres del comité
+  committee.team = document.getElementById('inputTeamName').value.trim();
+  committee.ciso = document.getElementById('inputCISO').value.trim();
+  committee.legal= document.getElementById('inputLegal').value.trim();
+  committee.comms= document.getElementById('inputComms').value.trim();
+  committee.ops  = document.getElementById('inputOps').value.trim();
+  committee.gm   = document.getElementById('inputGM').value.trim();
+
+  // Actualizar nombre del equipo real en TEAMS[0]
+  TEAMS[0].name = teamName();
+
+  document.getElementById('screenIntro').classList.remove('active');
+  document.getElementById('screenGame').classList.add('active');
+  initSidebar();
+  renderStage(0);
+  startTimer();
+  simulateOtherTeams();
+  loadNotifs(NOTIFS.start,800);
+}
+
+function startTimer(){
+  timerInt=setInterval(()=>{
+    timerSecs--;
+    const m=Math.floor(timerSecs/60).toString().padStart(2,'0');
+    const s=(timerSecs%60).toString().padStart(2,'0');
+    const el=document.getElementById('gameTimer');
+    el.textContent=`${m}:${s}`;
+    if(timerSecs<1200) el.className='tb-timer warn';
+    if(timerSecs<300)  el.className='tb-timer crit';
+    if(timerSecs<=0){clearInterval(timerInt);showFinal();}
+  },1000);
+}
+
+function initSidebar(){
+  // Topbar team label
+  const tl=document.getElementById('teamNameLabel');
+  if(tl) tl.textContent=teamName();
+
+  const ri=document.getElementById('roundIndicator');
+  ri.innerHTML=STAGES.map((_,i)=>`<div class="ri-dot" id="riDot${i}"></div><span style="font-size:.68rem;color:var(--muted)">S${i+1}</span>`).join('');
+  document.getElementById('riDot0').classList.add('active');
+
+  // Equipo propio con nombre personalizado
+  document.getElementById('teamRows').innerHTML=TEAMS.map((t,i)=>`
+    <div class="team-row" id="tRow${i}">
+      <div class="tr-name">${t.name}</div>
+      <div class="tr-decided" id="tDec${i}" style="display:none">✓ Decidió</div>
+      <div class="tr-score" id="tScore${i}">0 pts</div>
+    </div>`).join('');
+
+  // Mini tarjeta del comité en el sidebar
+  const hasMember=committee.ciso||committee.legal||committee.comms||committee.ops||committee.gm;
+  if(hasMember){
+    const roles=[
+      {key:'ciso',label:'CISO'},
+      {key:'legal',label:'Legal'},
+      {key:'comms',label:'Comms'},
+      {key:'ops',label:'Ops'},
+      {key:'gm',label:'Gerente'},
+    ];
+    const committeeHTML=`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.7rem;margin-top:.1rem;">
+        <div style="font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.12em;color:var(--muted);margin-bottom:.5rem;">COMITÉ ACTIVO</div>
+        ${roles.filter(r=>committee[r.key]).map(r=>`
+          <div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid var(--border);font-size:.72rem;">
+            <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.62rem;">${r.label}</span>
+            <span style="font-weight:500">${committee[r.key]}</span>
+          </div>`).join('')}
+      </div>`;
+    // Insertar después del round indicator
+    const infoPanel=document.getElementById('sp-info');
+    const firstDiv=infoPanel.querySelector('div');
+    if(firstDiv) firstDiv.insertAdjacentHTML('afterend',committeeHTML);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER STAGE
+// ════════════════════════════════════════════════════════
+function renderStage(n){
+  currentRound=n;
+  dtRound={};
+  document.getElementById('roundLabel').textContent=`STAGE ${n+1} DE ${STAGES.length}`;
+  const s=getStage(n);
+  const inv=INVESTMENTS[n];
+
+  const invSection=inv?`
+    <div class="inv-card">
+      <div class="inv-header">
+        <div class="inv-title">// INVERSIONES ESTRATÉGICAS · STAGE ${n+1}</div>
+        <div class="inv-budget-note" id="invBudgetNote">Disponible: ${(budget<0?'-':'')+fmt(budget)}</div>
+      </div>
+      <div class="inv-body">
+        ${inv.map((iv,i)=>{
+          const key=`${n}-${i}`;const done=!!investmentsDone[key];
+          return `<div class="inv-opt${done?' inv-done':''}" id="invOpt-${n}-${i}"${done?'':` onclick="purchaseInvestment(${n},${i})"`}>
+            <div class="inv-cost">${fmt(iv.cost)}</div>
+            <div class="inv-info"><div class="inv-name">${iv.name}</div><div class="inv-benefit">${iv.benefit}</div></div>
+            <div class="inv-badge">${done?'✓ ADQUIRIDO':''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:'' ;
+
+  const branchCtx=s.branchContext?`
+    <div class="branch-ctx">
+      <div class="branch-ctx-label">// CONTEXTO — HERENCIA DE DECISIONES PREVIAS</div>
+      ${s.branchContext.replace('🔀 ','')}
+    </div>`:'';
+
+  document.getElementById('gameMain').innerHTML=`
+    <div class="incident-card">
+      <div class="ic-status-bar"><div class="ic-dot"></div>${s.status}</div>
+      <div class="ic-body">
+        <div class="ic-eyebrow">STAGE ${n+1} DE 5 · ${s.impact==='ALTO'?'⚠ IMPACTO ALTO':'◈ IMPACTO MEDIO'} · BANCO ÑANDUTÍ — ASUNCIÓN</div>
+        <div class="ic-title">${s.title}</div>
+        ${branchCtx}
+        <div class="ic-narrative">${s.narrative}</div>
+        ${s.update?`<div class="ic-update"><div class="ic-update-label">// NUEVA INFORMACIÓN</div>${s.update}</div>`:''}
+      </div>
+    </div>
+    <div class="decision-card">
+      <div class="dc-header">
+        <div class="dc-question">${s.question}</div>
+        <span class="impact-badge ${s.impact==='ALTO'?'impact-high':'impact-med'}">${s.impact}</span>
+      </div>
+      <div class="dc-body">
+        <div class="decision-opts">
+          ${s.options.map((o,i)=>`
+            <div class="dec-opt" id="decOpt${i}" onclick="selectDecision(${n},${i})">
+              <div class="do-key">${['A','B','C','D'][i]}</div>
+              <div class="do-content">
+                <div class="do-text">${o.text}</div>
+                <div class="do-sub">${o.sub}</div>
+              </div>
+              <div class="do-budget" id="decBudget${i}">${o.cost>0?'−'+fmt(o.cost):''}${o.penalty>0?' / −'+fmt(o.penalty):''}${o.recovery>0?' / +'+fmt(o.recovery):''}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="dc-footer">
+        <div style="font-size:.77rem;color:var(--muted)">Esta decisión afecta el presupuesto y la siguiente situación</div>
+        <button class="btn btn-dark" id="confirmBtn" onclick="confirmDecision(${n})" disabled style="opacity:.4;cursor:default">Confirmar →</button>
+      </div>
+    </div>
+    ${invSection}
+    <div id="revealArea"></div>
+  `;
+
+  TEAMS.forEach(t=>{t.decided=false;});
+  document.querySelectorAll('[id^=tDec]').forEach(el=>el.style.display='none');
+  if(NOTIFS.byStage[n]) loadNotifs(getStageNotifs(n),3000);
+}
+
+function selectDecision(round,idx){
+  if(dtRound._confirmed) return;
+  document.querySelectorAll('.dec-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById(`decOpt${idx}`).classList.add('selected');
+  // Mostrar impacto presupuestario de la opción seleccionada
+  document.querySelectorAll('[id^=decBudget]').forEach(el=>el.style.display='none');
+  const bd=document.getElementById(`decBudget${idx}`);
+  if(bd) bd.style.display='block';
+  dtRound._selected=idx;
+  const btn=document.getElementById('confirmBtn');
+  btn.style.opacity='1';btn.style.cursor='pointer';btn.disabled=false;
+}
+
+// ════════════════════════════════════════════════════════
+// CONFIRM DECISION
+// ════════════════════════════════════════════════════════
+function confirmDecision(round){
+  const sel=dtRound._selected;
+  if(sel===undefined) return;
+  dtRound._confirmed=true;
+  const s=getStage(round);
+  const opt=s.options[sel];
+  const tier=TIER[opt.tier];
+
+  // Revelar todos los tiers
+  document.querySelectorAll('.dec-opt').forEach((el,i)=>{
+    el.onclick=null;el.classList.remove('selected');
+    const t=TIER[s.options[i].tier];
+    el.classList.add(t.css);
+    const bd=document.getElementById(`decBudget${i}`);
+    if(bd){bd.style.display='block';bd.style.color=t.color;}
+  });
+
+  // Puntos
+  totalScore+=opt.points;
+  if(opt.tier==='best'){bestDec++;document.getElementById('metBest').textContent=bestDec;}
+  else if(opt.tier==='good'){goodDec++;document.getElementById('metGood').textContent=goodDec;}
+  else if(opt.tier==='poor'||opt.tier==='ok'){poorDec++;document.getElementById('metPoor').textContent=poorDec;}
+  document.getElementById('metScore').textContent=totalScore;
+  TEAMS[0].score=totalScore;
+  document.getElementById('tScore0').textContent=`${totalScore} pts`;
+  TEAMS[0].decided=true;
+  document.getElementById('tDec0').style.display='block';
+
+  // Budget: costo operativo inmediato
+  if(opt.cost>0) setTimeout(()=>updateBudget(-opt.cost,'cost'),400);
+
+  // Budget: penalización
+  const pen=getPenalties(round);
+  if(pen){
+    let penAmt=opt.tier==='poor'?pen.poor:opt.tier==='ok'?pen.ok:0;
+    if(opt.penalty) penAmt+=opt.penalty;
+    if(penAmt>0){
+      const shielded=Math.min(penaltyShield,penAmt);
+      penaltyShield=Math.max(0,penaltyShield-shielded);
+      penAmt-=shielded;
+      if(penAmt>0) setTimeout(()=>updateBudget(-penAmt,'penalty'),900);
+    }
+  }
+
+  // Budget: recuperación
+  if(opt.recovery>0) setTimeout(()=>{
+    updateBudget(opt.recovery,'recovery');
+    pushNotif({time:`S${round+1}`,text:`✅ RECUPERACIÓN: ${fmt(opt.recovery)} obtenidos gracias a la decisión tomada.`,type:'recovery'});
+    if(round===1&&opt.tier==='best') pushNotif(NOTIFS.byPath.best_s1||{time:'08:10',text:'Fondos SWIFT parcialmente protegidos.',type:'recovery'});
+    if(round===3) pushNotif(NOTIFS.byPath.hk_blocked||{time:'Día +2',text:'Fondos bloqueados en HK.',type:'recovery'});
+  },1200);
+
+  // Bonus inversiones
+  if(opt.tier==='best'){
+    let bonusPts=0;
+    INVESTMENTS[round].forEach((iv,idx)=>{
+      if(investmentsDone[`${round}-${idx}`]&&iv.bonusType==='pts') bonusPts+=iv.bonusValue;
+    });
+    if(bonusPts>0){
+      totalScore+=bonusPts;
+      TEAMS[0].score=totalScore;
+      document.getElementById('metScore').textContent=totalScore;
+      document.getElementById('tScore0').textContent=`${totalScore} pts`;
+    }
+  }
+
+  // Notificación de bifurcación
+  if(opt.branchNote&&round<4){
+    setTimeout(()=>pushNotif({time:`S${round+1}→S${round+2}`,text:`🔀 ${opt.branchNote}`,type:'branch'}),1500);
+  }
+
+  // Historial
+  consequences.unshift({tier:opt.tier,text:`S${round+1}: ${opt.consequence}`});
+  document.getElementById('consList').innerHTML=consequences.map(c=>`<div class="cons-item ${TIER[c.tier].cons}">${c.text}</div>`).join('');
+
+  // Path
+  decisionPath.push({round,tier:opt.tier,points:opt.points,text:opt.text,branchNote:opt.branchNote||null,cost:opt.cost,penalty:opt.penalty||0,recovery:opt.recovery||0});
+  updatePathTracker();
+
+  const bestOpt=s.options.find(o=>o.tier==='best');
+  const budgetImpact=buildBudgetImpactBox(opt,tier);
+
+  document.getElementById('revealArea').innerHTML=`
+    <div class="consequence-reveal">
+      <div class="cr-header">
+        <div style="font-size:1.3rem">${opt.tier==='best'?'⭐':opt.tier==='good'?'👍':opt.tier==='ok'?'⚠️':'💡'}</div>
+        <div class="cr-title" style="color:${tier.color}">${tier.label}</div>
+        <div class="cr-pts" style="color:${tier.color}">+${opt.points} pts</div>
+      </div>
+      <div class="cr-body">
+        <div class="cr-item ${tier.cr}">
+          <div class="cr-item-label">CONSECUENCIA DE SU DECISIÓN</div>
+          <div class="cr-item-text">${opt.consequence}</div>
+        </div>
+        <div class="cr-item cr-optimal">
+          <div class="cr-item-label">DECISIÓN ÓPTIMA (+${bestOpt.points} pts)</div>
+          <div class="cr-item-text">${bestOpt.text}</div>
+        </div>
+      </div>
+      ${budgetImpact}
+      ${opt.branchNote&&round<4?`<div class="cr-branch"><div class="cr-branch-label">// IMPACTO EN EL SIGUIENTE STAGE</div>🔀 ${opt.branchNote}</div>`:''}
+      <div style="padding:.8rem 1.4rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+        ${round<STAGES.length-1
+          ?`<button class="btn btn-dark" onclick="nextStage()">Stage ${round+2} →</button>`
+          :`<button class="btn btn-accent" onclick="showFinal()">Ver resultado final →</button>`}
+      </div>
+    </div>`;
+
+  document.getElementById('confirmBtn').disabled=true;
+  document.getElementById('confirmBtn').style.opacity='0.4';
+}
+
+function buildBudgetImpactBox(opt,tier){
+  const items=[];
+  if(opt.cost>0) items.push(`<div class="cbi-box" style="background:var(--accent-light);border:1px solid var(--accent-border)"><div class="cbi-label">COSTO OPERATIVO</div><div class="cbi-val" style="color:var(--accent)">−${fmt(opt.cost)}</div><div style="font-size:.68rem;color:var(--muted);margin-top:.2rem">${opt.budgetNote||''}</div></div>`);
+  const penAmt=opt.tier==='poor'?getPenalties(currentRound).poor:opt.tier==='ok'?getPenalties(currentRound).ok:0;
+  const totalPen=(opt.penalty||0)+penAmt;
+  if(totalPen>0) items.push(`<div class="cbi-box" style="background:var(--accent-light);border:1px solid var(--accent-border)"><div class="cbi-label">PENALIZACIÓN</div><div class="cbi-val" style="color:var(--accent)">−${fmt(totalPen)}</div><div style="font-size:.68rem;color:var(--muted);margin-top:.2rem">Consecuencia de decisión ${opt.tier==='poor'?'perdida':'parcial'}</div></div>`);
+  if(opt.recovery>0) items.push(`<div class="cbi-box" style="background:var(--success-light);border:1px solid #90c8a8"><div class="cbi-label">RECUPERACIÓN</div><div class="cbi-val" style="color:var(--success)">+${fmt(opt.recovery)}</div><div style="font-size:.68rem;color:var(--muted);margin-top:.2rem">Fondos recuperados gracias a esta decisión</div></div>`);
+  if(items.length===0) return '';
+  const cols=items.length===1?'1fr':items.length===2?'1fr 1fr':'1fr 1fr 1fr';
+  return `<div class="cr-budget-impact" style="grid-template-columns:${cols}">${items.join('')}</div>`;
+}
+
+function nextStage(){
+  const prev=document.getElementById(`riDot${currentRound}`);
+  prev.classList.remove('active');prev.classList.add('done');
+  const next=document.getElementById(`riDot${currentRound+1}`);
+  if(next) next.classList.add('active');
+  renderStage(currentRound+1);
+}
+
+function simulateOtherTeams(){
+  TEAMS.forEach((t,i)=>{
+    if(i===0) return;
+    let rnd=0;
+    const sim=setInterval(()=>{
+      if(rnd>=STAGES.length){clearInterval(sim);return;}
+      setTimeout(()=>{
+        const roll=Math.random();
+        const pts=roll>0.6?700+Math.floor(Math.random()*200):roll>0.3?400+Math.floor(Math.random()*200):100+Math.floor(Math.random()*200);
+        t.score+=pts;t.decided=true;
+        const el=document.getElementById(`tScore${i}`);if(el) el.textContent=`${t.score} pts`;
+        const d=document.getElementById(`tDec${i}`);if(d) d.style.display='block';
+        rnd++;
+        setTimeout(()=>{const d2=document.getElementById(`tDec${i}`);if(d2) d2.style.display='none';},3000);
+      },55000+i*10000+Math.random()*20000);
+    },5000);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// FINAL
+// ════════════════════════════════════════════════════════
+function showFinal(){
+  clearInterval(timerInt);
+
+  // Bonus por budget restante
+  let budgetPts=Math.floor(budget/2000);
+  const hasMultiplier=!!investmentsDone['3-2'];
+  if(hasMultiplier&&budget>0) budgetPts=Math.floor(budgetPts*1.5);
+  totalScore+=Math.max(0,budgetPts);
+
+  // Puntaje final ponderado 60/40
+  const mgmtPts=Math.round(totalScore*0.6);
+  const budgetContrib=Math.round(Math.max(0,budget)/2000*0.4);
+  const finalPts=mgmtPts+budgetContrib;
+
+  TEAMS.forEach((t,i)=>{if(i>0) t.score=Math.floor(Math.random()*2800)+600;});
+  TEAMS[0].score=finalPts;
+  const sorted=[...TEAMS].sort((a,b)=>b.score-a.score);
+
+  // Ending narrativo
+  const bests=decisionPath.filter(d=>d.tier==='best').length;
+  const poors=decisionPath.filter(d=>d.tier==='poor'||d.tier==='ok').length;
+  const endKey=bests>=4?'triumph':bests>=3?'solid':poors>=3?'crisis':'mixed';
+  const endings={
+    triumph:{eyebrow:'// GESTIÓN EJEMPLAR',title:'La crisis que<br>los fortaleció',sub:'Tomaron las decisiones correctas bajo presión extrema. Banco Ñandutí emerge con una postura de seguridad mejor que antes y se convirtió en referente para la banca paraguaya.',color:'var(--success)'},
+    solid:{eyebrow:'// GESTIÓN SÓLIDA',title:'Crisis<br>gestionada',sub:'Manejaron bien la situación con algunos tropiezos. El banco sobrevivió el ataque y hay aprendizajes concretos. El BCP reconoció la respuesta.',color:'var(--info)'},
+    mixed:{eyebrow:'// GESTIÓN IRREGULAR',title:'Crisis contenida<br>con dificultades',sub:'La gestión fue inconsistente. El incidente fue contenido, pero dejó marcas en la relación con el BCP y en la reputación del banco.',color:'var(--gold)'},
+    crisis:{eyebrow:'// GESTIÓN EN CRISIS',title:'El incidente<br>escaló',sub:'Las decisiones tomadas amplificaron el daño. Banco Ñandutí sobrevivió, pero el costo —económico, reputacional y regulatorio— fue mucho mayor de lo necesario.',color:'var(--accent)'},
+  };
+  const end=endings[endKey];
+  document.getElementById('finalEyebrow').textContent=end.eyebrow.replace('// ','');
+  document.getElementById('finalEyebrow').style.color=end.color;
+  document.getElementById('finalTitle').innerHTML=end.title;
+  document.getElementById('finalSub').textContent=end.sub;
+  document.getElementById('finalScore').textContent=finalPts.toLocaleString();
+  document.getElementById('finalScore').style.color=end.color;
+  document.getElementById('finalFormula').textContent=`Gestión (60%): ${mgmtPts} pts · Budget (40%): ${budgetContrib} pts`;
+
+  // Mostrar nombre del equipo y comité en la pantalla final
+  const teamLabel=document.getElementById('finalTeamLabel');
+  if(teamLabel){
+    const members=[committee.ciso,committee.legal,committee.comms,committee.ops,committee.gm].filter(Boolean);
+    teamLabel.innerHTML=`<span style="color:var(--gold);font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.12em">${teamName()}</span>`
+      +(members.length?`<span style="font-size:.72rem;color:#7a6e65;margin-top:.2rem;display:block">${members.join(' · ')}</span>`:'');
+  }
+
+  // Path summary
+  const tierLabels={best:'⭐⭐⭐ Óptima',good:'⭐⭐ Buena',ok:'⭐ Parcial',poor:'◻ Perdida'};
+  const stageNames=['El jueves negro','La pantalla de humo','El origen','El rastro del dinero','Ante la Cámara'];
+  document.getElementById('pathSummaryArea').innerHTML=`
+    <div class="path-summary">
+      <div class="ps-title">// ÁRBOL DE DECISIONES TOMADO</div>
+      <div class="ps-chain">
+        ${decisionPath.map((d,i)=>`
+          <div class="ps-node ps-node-${d.tier}">
+            <span class="ps-rnd">S${i+1}</span>
+            <span><strong>${tierLabels[d.tier]}</strong> — ${stageNames[i]}</span>
+            <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:.65rem">${d.points} pts</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Narrativa del presupuesto
+  const budgetStory=buildBudgetNarrative();
+  const budgetPos=budget>=0;
+  let bonusLine='';
+  if(budgetPts>0) bonusLine=`<div class="bn-bonus">+${budgetPts.toLocaleString()} pts adicionales por gestión eficiente del presupuesto${hasMultiplier&&budget>0?' (×1.5 por seguro de ciberriesgo)':''}</div>`;
+  else if(budgetPts<0) bonusLine=`<div class="bn-bonus" style="background:var(--accent-light);border-color:var(--accent-border);color:var(--accent)">${budgetPts.toLocaleString()} pts por exceder el presupuesto asignado</div>`;
+
+  document.getElementById('budgetNarrativeArea').innerHTML=`
+    <div class="budget-narrative">
+      <div class="bn-title">// HISTORIA DEL PRESUPUESTO — CÓMO CADA DECISIÓN IMPACTÓ EL RESULTADO</div>
+      <div class="bn-story">${budgetStory}</div>
+      <div class="bn-sheet">
+        <div class="bn-row"><span>Presupuesto inicial</span><span class="bn-val bn-blue">$2,000,000</span></div>
+        <div class="bn-row"><span>Costos operativos acumulados</span><span class="bn-val bn-red">−${fmt(totalCosts)}</span></div>
+        <div class="bn-row"><span>Penalizaciones por decisiones</span><span class="bn-val bn-red">−${fmt(totalPenalties)}</span></div>
+        <div class="bn-row"><span>Recuperaciones logradas</span><span class="bn-val bn-green">+${fmt(totalRecoveries)}</span></div>
+        <div class="bn-row bn-total"><span>Presupuesto final</span><span class="bn-val ${budgetPos?'bn-green':'bn-red'}">${budgetPos?'':'-'}${fmt(budget)}</span></div>
+      </div>
+      ${bonusLine}
+    </div>`;
+
+  // Ranking
+  document.getElementById('rankingList').innerHTML=sorted.map((t,i)=>`
+    <div class="rank-row">
+      <div class="rank-pos">${String(i+1).padStart(2,'0')}</div>
+      <div class="rank-name">${t.name}</div>
+      <div class="rank-score">${t.score.toLocaleString()} pts</div>
+    </div>`).join('');
+
+  document.getElementById('screenGame').classList.remove('active');
+  document.getElementById('screenFinal').classList.add('active');
+}
+
+function buildBudgetNarrative(){
+  const stageNames=['El jueves negro','La pantalla de humo','El origen','El rastro del dinero','Ante la Cámara'];
+  const cisoRef=committee.ciso?`el equipo liderado por <strong>${committee.ciso}</strong>`:'el comité';
+  const lines=decisionPath.map((d,i)=>{
+    const parts=[];
+    if(d.cost>0) parts.push(`el costo operativo fue −${fmt(d.cost)}`);
+    if(d.penalty>0) parts.push(`se aplicó una penalización de −${fmt(d.penalty)}`);
+    const stagePen=d.tier==='poor'?STAGES[i].penalties.poor:d.tier==='ok'?STAGES[i].penalties.ok:0;
+    if(stagePen>0) parts.push(`más −${fmt(stagePen)} por decisión ${d.tier==='poor'?'perdida':'parcial'}`);
+    if(d.recovery>0) parts.push(`se recuperaron +${fmt(d.recovery)}`);
+    const impact=parts.length>0?` (${parts.join(', ')})`:'';
+    return `<strong>Stage ${i+1} — ${stageNames[i]}:</strong> ${cisoRef} tomó una decisión ${['óptima','buena','parcial','perdida'][['best','good','ok','poor'].indexOf(d.tier)]}${impact}. ${d.branchNote?'→ '+d.branchNote:''}`;
+  });
+  lines.push(`<strong>Resultado neto de ${teamName()}:</strong> De un presupuesto de $2.000.000, el banco terminó con ${budget>=0?fmt(budget)+' disponibles':'un déficit de '+fmt(Math.abs(budget))}. ${totalRecoveries>0?'Se lograron recuperar '+fmt(totalRecoveries)+' de fondos robados — una gestión que marcó la diferencia en el resultado final.':'No se logró recuperar ningún fondo del robo SWIFT.'}`);
+  return lines.join('<br><br>');
+}
+
+function resetGame(){
+  clearInterval(timerInt);
+  timerSecs=5400;currentRound=0;bestDec=0;goodDec=0;poorDec=0;totalScore=0;
+  consequences=[];dtRound={};unreadNotifs=0;
+  budget=2000000;totalCosts=0;totalPenalties=0;totalRecoveries=0;
+  penaltyShield=0;investmentsDone={};decisionPath=[];
+  committee={team:'',ciso:'',legal:'',comms:'',ops:'',gm:''};
+  TEAMS[0].name='Equipo 1';
+  TEAMS.forEach(t=>{t.score=0;t.decided=false;});
+  document.getElementById('notifFeed').innerHTML='';
+  document.getElementById('notifBadge').style.display='none';
+  document.getElementById('budgetVal').textContent='$2,000,000';
+  // Limpiar formulario
+  ['inputTeamName','inputCISO','inputLegal','inputComms','inputOps','inputGM'].forEach(id=>{
+    const el=document.getElementById(id);if(el) el.value='';
+  });
+  document.getElementById('screenFinal').classList.remove('active');
+  document.getElementById('screenGame').classList.remove('active');
+  document.getElementById('screenIntro').classList.add('active');
+}
+</script>
+</body>
+</html>
