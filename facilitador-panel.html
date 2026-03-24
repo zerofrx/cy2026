@@ -25,9 +25,9 @@
   body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; font-size: 15px; }
 
   /* TOP */
-  .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem; padding: 1rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem; padding: 1.2rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); }
   .h-brand { display: flex; align-items: center; gap: 0.75rem; }
-  .h-brand img { height: 28px; width: auto; }
+  .h-brand img { height: 36px; width: auto; object-fit: contain; }
   .h-brand-label { font-family: 'Syne', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--blue); }
   .h-status { display: flex; align-items: center; gap: 1rem; }
   .status-pill { display: flex; align-items: center; gap: 0.4rem; font-family: 'Syne', sans-serif; font-size: 0.75rem; padding: 0.35rem 0.8rem; border-radius: 20px; }
@@ -167,14 +167,15 @@
   #welcome-screen {
     position: fixed; inset: 0; z-index: 9999;
     background: var(--bg);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 2rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 2rem 2rem 2rem;
     overflow-y: auto;
   }
   #welcome-screen.hidden { display: none; }
 
   .ws-logo {
-    margin-bottom: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
     filter: drop-shadow(0 0 20px rgba(56,139,253,0.3));
     animation: wsBreath 4s ease-in-out infinite;
   }
