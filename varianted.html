@@ -236,6 +236,39 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .bn-blue{color:var(--info);}
 .bn-bonus{margin-top:.7rem;background:var(--success-light);border:1px solid #90c8a8;border-radius:5px;padding:.6rem .85rem;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--success);line-height:1.5;}
 
+/* ── STORY NARRATIVE ── */
+.story-narrative{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.3rem;margin-bottom:1.25rem;}
+.sn-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;text-transform:uppercase;}
+.sn-chapter{margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.sn-chapter:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.sn-chapter-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;}
+.sn-chapter-num{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;color:var(--muted);}
+.sn-chapter-name{font-family:'Playfair Display',serif;font-size:.92rem;font-weight:600;}
+.sn-tier-badge{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.08em;padding:.15rem .45rem;border-radius:3px;margin-left:auto;flex-shrink:0;}
+.sn-tier-best{background:var(--tier-best-bg);color:var(--tier-best);}
+.sn-tier-good{background:var(--tier-good-bg);color:var(--tier-good);}
+.sn-tier-ok{background:var(--tier-ok-bg);color:var(--tier-ok);}
+.sn-tier-poor{background:var(--tier-poor-bg);color:var(--tier-poor);}
+.sn-action{font-size:.8rem;color:var(--text);line-height:1.6;margin-bottom:.35rem;}
+.sn-action strong{color:var(--dark);}
+.sn-consequence{font-size:.76rem;color:var(--muted);line-height:1.55;font-style:italic;}
+.sn-arrow{font-size:.68rem;color:var(--gold);margin-top:.3rem;font-family:'DM Mono',monospace;}
+
+/* ── OPTIMAL PATH ── */
+.optimal-path{background:var(--success-light);border:1px solid #90c8a8;border-radius:8px;padding:1.3rem;margin-bottom:1.25rem;}
+.op-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--success);margin-bottom:1rem;text-transform:uppercase;}
+.op-step{margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:1px solid rgba(144,200,168,.4);}
+.op-step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.op-step-head{display:flex;align-items:center;gap:.45rem;margin-bottom:.3rem;}
+.op-step-num{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--success);letter-spacing:.1em;}
+.op-step-name{font-size:.82rem;font-weight:600;color:var(--dark);}
+.op-step-pts{margin-left:auto;font-family:'DM Mono',monospace;font-size:.65rem;color:var(--success);flex-shrink:0;}
+.op-action{font-size:.78rem;color:var(--text);line-height:1.55;margin-bottom:.2rem;}
+.op-why{font-size:.72rem;color:var(--success);line-height:1.5;}
+.op-match{display:inline-block;font-family:'DM Mono',monospace;font-size:.5rem;padding:.12rem .35rem;border-radius:3px;margin-left:.4rem;}
+.op-match-yes{background:var(--success-light);border:1px solid var(--success);color:var(--success);}
+.op-match-no{background:var(--accent-light);border:1px solid var(--accent-border);color:var(--accent);}
+
 /* ── RANKING ── */
 .ranking-list{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.75rem;}
 .rank-row{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.1rem;border:1px solid var(--border);border-radius:6px;}
@@ -437,8 +470,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
     </div>
     <div class="fr">
-      <div id="pathSummaryArea"></div>
+      <div id="storyNarrativeArea"></div>
       <div id="budgetNarrativeArea"></div>
+      <div id="optimalPathArea"></div>
       <div class="fr-title">Ranking de equipos</div>
       <div class="ranking-list" id="rankingList"></div>
     </div>
@@ -1782,20 +1816,27 @@ function showFinal(){
       +(members.length?`<span style="font-size:.72rem;color:#7a6e65;margin-top:.2rem;display:block">${members.join(' · ')}</span>`:'');
   }
 
-  // Path summary
-  const tierLabels={best:'⭐⭐⭐ Óptima',good:'⭐⭐ Buena',ok:'⭐ Parcial',poor:'◻ Perdida'};
+  // Historia narrada del equipo
   const stageNames=['El jueves negro','La pantalla de humo','El origen','El rastro del dinero','Ante la Cámara'];
-  document.getElementById('pathSummaryArea').innerHTML=`
-    <div class="path-summary">
-      <div class="ps-title">// ÁRBOL DE DECISIONES TOMADO</div>
-      <div class="ps-chain">
-        ${decisionPath.map((d,i)=>`
-          <div class="ps-node ps-node-${d.tier}">
-            <span class="ps-rnd">S${i+1}</span>
-            <span><strong>${tierLabels[d.tier]}</strong> — ${stageNames[i]}</span>
-            <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:.65rem">${d.points} pts</span>
-          </div>`).join('')}
-      </div>
+  const tierNames={best:'ÓPTIMA',good:'BUENA',ok:'PARCIAL',poor:'PERDIDA'};
+  const cisoRef=committee.ciso?`<strong>${committee.ciso}</strong>`:'El comité';
+
+  document.getElementById('storyNarrativeArea').innerHTML=`
+    <div class="story-narrative">
+      <div class="sn-title">// La historia de ${teamName()} — Cómo enfrentaron la crisis</div>
+      ${decisionPath.map((d,i)=>{
+        const tierCss=`sn-tier-${d.tier}`;
+        return `<div class="sn-chapter">
+          <div class="sn-chapter-head">
+            <span class="sn-chapter-num">STAGE ${i+1}</span>
+            <span class="sn-chapter-name">${stageNames[i]}</span>
+            <span class="sn-tier-badge ${tierCss}">${tierNames[d.tier]}</span>
+          </div>
+          <div class="sn-action">${cisoRef} decidió: <strong>"${d.text}"</strong></div>
+          <div class="sn-consequence">${d.consequence}</div>
+          ${d.branchNote?`<div class="sn-arrow">→ ${d.branchNote}</div>`:''}
+        </div>`;
+      }).join('')}
     </div>`;
 
   // Narrativa del presupuesto
@@ -1817,6 +1858,33 @@ function showFinal(){
         <div class="bn-row bn-total"><span>Presupuesto final</span><span class="bn-val ${budgetPos?'bn-green':'bn-red'}">${budgetPos?'':'-'}${fmt(budget)}</span></div>
       </div>
       ${bonusLine}
+    </div>`;
+
+  // Camino óptimo — qué debieron haber hecho
+  const optimalStages=STAGES.map(s=>{
+    // Buscar la variante default para obtener la opción best
+    const v=s.variants['default']||s.variants[Object.keys(s.variants)[0]];
+    const bestOpt=v.options.find(o=>o.tier==='best');
+    return {title:v.title,option:bestOpt};
+  });
+
+  document.getElementById('optimalPathArea').innerHTML=`
+    <div class="optimal-path">
+      <div class="op-title">// El camino óptimo — Las decisiones que ganaban el ejercicio</div>
+      ${optimalStages.map((s,i)=>{
+        const chose=decisionPath[i];
+        const matched=chose&&chose.tier==='best';
+        return `<div class="op-step">
+          <div class="op-step-head">
+            <span class="op-step-num">STAGE ${i+1}</span>
+            <span class="op-step-name">${s.title}</span>
+            <span class="op-match ${matched?'op-match-yes':'op-match-no'}">${matched?'✓ COINCIDE':'✗ DIFERENTE'}</span>
+            <span class="op-step-pts">${s.option.points} pts</span>
+          </div>
+          <div class="op-action">→ ${s.option.text}</div>
+          <div class="op-why">${s.option.consequence}</div>
+        </div>`;
+      }).join('')}
     </div>`;
 
   // Ranking
