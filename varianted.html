@@ -327,7 +327,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="intro-left">
       <div class="il-eyebrow">// ATAQUE SWIFT · CASO REAL RECREADO</div>
       <div class="il-title">Un jueves de mayo.<br>9.000 pantallas<br>en negro.</div>
-      <div class="il-desc">Banco Ñandutí, el segundo banco más grande de Paraguay, está siendo atacado en este momento. El malware ya corre. Las transferencias SWIFT ya salieron. El BCP todavía no sabe nada. Tienen 90 minutos para gestionar la peor crisis cibernética de la historia bancaria paraguaya.</div>
+      <div class="il-desc">Banco Ñandutí, el segundo banco más grande de Paraguay, está siendo atacado en este momento. El malware ya corre. Las transferencias SWIFT ya salieron. El BCP todavía no sabe nada. Tienen 60 minutos para gestionar la peor crisis cibernética de la historia bancaria paraguaya.</div>
       <div class="il-facts">
         <div class="il-fact"><span class="il-fact-icon">▸</span>El ataque empezó meses antes — en una sucursal de Ciudad del Este</div>
         <div class="il-fact"><span class="il-fact-icon">▸</span>El malware fue una pantalla. El verdadero robo fue vía SWIFT</div>
@@ -394,7 +394,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <span id="roundLabel">STAGE 1 DE 5</span>
       <span id="teamNameLabel" style="color:#e5ddd5;font-weight:500"></span>
       <div class="tb-budget"><span class="tb-budget-label">BUDGET USD</span><span class="tb-budget-val" id="budgetVal">$2,000,000</span></div>
-      <span class="tb-timer" id="gameTimer">90:00</span>
+      <span class="tb-timer" id="gameTimer">60:00</span>
     </div>
   </div>
   <div class="game-layout">
@@ -485,7 +485,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 // ════════════════════════════════════════════════════════
 // ESTADO GLOBAL
 // ════════════════════════════════════════════════════════
-let timerSecs=5400,timerInt=null,currentRound=0;
+let timerSecs=3600,timerInt=null,currentRound=0;
 let bestDec=0,goodDec=0,poorDec=0,totalScore=0;
 let consequences=[],dtRound={},unreadNotifs=0,currentTab='info';
 let budget=2000000,totalCosts=0,totalPenalties=0,totalRecoveries=0;
@@ -1475,8 +1475,8 @@ function startTimer(){
     const s=(timerSecs%60).toString().padStart(2,'0');
     const el=document.getElementById('gameTimer');
     el.textContent=`${m}:${s}`;
-    if(timerSecs<1200) el.className='tb-timer warn';
-    if(timerSecs<300)  el.className='tb-timer crit';
+    if(timerSecs<900) el.className='tb-timer warn';
+    if(timerSecs<300) el.className='tb-timer crit';
     if(timerSecs<=0){clearInterval(timerInt);showFinal();}
   },1000);
 }
@@ -1918,7 +1918,7 @@ function buildBudgetNarrative(){
 
 function resetGame(){
   clearInterval(timerInt);
-  timerSecs=5400;currentRound=0;bestDec=0;goodDec=0;poorDec=0;totalScore=0;
+  timerSecs=3600;currentRound=0;bestDec=0;goodDec=0;poorDec=0;totalScore=0;
   consequences=[];dtRound={};unreadNotifs=0;
   budget=2000000;totalCosts=0;totalPenalties=0;totalRecoveries=0;
   penaltyShield=0;investmentsDone={};decisionPath=[];
