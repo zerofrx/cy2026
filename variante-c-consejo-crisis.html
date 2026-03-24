@@ -3,230 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Consejo de Crisis — Variante C</title>
+<title>Consejo de Crisis — Bifurcaciones</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f8f5f0;
-    --surface: #ffffff;
-    --border: #e2ddd6;
-    --text: #1a1512;
-    --muted: #8a7d70;
-    --accent: #c0392b;
-    --accent-light: #fdf0ef;
-    --accent-border: #f4c0bb;
-    --gold: #b8860b;
-    --gold-light: #fdf9ef;
-    --success: #1a6b3a;
-    --success-light: #edf7f1;
-    --info: #1a4a8a;
-    --info-light: #eef3fc;
-    --dark: #1a1512;
-    --tier-best: #1a6b3a;
-    --tier-best-bg: #edf7f1;
-    --tier-good: #1a4a8a;
-    --tier-good-bg: #eef3fc;
-    --tier-ok: #b8860b;
-    --tier-ok-bg: #fdf9ef;
-    --tier-poor: #8a7d70;
-    --tier-poor-bg: #f5f0ea;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+:root {
+  --bg: #f8f5f0; --surface: #ffffff; --border: #e2ddd6;
+  --text: #1a1512; --muted: #8a7d70; --accent: #c0392b;
+  --accent-light: #fdf0ef; --accent-border: #f4c0bb;
+  --gold: #b8860b; --gold-light: #fdf9ef;
+  --success: #1a6b3a; --success-light: #edf7f1;
+  --info: #1a4a8a; --info-light: #eef3fc; --dark: #1a1512;
+  --tier-best: #1a6b3a; --tier-best-bg: #edf7f1;
+  --tier-good: #1a4a8a; --tier-good-bg: #eef3fc;
+  --tier-ok: #b8860b; --tier-ok-bg: #fdf9ef;
+  --tier-poor: #8a7d70; --tier-poor-bg: #f5f0ea;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
 
-  /* SCREENS */
-  .screen { display: none; min-height: 100vh; }
-  .screen.active { display: flex; flex-direction: column; }
+/* TOPBAR */
+.topbar{background:var(--dark);color:#e8e0d5;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;}
+.tb-brand{font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:.05em;}
+.tb-brand span{color:var(--accent);}
+.tb-meta{display:flex;align-items:center;gap:1.5rem;font-size:.75rem;color:#8a7d70;font-family:'DM Mono',monospace;}
+.tb-timer{font-size:1rem;font-weight:700;color:#e8e0d5;}
+.tb-timer.warn{color:#e6a817;}
+.tb-timer.crit{color:var(--accent);animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.tb-budget{display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:4px;padding:.3rem .75rem;}
+.tb-budget-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:#8a7d70;}
+.tb-budget-val{font-family:'DM Mono',monospace;font-size:.9rem;font-weight:700;color:#e8e0d5;}
+.tb-budget-val.flash-red{animation:budgetFlash 1.3s ease;color:var(--accent)!important;}
+.tb-budget-val.flash-amber{animation:budgetFlash 1.3s ease;color:#e6a817!important;}
+@keyframes budgetFlash{0%,100%{transform:scale(1)}30%{transform:scale(1.16)}}
 
-  /* TOP BAR */
-  .topbar { background: var(--dark); color: #e8e0d5; display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 2rem; }
-  .tb-brand { font-family: 'Playfair Display', serif; font-size: 1rem; letter-spacing: 0.05em; }
-  .tb-brand span { color: var(--accent); }
-  .tb-meta { display: flex; align-items: center; gap: 1.5rem; font-size: 0.75rem; color: #8a7d70; font-family: 'DM Mono', monospace; }
-  .tb-timer { font-size: 1rem; font-weight: 700; color: #e8e0d5; }
-  .tb-timer.warn { color: #e6a817; }
-  .tb-timer.crit { color: var(--accent); animation: blink 0.8s infinite; }
-  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.5} }
+/* INTRO */
+.intro-layout{flex:1;display:grid;grid-template-columns:1fr 1fr;}
+.intro-left{background:var(--dark);color:#e8e0d5;padding:4rem 3rem;display:flex;flex-direction:column;justify-content:center;}
+.il-eyebrow{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;color:var(--accent);margin-bottom:1.5rem;}
+.il-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);line-height:1.1;margin-bottom:1.5rem;}
+.il-desc{font-size:.95rem;line-height:1.8;color:#a09080;margin-bottom:2.5rem;}
+.il-bifur{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:1rem 1.25rem;margin-bottom:2rem;}
+.il-bifur-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--accent);margin-bottom:.5rem;}
+.il-bifur-text{font-size:.82rem;line-height:1.6;color:#c8b8a8;}
+.intro-right{background:var(--surface);padding:3rem;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;}
+.ir-title{font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.5rem;}
+.scenario-preview{background:var(--accent-light);border:1px solid var(--accent-border);border-left:3px solid var(--accent);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem;font-size:.9rem;line-height:1.7;}
+.sp-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:var(--accent);margin-bottom:.5rem;}
+.roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:2rem;}
+.role-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;}
+.role-title{font-size:.75rem;font-weight:600;color:var(--text);margin-bottom:.15rem;}
+.role-desc{font-size:.7rem;color:var(--muted);line-height:1.4;}
+.btn{padding:.75rem 2rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s;border:none;}
+.btn-dark{background:var(--dark);color:#e8e0d5;}
+.btn-dark:hover{background:#2c2520;transform:translateY(-1px);}
+.btn-accent{background:var(--accent);color:white;}
+.btn-accent:hover{opacity:.9;transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--text);}
 
-  /* INTRO */
-  .intro-layout { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
-  .intro-left { background: var(--dark); color: #e8e0d5; padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; }
-  .il-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 1.5rem; }
-  .il-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.1; margin-bottom: 1.5rem; }
-  .il-desc { font-size: 0.95rem; line-height: 1.8; color: #a09080; margin-bottom: 2.5rem; }
-  .intro-right { background: var(--surface); padding: 3rem; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
-  .ir-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 1.5rem; }
-  .scenario-preview { background: var(--accent-light); border: 1px solid var(--accent-border); border-left: 3px solid var(--accent); border-radius: 4px; padding: 1.25rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.7; }
-  .sp-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 0.5rem; }
-  .roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem; }
-  .role-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; }
-  .role-title { font-size: 0.75rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
-  .role-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
-  .btn { padding: 0.75rem 2rem; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
-  .btn-dark { background: var(--dark); color: #e8e0d5; }
-  .btn-dark:hover { background: #2c2520; transform: translateY(-1px); }
-  .btn-accent { background: var(--accent); color: white; }
-  .btn-accent:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-  .btn-outline:hover { border-color: var(--text); }
+/* GAME LAYOUT */
+.game-layout{flex:1;display:grid;grid-template-columns:1fr 340px;min-height:0;}
+.game-main{padding:2rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem;}
+.game-sidebar{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-tabs{display:flex;border-bottom:1px solid var(--border);}
+.sb-tab{flex:1;padding:.6rem .5rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-align:center;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;position:relative;}
+.sb-tab.active{color:var(--dark);border-bottom-color:var(--dark);}
+.sb-panel{display:none;flex:1;overflow-y:auto;padding:1.25rem;flex-direction:column;gap:1.25rem;}
+.sb-panel.active{display:flex;}
+.sb-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.75rem;text-transform:uppercase;}
 
-  /* GAME LAYOUT */
-  .game-layout { flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 0; min-height: 0; }
+/* Scores */
+.team-rows{display:flex;flex-direction:column;gap:.5rem;}
+.team-row{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border:1px solid var(--border);border-radius:6px;}
+.tr-name{flex:1;font-size:.8rem;font-weight:500;}
+.tr-score{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--info);font-weight:700;}
+.tr-decided{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--success);}
+.consequences-list{display:flex;flex-direction:column;gap:.5rem;}
+.cons-item{padding:.75rem;border-radius:6px;font-size:.78rem;line-height:1.5;}
+.cons-best{background:var(--tier-best-bg);border-left:3px solid var(--tier-best);color:var(--tier-best);}
+.cons-good{background:var(--tier-good-bg);border-left:3px solid var(--tier-good);color:var(--tier-good);}
+.cons-ok{background:var(--tier-ok-bg);border-left:3px solid var(--tier-ok);color:var(--tier-ok);}
+.cons-poor{background:var(--tier-poor-bg);border-left:3px solid var(--tier-poor);color:var(--tier-poor);}
+.score-metrics{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.sm-box{background:var(--bg);border-radius:6px;padding:.75rem;text-align:center;}
+.sm-val{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:700;}
+.sm-label{font-size:.65rem;color:var(--muted);margin-top:.15rem;}
 
-  /* LEFT: MAIN CONTENT */
-  .game-main { padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+/* NOTIFICATIONS */
+.notif-feed{display:flex;flex-direction:column;gap:.5rem;}
+.notif-item{display:flex;gap:.75rem;padding:.75rem;border-radius:6px;border:1px solid;font-size:.78rem;line-height:1.5;animation:notifIn .4s ease;}
+@keyframes notifIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.notif-info{background:var(--info-light);border-color:#b8cef0;color:var(--info);}
+.notif-warn{background:var(--gold-light);border-color:#e8d5a0;color:var(--gold);}
+.notif-alert{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent);}
+.notif-branch{background:#f0eaf8;border-color:#c8a8e0;color:#6a2a9a;}
+.notif-time{font-family:'DM Mono',monospace;font-size:.6rem;flex-shrink:0;opacity:.8;margin-top:2px;}
+.notif-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;margin-top:5px;}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--accent);border-radius:50%;font-size:.55rem;color:white;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;}
 
-  /* RIGHT: SIDEBAR */
-  .game-sidebar { background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-  .sb-tabs { display: flex; border-bottom: 1px solid var(--border); }
-  .sb-tab { flex: 1; padding: 0.6rem 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-align: center; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.2s; }
-  .sb-tab.active { color: var(--dark); border-bottom-color: var(--dark); }
-  .sb-panel { display: none; flex: 1; overflow-y: auto; padding: 1.25rem; flex-direction: column; gap: 1.25rem; }
-  .sb-panel.active { display: flex; }
-  .sb-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; text-transform: uppercase; }
+/* PATH TRACKER */
+.path-tracker{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.75rem;}
+.pt-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;color:var(--muted);margin-bottom:.6rem;}
+.pt-flow{display:flex;flex-direction:column;gap:.3rem;}
+.pt-node{display:flex;align-items:center;gap:.5rem;font-size:.72rem;}
+.pt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pt-line{width:1px;height:10px;background:var(--border);margin-left:3.5px;}
+.pt-arrow{font-size:.65rem;color:var(--muted);}
+.pt-label{flex:1;line-height:1.3;}
+.pt-label.pt-best{color:var(--tier-best);}
+.pt-label.pt-good{color:var(--tier-good);}
+.pt-label.pt-ok{color:var(--tier-ok);}
+.pt-label.pt-poor{color:var(--tier-poor);}
 
-  /* Scores */
-  .team-rows { display: flex; flex-direction: column; gap: 0.5rem; }
-  .team-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; }
-  .tr-name { flex: 1; font-size: 0.8rem; font-weight: 500; }
-  .tr-score { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--info); font-weight: 700; }
-  .tr-decided { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--success); }
-  .consequences-list { display: flex; flex-direction: column; gap: 0.5rem; }
-  .cons-item { padding: 0.75rem; border-radius: 6px; font-size: 0.8rem; line-height: 1.5; }
-  .cons-best { background: var(--tier-best-bg); border-left: 3px solid var(--tier-best); color: var(--tier-best); }
-  .cons-good { background: var(--tier-good-bg); border-left: 3px solid var(--tier-good); color: var(--tier-good); }
-  .cons-ok { background: var(--tier-ok-bg); border-left: 3px solid var(--tier-ok); color: var(--tier-ok); }
-  .cons-poor { background: var(--tier-poor-bg); border-left: 3px solid var(--tier-poor); color: var(--tier-poor); }
-  .round-indicator { display: flex; gap: 0.5rem; align-items: center; }
-  .ri-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-  .ri-dot.done { background: var(--success); }
-  .ri-dot.active { background: var(--accent); }
-  .score-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  .sm-box { background: var(--bg); border-radius: 6px; padding: 0.75rem; text-align: center; }
-  .sm-val { font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: 700; }
-  .sm-label { font-size: 0.65rem; color: var(--muted); margin-top: 0.15rem; }
+/* INCIDENT CARD */
+.incident-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.ic-status-bar{background:var(--accent);color:white;padding:.5rem 1.25rem;display:flex;align-items:center;gap:.75rem;font-size:.75rem;font-family:'DM Mono',monospace;}
+.ic-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);animation:pulse2 1s infinite;}
+@keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.ic-body{padding:1.5rem;}
+.ic-round{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.75rem;}
+.ic-title{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.75rem;}
+.ic-narrative{font-size:.9rem;line-height:1.8;color:var(--muted);margin-bottom:1.25rem;}
+.ic-update{background:var(--gold-light);border:1px solid #e8d5a0;border-left:3px solid var(--gold);border-radius:4px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:var(--gold);}
+.ic-update-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;margin-bottom:.25rem;}
 
-  /* NOTIFICATIONS PANEL */
-  .notif-feed { display: flex; flex-direction: column; gap: 0.5rem; }
-  .notif-item { display: flex; gap: 0.75rem; padding: 0.75rem; border-radius: 6px; border: 1px solid; font-size: 0.78rem; line-height: 1.5; animation: notifIn 0.4s ease; }
-  @keyframes notifIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-  .notif-info { background: var(--info-light); border-color: #b8cef0; color: var(--info); }
-  .notif-warn { background: var(--gold-light); border-color: #e8d5a0; color: var(--gold); }
-  .notif-alert { background: var(--accent-light); border-color: var(--accent-border); color: var(--accent); }
-  .notif-time { font-family: 'DM Mono', monospace; font-size: 0.6rem; flex-shrink: 0; opacity: 0.8; margin-top: 2px; }
-  .notif-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; margin-top: 5px; }
-  .notif-unread { position: relative; }
-  .notif-badge { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; font-size: 0.55rem; color: white; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; }
+/* BRANCH CONTEXT — muestra la herencia de decisiones anteriores */
+.branch-context{background:#f0eaf8;border:1px solid #c8a8e0;border-left:3px solid #7b3fb0;border-radius:6px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#5a1e8a;}
+.branch-context-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.13em;margin-bottom:.35rem;opacity:.8;}
+.branch-context-icon{margin-right:.3rem;}
 
-  /* INCIDENT CARD */
-  .incident-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .ic-status-bar { background: var(--accent); color: white; padding: 0.5rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; }
-  .ic-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); animation: pulse2 1s infinite; }
-  @keyframes pulse2 { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
-  .ic-body { padding: 1.5rem; }
-  .ic-round { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
-  .ic-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.75rem; }
-  .ic-narrative { font-size: 0.9rem; line-height: 1.8; color: var(--muted); margin-bottom: 1.25rem; }
-  .ic-update { background: var(--gold-light); border: 1px solid #e8d5a0; border-left: 3px solid var(--gold); border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--gold); }
-  .ic-update-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+/* DECISION CARD */
+.decision-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.dc-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.dc-question{font-family:'Playfair Display',serif;font-size:1.05rem;}
+.dc-body{padding:1.25rem 1.5rem;}
+.decision-opts{display:flex;flex-direction:column;gap:.6rem;}
+.dec-opt{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.25rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .25s;}
+.dec-opt:hover{border-color:var(--text);background:var(--bg);}
+.dec-opt.selected{border-color:var(--dark);background:var(--dark);color:#e8e0d5;}
+.dec-opt.selected .do-key{border-color:rgba(255,255,255,.3);color:#e8e0d5;}
+.dec-opt.selected .do-label{color:#a09080;}
+.dec-opt.tier-best{border-color:var(--tier-best);background:var(--tier-best-bg);color:var(--tier-best);}
+.dec-opt.tier-good{border-color:var(--tier-good);background:var(--tier-good-bg);color:var(--tier-good);}
+.dec-opt.tier-ok{border-color:var(--tier-ok);background:var(--tier-ok-bg);color:var(--tier-ok);}
+.dec-opt.tier-poor{border-color:var(--tier-poor);background:var(--tier-poor-bg);color:var(--tier-poor);}
+.do-key{font-family:'DM Mono',monospace;font-size:.65rem;width:28px;height:28px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.do-content{flex:1;}
+.do-text{font-size:.9rem;font-weight:500;line-height:1.4;margin-bottom:.2rem;}
+.do-label{font-size:.75rem;color:var(--muted);}
+.do-points{font-family:'DM Mono',monospace;font-size:.7rem;font-weight:700;flex-shrink:0;display:none;}
+.dc-footer{padding:.75rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.impact-badge{font-family:'DM Mono',monospace;font-size:.65rem;padding:.25rem .6rem;border-radius:3px;}
+.impact-high{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);}
+.impact-med{background:var(--gold-light);color:var(--gold);border:1px solid #e8d5a0;}
 
-  /* DECISION CARD */
-  .decision-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .dc-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-  .dc-question { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
-  .dc-body { padding: 1.25rem 1.5rem; }
-  .decision-opts { display: flex; flex-direction: column; gap: 0.6rem; }
-  .dec-opt { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.25s; }
-  .dec-opt:hover { border-color: var(--text); background: var(--bg); }
-  .dec-opt.selected { border-color: var(--dark); background: var(--dark); color: #e8e0d5; }
-  .dec-opt.selected .do-key { border-color: rgba(255,255,255,0.3); color: #e8e0d5; }
-  .dec-opt.selected .do-label { color: #a09080; }
-  /* Tier reveal styles */
-  .dec-opt.tier-best { border-color: var(--tier-best); background: var(--tier-best-bg); color: var(--tier-best); }
-  .dec-opt.tier-best .do-label { color: var(--tier-best); opacity: 0.8; }
-  .dec-opt.tier-good { border-color: var(--tier-good); background: var(--tier-good-bg); color: var(--tier-good); }
-  .dec-opt.tier-good .do-label { color: var(--tier-good); opacity: 0.8; }
-  .dec-opt.tier-ok { border-color: var(--tier-ok); background: var(--tier-ok-bg); color: var(--tier-ok); }
-  .dec-opt.tier-ok .do-label { color: var(--tier-ok); opacity: 0.8; }
-  .dec-opt.tier-poor { border-color: var(--tier-poor); background: var(--tier-poor-bg); color: var(--tier-poor); }
-  .dec-opt.tier-poor .do-label { color: var(--tier-poor); opacity: 0.8; }
-  .do-key { font-family: 'DM Mono', monospace; font-size: 0.65rem; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .do-content { flex: 1; }
-  .do-text { font-size: 0.9rem; font-weight: 500; line-height: 1.4; margin-bottom: 0.2rem; }
-  .do-label { font-size: 0.75rem; color: var(--muted); }
-  .do-points { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; display: none; }
-  .dc-footer { padding: 0.75rem 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .impact-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.6rem; border-radius: 3px; }
-  .impact-high { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-border); }
-  .impact-med { background: var(--gold-light); color: var(--gold); border: 1px solid #e8d5a0; }
+/* CONSEQUENCE REVEAL */
+.consequence-reveal{border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.cr-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;}
+.cr-title{font-family:'Playfair Display',serif;font-size:1.1rem;flex:1;}
+.cr-pts{font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;}
+.cr-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.cr-item{padding:1rem;border-radius:6px;}
+.cr-item-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;margin-bottom:.5rem;}
+.cr-item-text{font-size:.85rem;line-height:1.5;}
+.cr-tier-best{background:var(--tier-best-bg);color:var(--tier-best);}
+.cr-tier-good{background:var(--tier-good-bg);color:var(--tier-good);}
+.cr-tier-ok{background:var(--tier-ok-bg);color:var(--tier-ok);}
+.cr-tier-poor{background:var(--tier-poor-bg);color:var(--tier-poor);}
+.cr-optimal{background:var(--tier-best-bg);color:var(--tier-best);}
+.cr-branch-preview{background:#f0eaf8;border:1px solid #c8a8e0;border-radius:6px;padding:.85rem 1rem;margin:0 1.5rem 1rem;font-size:.82rem;color:#5a1e8a;}
+.cr-branch-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.13em;margin-bottom:.35rem;}
 
-  /* CONSEQUENCE REVEAL */
-  .consequence-reveal { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .cr-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
-  .cr-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; flex: 1; }
-  .cr-pts { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; }
-  .cr-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .cr-item { padding: 1rem; border-radius: 6px; }
-  .cr-item-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-  .cr-item-text { font-size: 0.85rem; line-height: 1.5; }
-  .cr-tier-best { background: var(--tier-best-bg); color: var(--tier-best); }
-  .cr-tier-good { background: var(--tier-good-bg); color: var(--tier-good); }
-  .cr-tier-ok { background: var(--tier-ok-bg); color: var(--tier-ok); }
-  .cr-tier-poor { background: var(--tier-poor-bg); color: var(--tier-poor); }
-  .cr-optimal { background: var(--tier-best-bg); color: var(--tier-best); }
+/* INVESTMENTS */
+.inv-card{background:var(--surface);border:1px solid #e8d5a0;border-radius:8px;overflow:hidden;}
+.inv-header{padding:.7rem 1.25rem;border-bottom:1px solid #e8d5a0;background:var(--gold-light);display:flex;align-items:center;justify-content:space-between;}
+.inv-title{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:var(--gold);}
+.inv-budget-note{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--muted);}
+.inv-body{padding:.9rem 1.25rem;display:flex;flex-direction:column;gap:.5rem;}
+.inv-opt{display:flex;align-items:flex-start;gap:.75rem;padding:.7rem .9rem;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s;}
+.inv-opt:hover{border-color:var(--gold);background:var(--gold-light);}
+.inv-opt.inv-done{opacity:.55;cursor:default;background:var(--bg);}
+.inv-opt.inv-done:hover{border-color:var(--border);background:var(--bg);}
+.inv-cost{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:700;color:var(--gold);flex-shrink:0;min-width:76px;}
+.inv-info{flex:1;}
+.inv-name{font-size:.83rem;font-weight:500;margin-bottom:.15rem;}
+.inv-benefit{font-size:.7rem;color:var(--muted);line-height:1.4;}
+.inv-badge{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--success);flex-shrink:0;align-self:center;}
 
-  /* FINAL */
-  .final-screen { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
-  .fl { background: var(--dark); color: #e8e0d5; padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; }
-  .fl-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--success); margin-bottom: 1rem; }
-  .fl-title { font-family: 'Playfair Display', serif; font-size: 3rem; line-height: 1.1; margin-bottom: 1rem; }
-  .fl-sub { color: #8a7d70; font-size: 0.95rem; line-height: 1.7; margin-bottom: 2.5rem; }
-  .score-big { font-family: 'DM Mono', monospace; font-size: 4rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem; }
-  .score-big-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: #8a7d70; margin-bottom: 2rem; }
-  .fr { background: var(--surface); padding: 3rem; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
-  .ranking-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-  .rank-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 6px; }
-  .rank-pos { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); width: 20px; }
-  .rank-name { flex: 1; font-weight: 500; }
-  .rank-score { font-family: 'DM Mono', monospace; font-size: 0.9rem; color: var(--info); font-weight: 700; }
-  .rank-row:first-child { border-color: var(--gold); background: var(--gold-light); }
-  .rank-row:first-child .rank-pos { color: var(--gold); }
+/* FINAL */
+.final-screen{flex:1;display:grid;grid-template-columns:1fr 1fr;}
+.fl{background:var(--dark);color:#e8e0d5;padding:4rem 3rem;display:flex;flex-direction:column;justify-content:center;}
+.fl-eyebrow{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;color:var(--success);margin-bottom:1rem;}
+.fl-title{font-family:'Playfair Display',serif;font-size:3rem;line-height:1.1;margin-bottom:1rem;}
+.fl-sub{color:#8a7d70;font-size:.95rem;line-height:1.7;margin-bottom:2.5rem;}
+.score-big{font-family:'DM Mono',monospace;font-size:4rem;font-weight:700;color:var(--success);margin-bottom:.5rem;}
+.score-big-label{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.15em;color:#8a7d70;margin-bottom:2rem;}
+.fr{background:var(--surface);padding:3rem;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;}
+.ranking-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem;}
+.rank-row{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;border:1px solid var(--border);border-radius:6px;}
+.rank-pos{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);width:20px;}
+.rank-name{flex:1;font-weight:500;}
+.rank-score{font-family:'DM Mono',monospace;font-size:.9rem;color:var(--info);font-weight:700;}
+.rank-row:first-child{border-color:var(--gold);background:var(--gold-light);}
+.rank-row:first-child .rank-pos{color:var(--gold);}
+.path-summary{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1.5rem;}
+.ps-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.85rem;}
+.ps-chain{display:flex;flex-direction:column;gap:.4rem;}
+.ps-node{font-size:.78rem;padding:.4rem .6rem;border-radius:4px;display:flex;gap:.5rem;align-items:flex-start;}
+.ps-node-best{background:var(--tier-best-bg);color:var(--tier-best);}
+.ps-node-good{background:var(--tier-good-bg);color:var(--tier-good);}
+.ps-node-ok{background:var(--tier-ok-bg);color:var(--tier-ok);}
+.ps-node-poor{background:var(--tier-poor-bg);color:var(--tier-poor);}
+.ps-rnd{font-family:'DM Mono',monospace;font-size:.6rem;flex-shrink:0;opacity:.7;}
+.budget-sheet{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1.5rem;}
+.bs-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:1rem;text-transform:uppercase;}
+.bs-row{display:flex;justify-content:space-between;align-items:center;padding:.38rem 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.bs-row:last-child{border-bottom:none;}
+.bs-row.bs-total{font-weight:600;font-size:.88rem;padding-top:.6rem;}
+.bs-val{font-family:'DM Mono',monospace;font-size:.82rem;}
+.bs-green{color:var(--success);}
+.bs-red{color:var(--accent);}
+.bs-blue{color:var(--info);}
+.bs-bonus-row{margin-top:.75rem;background:var(--success-light);border:1px solid #b8d8c8;border-radius:6px;padding:.7rem 1rem;font-family:'DM Mono',monospace;font-size:.72rem;color:var(--success);line-height:1.5;}
 
-  /* ── BUDGET SYSTEM ── */
-  .tb-budget { display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13); border-radius: 4px; padding: 0.3rem 0.75rem; }
-  .tb-budget-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; color: #8a7d70; }
-  .tb-budget-val { font-family: 'DM Mono', monospace; font-size: 0.9rem; font-weight: 700; color: #e8e0d5; }
-  .tb-budget-val.flash-red { animation: budgetFlash 1.3s ease; color: var(--accent) !important; }
-  .tb-budget-val.flash-amber { animation: budgetFlash 1.3s ease; color: #e6a817 !important; }
-  @keyframes budgetFlash { 0%,100%{transform:scale(1)} 30%{transform:scale(1.16)} }
-  #budgetToast { position: fixed; top: 4rem; right: 1.5rem; z-index: 9999; padding: 0.55rem 1.1rem; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 0.9rem; font-weight: 700; pointer-events: none; opacity: 0; }
-  #budgetToast.toast-red { background: var(--accent); color: white; animation: toastAnim 2.3s ease forwards; }
-  #budgetToast.toast-amber { background: #b8720a; color: white; animation: toastAnim 2.3s ease forwards; }
-  @keyframes toastAnim { 0%{opacity:0;transform:translateX(20px)} 15%{opacity:1;transform:translateX(0)} 75%{opacity:1} 100%{opacity:0;transform:translateX(8px)} }
-  .inv-card { background: var(--surface); border: 1px solid #e8d5a0; border-radius: 8px; overflow: hidden; }
-  .inv-header { padding: 0.7rem 1.25rem; border-bottom: 1px solid #e8d5a0; background: var(--gold-light); display: flex; align-items: center; justify-content: space-between; }
-  .inv-title { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--gold); }
-  .inv-budget-note { font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); }
-  .inv-body { padding: 0.9rem 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  .inv-opt { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-  .inv-opt:hover { border-color: var(--gold); background: var(--gold-light); }
-  .inv-opt.inv-done { opacity: 0.55; cursor: default; background: var(--bg); }
-  .inv-opt.inv-done:hover { border-color: var(--border); background: var(--bg); }
-  .inv-cost { font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--gold); flex-shrink: 0; min-width: 76px; }
-  .inv-info { flex: 1; }
-  .inv-name { font-size: 0.83rem; font-weight: 500; margin-bottom: 0.15rem; }
-  .inv-benefit { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
-  .inv-badge { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--success); flex-shrink: 0; align-self: center; }
-  .budget-sheet { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
-  .bs-title { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 1rem; text-transform: uppercase; }
-  .bs-row { display: flex; justify-content: space-between; align-items: center; padding: 0.38rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
-  .bs-row:last-child { border-bottom: none; }
-  .bs-row.bs-total { font-weight: 600; font-size: 0.88rem; padding-top: 0.6rem; }
-  .bs-val { font-family: 'DM Mono', monospace; font-size: 0.82rem; }
-  .bs-green { color: var(--success); }
-  .bs-red { color: var(--accent); }
-  .bs-blue { color: var(--info); }
-  .bs-bonus-row { margin-top: 0.75rem; background: var(--success-light); border: 1px solid #b8d8c8; border-radius: 6px; padding: 0.7rem 1rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--success); line-height: 1.5; }
+#budgetToast{position:fixed;top:4rem;right:1.5rem;z-index:9999;padding:.55rem 1.1rem;border-radius:6px;font-family:'DM Mono',monospace;font-size:.9rem;font-weight:700;pointer-events:none;opacity:0;}
+#budgetToast.toast-red{background:var(--accent);color:white;animation:toastAnim 2.3s ease forwards;}
+#budgetToast.toast-amber{background:#b8720a;color:white;animation:toastAnim 2.3s ease forwards;}
+#budgetToast.toast-green{background:var(--success);color:white;animation:toastAnim 2.3s ease forwards;}
+@keyframes toastAnim{0%{opacity:0;transform:translateX(20px)}15%{opacity:1;transform:translateX(0)}75%{opacity:1}100%{opacity:0;transform:translateX(8px)}}
+
+.round-indicator{display:flex;gap:.5rem;align-items:center;}
+.ri-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.ri-dot.done{background:var(--success);}
+.ri-dot.active{background:var(--accent);}
 </style>
 </head>
 <body>
@@ -234,22 +246,31 @@
 <!-- INTRO -->
 <div class="screen active" id="screenIntro">
   <div class="topbar">
-    <div class="tb-brand">CONSEJO DE <span>CRISIS</span> · VARIANTE C</div>
+    <div class="tb-brand">CONSEJO DE <span>CRISIS</span> · BIFURCACIONES</div>
     <div class="tb-meta"><span>MODO FACILITADOR</span><span>6 EQUIPOS · 30 PERSONAS</span></div>
   </div>
   <div class="intro-layout">
     <div class="intro-left">
-      <div class="il-eyebrow">// SIMULACRO DE RESPUESTA A INCIDENTES</div>
-      <div class="il-title">¿Tomarían las decisiones correctas bajo presión?</div>
-      <div class="il-desc">Cada equipo es el Comité de Crisis de la empresa. En los próximos 90 minutos, enfrentarán un incidente de seguridad que evoluciona en tiempo real. Cada decisión tiene consecuencias — y no siempre hay una sola respuesta correcta.</div>
+      <div class="il-eyebrow">// SIMULACRO DINÁMICO — ÁRBOL DE DECISIONES</div>
+      <div class="il-title">Cada decisión cambia la crisis que enfrentarán después</div>
+      <div class="il-desc">El incidente evoluciona según cómo lo manejen. No hay un camino lineal: cada elección abre o cierra puertas, modifica el presupuesto disponible y determina las alertas que recibirán en las rondas siguientes.</div>
+      <div class="il-bifur">
+        <div class="il-bifur-label">// CÓMO FUNCIONA EL SISTEMA DE BIFURCACIONES</div>
+        <div class="il-bifur-text">
+          🔀 La ronda 2 cambia según cómo resolvieron la ronda 1<br>
+          💰 Decisiones débiles generan penalizaciones que limitan inversiones futuras<br>
+          🚨 Las alertas que ven reflejan el estado real de su crisis<br>
+          🌿 Hay múltiples finales posibles — depende del camino tomado
+        </div>
+      </div>
     </div>
     <div class="intro-right">
       <div class="ir-title">El escenario de hoy</div>
       <div class="scenario-preview">
         <div class="sp-label">// BRIEFING CONFIDENCIAL</div>
-        Son las 10:15am del lunes. El equipo de monitoreo acaba de detectar actividad inusual en los servidores. Un empleado reportó haber recibido un email extraño a primera hora. Los registros muestran accesos desde ubicaciones desconocidas. El CEO está en vuelo y no responde. El teléfono del área de prensa empieza a sonar.
+        Son las 10:15am del lunes. El equipo de monitoreo detectó actividad inusual en los servidores. Un empleado reportó un email extraño a primera hora. Los registros muestran accesos desde ubicaciones desconocidas. El CEO está en vuelo y no responde. El teléfono del área de prensa empieza a sonar.
       </div>
-      <div class="ir-title" style="margin-bottom:0.75rem;">Roles del equipo</div>
+      <div class="ir-title" style="margin-bottom:.75rem;">Roles del equipo</div>
       <div class="roles-grid">
         <div class="role-card"><div class="role-title">CISO (líder)</div><div class="role-desc">Toma las decisiones técnicas finales</div></div>
         <div class="role-card"><div class="role-title">Legal</div><div class="role-desc">Evalúa riesgos regulatorios y notificaciones</div></div>
@@ -257,9 +278,8 @@
         <div class="role-card"><div class="role-title">Operaciones</div><div class="role-desc">Decide continuidad del negocio</div></div>
         <div class="role-card" style="grid-column:span 2"><div class="role-title">Analista de seguridad</div><div class="role-desc">Investiga y provee evidencia técnica al equipo</div></div>
       </div>
-      <div style="display:flex;gap:0.75rem;">
+      <div style="display:flex;gap:.75rem;">
         <button class="btn btn-dark" onclick="startCrisis()">INICIAR CRISIS →</button>
-        <button class="btn btn-outline" onclick="window.location='facilitador-panel.html'">Panel facilitador</button>
       </div>
     </div>
   </div>
@@ -277,19 +297,12 @@
   </div>
   <div class="game-layout">
     <div class="game-main" id="gameMain"></div>
-
-    <!-- SIDEBAR -->
     <div class="game-sidebar">
       <div class="sb-tabs">
         <div class="sb-tab active" id="stab-info" onclick="switchSbTab('info')">SITUACIÓN</div>
-        <div class="sb-tab notif-unread" id="stab-notif" onclick="switchSbTab('notif')">
-          ALERTAS
-          <span class="notif-badge" id="notifBadge" style="display:none">0</span>
-        </div>
+        <div class="sb-tab" id="stab-notif" onclick="switchSbTab('notif')">ALERTAS<span class="notif-badge" id="notifBadge" style="display:none">0</span></div>
         <div class="sb-tab" id="stab-scores" onclick="switchSbTab('scores')">EQUIPOS</div>
       </div>
-
-      <!-- PANEL: SITUACIÓN -->
       <div class="sb-panel active" id="sp-info">
         <div>
           <div class="sb-label">Progreso de la crisis</div>
@@ -305,25 +318,19 @@
           </div>
         </div>
         <div>
-          <div class="sb-label">Historial de decisiones</div>
-          <div class="consequences-list" id="consequencesList"><div style="font-size:0.8rem;color:var(--muted)">Aún no hay decisiones tomadas.</div></div>
+          <div class="sb-label">Camino tomado</div>
+          <div class="path-tracker"><div class="pt-title">// ÁRBOL DE DECISIONES</div><div class="pt-flow" id="ptFlow"><span style="font-size:.72rem;color:var(--muted)">Aún sin decisiones</span></div></div>
+        </div>
+        <div>
+          <div class="sb-label">Historial de consecuencias</div>
+          <div class="consequences-list" id="consequencesList"><div style="font-size:.8rem;color:var(--muted)">Aún no hay decisiones tomadas.</div></div>
         </div>
       </div>
-
-      <!-- PANEL: ALERTAS -->
       <div class="sb-panel" id="sp-notif">
-        <div>
-          <div class="sb-label">Centro de notificaciones</div>
-          <div class="notif-feed" id="notifFeed"></div>
-        </div>
+        <div><div class="sb-label">Centro de notificaciones</div><div class="notif-feed" id="notifFeed"></div></div>
       </div>
-
-      <!-- PANEL: EQUIPOS -->
       <div class="sb-panel" id="sp-scores">
-        <div>
-          <div class="sb-label">Equipos en sala</div>
-          <div class="team-rows" id="teamRows"></div>
-        </div>
+        <div><div class="sb-label">Equipos en sala</div><div class="team-rows" id="teamRows"></div></div>
       </div>
     </div>
   </div>
@@ -337,17 +344,17 @@
   </div>
   <div class="final-screen">
     <div class="fl">
-      <div class="fl-eyebrow">// RESULTADO DE GESTIÓN</div>
-      <div class="fl-title">Crisis<br>gestionada</div>
-      <div class="fl-sub">El simulacro finalizó. No hubo una sola "respuesta correcta" — cada decisión tuvo consecuencias distintas. A continuación, los resultados comparativos de todos los equipos.</div>
+      <div class="fl-eyebrow" id="finalEyebrow">// RESULTADO DE GESTIÓN</div>
+      <div class="fl-title" id="finalTitle">Crisis<br>gestionada</div>
+      <div class="fl-sub" id="finalSub">El simulacro finalizó. Su camino de decisiones determinó el resultado final.</div>
       <div class="score-big" id="finalScoreNum">0</div>
       <div class="score-big-label">PUNTOS TOTALES · TU EQUIPO</div>
-      <div style="display:flex;gap:0.75rem;">
-        <button class="btn btn-outline" style="border-color:rgba(255,255,255,0.2);color:#e8e0d5;" onclick="resetGame()">Nueva sesión</button>
-        <button class="btn btn-accent" onclick="window.location='facilitador-panel.html'">Ver debrief completo →</button>
+      <div style="display:flex;gap:.75rem;">
+        <button class="btn btn-outline" style="border-color:rgba(255,255,255,.2);color:#e8e0d5;" onclick="resetGame()">Nueva sesión</button>
       </div>
     </div>
     <div class="fr">
+      <div id="pathSummaryArea"></div>
       <div id="budgetSheetArea"></div>
       <div class="ir-title" style="margin-bottom:1.25rem;">Ranking de equipos</div>
       <div class="ranking-list" id="rankingList"></div>
@@ -358,344 +365,698 @@
 <div id="budgetToast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// FLUJO GENERAL — cómo se conectan las funciones
-//
-// startCrisis()
-//   ├─ initSidebar()      → dibuja indicadores y lista de equipos
-//   ├─ renderRound(0)     → construye el HTML de la ronda actual
-//   ├─ startTimer()       → inicia el countdown de 90 min
-//   ├─ simulateOtherTeams() → anima los otros equipos en segundo plano
-//   └─ loadNotifs(start)  → dispara las primeras alertas con delay
-//
-// El usuario interactúa con la ronda:
-//   selectDecision() → habilita el botón "Confirmar"
-//   confirmDecision()
-//     ├─ Revela los tiers de todas las opciones
-//     ├─ Actualiza puntaje y métricas en la barra lateral
-//     └─ Muestra el botón "Siguiente ronda →" o "Ver resultado →"
-//
-// nextRound() → renderRound(n+1)   [loop por 4 rondas]
-// showFinal() → pantalla de resultado con ranking
-// resetGame() → vuelve a la intro con todo en cero
-//
-// pushNotif() / loadNotifs() ← alimentan el panel ALERTAS del sidebar
-// switchSbTab()              ← cambia entre SITUACIÓN / ALERTAS / EQUIPOS
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════
+let timerSecs = 5400, timerInt = null, currentRound = 0;
+let bestDec = 0, goodDec = 0, poorDec = 0, totalScore = 0;
+let consequences = [], decisionsThisRound = {}, unreadNotifs = 0, currentSbTab = 'info';
+let budget = 500000, totalInvested = 0, totalPenalties = 0;
+let penaltyShield = 0, investmentsDone = {};
+// Path: array de { round, tier, optionIdx, key } — guía las bifurcaciones
+let decisionPath = [];
 
-// ESTADO — variables que cambian durante la partida
-let timerSecs = 5400;
-let timerInt = null;
-let currentRound = 0;
-let bestDec = 0;
-let goodDec = 0;
-let poorDec = 0;
-let totalScore = 0;
-let consequences = [];
-let decisionsThisRound = {};
-let unreadNotifs = 0;
-let currentSbTab = 'info';
-
-// BUDGET STATE
-let budget = 500000;
-let totalInvested = 0;
-let totalPenalties = 0;
-let penaltyShield = 0;
-let wiseInvestments = 0;
-let investmentsDone = {};
-
-const TEAMS_CRISIS = [
+const TEAMS = [
   { name: 'Equipo 1', score: 0, decided: false, active: true },
-  { name: 'Equipo 2', score: 0, decided: false, active: false },
-  { name: 'Equipo 3', score: 0, decided: false, active: false },
-  { name: 'Equipo 4', score: 0, decided: false, active: false },
-  { name: 'Equipo 5', score: 0, decided: false, active: false },
-  { name: 'Equipo 6', score: 0, decided: false, active: false },
+  { name: 'Equipo 2', score: 0, decided: false },
+  { name: 'Equipo 3', score: 0, decided: false },
+  { name: 'Equipo 4', score: 0, decided: false },
+  { name: 'Equipo 5', score: 0, decided: false },
+  { name: 'Equipo 6', score: 0, decided: false },
 ];
 
-// DATOS — el juego usa estos arrays como "base de datos".
-// TEAMS_CRISIS: 6 equipos; el índice 0 es el equipo real, los demás son simulados.
-// TIER_CONFIG: describe los 4 niveles de decisión (mejor → peor) con colores y clases CSS.
-// ROUNDS: 4 rondas; cada una tiene narrativa, pregunta y 4 opciones con tier y puntos.
-// NOTIFICATIONS: alertas que aparecen en el sidebar por ronda (simulan tensión en tiempo real).
-
-// TIER system: 'best' = decisión óptima, 'good' = buena decisión,
-//              'ok' = decisión parcial, 'poor' = oportunidad perdida
-const TIER_CONFIG = {
-  best: { label: '⭐⭐⭐ Decisión óptima', color: 'var(--tier-best)', cssClass: 'tier-best', consClass: 'cons-best', crClass: 'cr-tier-best' },
-  good: { label: '⭐⭐ Buena decisión',    color: 'var(--tier-good)', cssClass: 'tier-good', consClass: 'cons-good', crClass: 'cr-tier-good' },
-  ok:   { label: '⭐ Decisión parcial',    color: 'var(--tier-ok)',   cssClass: 'tier-ok',   consClass: 'cons-ok',   crClass: 'cr-tier-ok'   },
-  poor: { label: '◻ Oportunidad perdida', color: 'var(--tier-poor)', cssClass: 'tier-poor', consClass: 'cons-poor', crClass: 'cr-tier-poor' },
+const TIER = {
+  best: { label:'⭐⭐⭐ Decisión óptima',  color:'var(--tier-best)', cssClass:'tier-best', consClass:'cons-best', crClass:'cr-tier-best' },
+  good: { label:'⭐⭐ Buena decisión',     color:'var(--tier-good)', cssClass:'tier-good', consClass:'cons-good', crClass:'cr-tier-good' },
+  ok:   { label:'⭐ Decisión parcial',     color:'var(--tier-ok)',   cssClass:'tier-ok',   consClass:'cons-ok',   crClass:'cr-tier-ok'   },
+  poor: { label:'◻ Oportunidad perdida',  color:'var(--tier-poor)', cssClass:'tier-poor', consClass:'cons-poor', crClass:'cr-tier-poor' },
 };
 
-const ROUNDS = [
+// ═══════════════════════════════════════════════════════
+// ÁRBOL DE DECISIONES
+// Cada ronda tiene variantes según el camino tomado.
+// key: null = ronda inicial | 'best'/'good'/'ok'/'poor' = tier de la ronda anterior
+// branchContext: texto que explica qué herencia viene de la decisión anterior
+// ═══════════════════════════════════════════════════════
+const ROUND_TREE = [
+  // ── RONDA 1: siempre igual, es el punto de entrada ──
   {
-    status: 'INCIDENTE DETECTADO · HORA 0',
-    title: 'Primera respuesta',
-    narrative: 'El sistema de alertas se activó hace 12 minutos. Un empleado reportó un email sospechoso que recibió esta mañana. Los registros muestran intentos fallidos de acceso seguidos de un ingreso exitoso a las 07:32am desde una ubicación desconocida fuera del país. El acceso duró 4 minutos.',
-    update: null,
-    question: '¿Cuál es la primera acción que toma el Comité de Crisis?',
-    options: [
-      {
-        text: 'Activar el Plan de Respuesta a Incidentes y aislar los sistemas afectados',
-        label: 'Proactiva · Activa los protocolos del banco de inmediato',
-        tier: 'best', points: 800,
-        consequence: 'El aislamiento temprano redujo el alcance del acceso no autorizado en un 60%. El equipo ganó tiempo valioso.'
-      },
-      {
-        text: 'Investigar internamente antes de tomar medidas, para evitar falsos positivos',
-        label: 'Cautelosa · Verifica antes de actuar',
-        tier: 'good', points: 450,
-        consequence: 'La investigación previa evitó un falso positivo, pero costó 20 minutos adicionales de exposición potencial.'
-      },
-      {
-        text: 'Notificar a los clientes inmediatamente sobre el posible incidente',
-        label: 'Transparente · Prioriza la comunicación externa',
-        tier: 'ok', points: 200,
-        consequence: 'La notificación fue prematura: no se conocía el alcance real. Generó inquietud innecesaria sin datos concretos para los clientes.'
-      },
-      {
-        text: 'Esperar al CEO para tomar decisiones — es una situación de alta responsabilidad',
-        label: 'Conservadora · Escala la decisión hacia arriba',
-        tier: 'poor', points: 50,
-        consequence: 'El CEO estaba en vuelo y tardó 45 minutos en responder. La demora amplió el tiempo de exposición del sistema.'
-      },
-    ],
-    impact: 'ALTO'
+    variants: {
+      default: {
+        status: 'INCIDENTE DETECTADO · HORA 0',
+        title: 'Primera respuesta',
+        narrative: 'El sistema de alertas se activó hace 12 minutos. Un empleado reportó un email sospechoso recibido esta mañana. Los registros muestran intentos fallidos de acceso seguidos de un ingreso exitoso a las 07:32am desde una ubicación fuera del país. El acceso duró 4 minutos.',
+        update: null,
+        branchContext: null,
+        question: '¿Cuál es la primera acción que toma el Comité de Crisis?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Activar el Plan de Respuesta a Incidentes y aislar los sistemas afectados',
+            label: 'Proactiva · Activa los protocolos del banco de inmediato',
+            tier: 'best', points: 800,
+            consequence: 'El aislamiento temprano redujo el alcance en un 60%. El equipo ganó tiempo valioso.',
+            branchNote: 'Contención exitosa → ronda 2 inicia con más información forense disponible' },
+          { text: 'Investigar internamente antes de tomar medidas, para evitar falsos positivos',
+            label: 'Cautelosa · Verifica antes de actuar',
+            tier: 'good', points: 450,
+            consequence: 'La investigación previa evitó un falso positivo, pero costó 20 minutos de exposición adicional.',
+            branchNote: 'Respuesta retrasada → el alcance del ataque es mayor en ronda 2' },
+          { text: 'Notificar a los clientes inmediatamente sobre el posible incidente',
+            label: 'Transparente · Prioriza la comunicación externa',
+            tier: 'ok', points: 200,
+            consequence: 'Notificación prematura sin datos reales. Generó inquietud sin información concreta.',
+            branchNote: 'Crisis reputacional temprana → ronda 2 bajo presión mediática intensa' },
+          { text: 'Esperar al CEO para tomar decisiones — es una situación de alta responsabilidad',
+            label: 'Conservadora · Escala la decisión hacia arriba',
+            tier: 'poor', points: 50,
+            consequence: 'El CEO tardó 45 minutos en responder. La demora amplió el tiempo de exposición.',
+            branchNote: 'Sin contención → el atacante tuvo acceso extendido, ronda 2 con daños mayores' },
+        ]
+      }
+    },
+    penalties: { poor: 100000, ok: 40000 }
   },
+
+  // ── RONDA 2: bifurca según tier de ronda 1 ──
   {
-    status: 'CONTENCIÓN EN CURSO · HORA +30MIN',
-    title: 'La cuenta comprometida',
-    narrative: 'El análisis de registros confirmó que la cuenta del empleado P. Martínez fue comprometida mediante phishing. Se exportaron datos de clientes. El atacante ya no está en el sistema, pero los datos ya salieron.',
-    update: '⚡ NUEVA INFORMACIÓN: IT confirmó que se descargaron datos de 8.500 clientes — nombres, emails y documentos de identidad. La regulación bancaria y de protección de datos exige notificación al regulador en un máximo de 72 horas.',
-    question: '¿Cómo manejan la comunicación con los clientes afectados?',
-    options: [
-      {
-        text: 'Notificar a todos los clientes en las próximas 48 horas con un mensaje claro y qué deben hacer',
-        label: 'Transparente · Cumple plazo regulatorio con margen',
-        tier: 'best', points: 800,
-        consequence: 'La transparencia proactiva y el margen de tiempo permitieron preparar un mensaje claro. Redujo el impacto reputacional y cumplió la regulación.'
+    variants: {
+      best: {
+        status: 'CONTENCIÓN EN CURSO · HORA +30MIN',
+        title: 'La cuenta comprometida — alcance limitado',
+        narrative: 'Gracias a la contención rápida, el análisis forense ya tiene resultados preliminares. La cuenta de P. Martínez fue comprometida por phishing, pero el aislamiento temprano limitó la exfiltración de datos.',
+        update: '⚡ IT confirma: se exportaron datos de solo 2.100 clientes — el aislamiento temprano redujo el impacto en un 75%. El regulador aún no tomó conocimiento. Tienen ventana para notificar proactivamente.',
+        branchContext: '🔀 Su contención rápida limitó el daño. Están en posición de ventaja regulatoria.',
+        question: '¿Cómo aprovechan esta ventana de tiempo para manejar la comunicación?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Notificar proactivamente al regulador antes de las 24h con un informe detallado',
+            label: 'Proactiva · Genera goodwill regulatorio antes de que sea exigido',
+            tier: 'best', points: 900,
+            consequence: 'El regulador reconoció la proactividad. Reducción del 40% en posibles sanciones administrativas.',
+            branchNote: 'Relación regulatoria sólida → ronda 3 tiene más opciones de respuesta técnica aprobadas' },
+          { text: 'Notificar a los 2.100 clientes afectados en 48h con un mensaje claro y qué deben hacer',
+            label: 'Centrada en clientes · Cumple plazo con margen',
+            tier: 'good', points: 600,
+            consequence: 'Los clientes recibieron información clara dentro del plazo. Impacto reputacional mínimo.',
+            branchNote: 'Clientes informados → menos presión mediática en ronda 3' },
+          { text: 'Esperar a tener toda la información antes de notificar para comunicar con precisión total',
+            label: 'Precavida · Evita comunicación incompleta',
+            tier: 'ok', points: 250,
+            consequence: 'La demora superó las 72 horas reglamentarias. Riesgo de sanción regulatoria.',
+            branchNote: 'Incumplimiento regulatorio → ronda 3 con auditía formal iniciada' },
+          { text: 'No notificar todavía — resolver internamente primero para proteger la reputación',
+            label: 'Discreta · Prioriza gestión interna',
+            tier: 'poor', points: 0,
+            consequence: 'No notificar incumple la regulación. Exposición a multas y daño reputacional mayor.',
+            branchNote: 'Incumplimiento grave → ronda 3 con sanción regulatoria en curso' },
+        ]
       },
-      {
-        text: 'Notificar dentro de las 72 horas solo a los clientes con mayor riesgo identificado',
-        label: 'Segmentada · Prioriza los más expuestos',
-        tier: 'good', points: 500,
-        consequence: 'Notificación dentro del plazo legal. La segmentación priorizó los casos más críticos, aunque algunos clientes se enteraron más tarde.'
+      good: {
+        status: 'CONTENCIÓN EN CURSO · HORA +30MIN',
+        title: 'La cuenta comprometida — exposición extendida',
+        narrative: 'La demora de 20 minutos permitió que el atacante exportara más datos antes de ser desconectado. El análisis forense confirmó que la cuenta de P. Martínez fue comprometida. Los datos ya salieron.',
+        update: '⚡ IT confirma: se exportaron datos de 8.500 clientes — nombres, emails y documentos de identidad. La regulación exige notificación al regulador en máximo 72 horas.',
+        branchContext: '🔀 La demora en responder amplió el alcance. Ahora gestionan un incidente de mayor envergadura.',
+        question: '¿Cómo manejan la comunicación con 8.500 clientes afectados?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Notificar a todos los clientes en 48h con mensaje claro y pasos a seguir',
+            label: 'Transparente · Cumple plazo regulatorio con margen',
+            tier: 'best', points: 800,
+            consequence: 'La transparencia redujo el impacto reputacional y cumplió la regulación.',
+            branchNote: 'Gestión proactiva → ronda 3 con menor presión mediática' },
+          { text: 'Notificar dentro de 72h solo a los clientes con mayor riesgo identificado',
+            label: 'Segmentada · Prioriza los más expuestos',
+            tier: 'good', points: 500,
+            consequence: 'Dentro del plazo legal. Algunos clientes se enteraron más tarde.',
+            branchNote: 'Cobertura parcial → algunos clientes insatisfechos generan ruido en ronda 3' },
+          { text: 'Esperar datos completos — la prioridad es comunicar con precisión, no con rapidez',
+            label: 'Precavida · Evita comunicación incompleta',
+            tier: 'ok', points: 200,
+            consequence: 'La espera superó el plazo de 72 horas. Riesgo de sanción regulatoria.',
+            branchNote: 'Plazo incumplido → ronda 3 inicia con investigación regulatoria activa' },
+          { text: 'No notificar a los clientes — priorizar imagen del banco',
+            label: 'Discreta · Prioriza la gestión interna',
+            tier: 'poor', points: 0,
+            consequence: 'Incumple la regulación. Multas y daño reputacional severo.',
+            branchNote: 'Incumplimiento regulatorio + 8.500 clientes sin aviso → crisis grave en ronda 3' },
+        ]
       },
-      {
-        text: 'Esperar a tener toda la información antes de notificar para evitar alarmar sin datos completos',
-        label: 'Precavida · Evita comunicación incompleta',
-        tier: 'ok', points: 200,
-        consequence: 'La espera superó el plazo de 72 horas. Riesgo de sanción regulatoria y pérdida de confianza al comunicar tarde.'
+      ok: {
+        status: 'GESTIÓN DE CRISIS REPUTACIONAL · HORA +30MIN',
+        title: 'Fuego cruzado: clientes inquietos y medios activos',
+        narrative: 'La notificación prematura que enviaron antes de conocer el alcance real generó confusión masiva. Los medios recogieron el comunicado y lo amplificaron. Tienen más de 200 llamadas de clientes sin respuestas claras que dar.',
+        update: '⚡ Redes sociales: el tema está trending. IT acaba de terminar el análisis: 8.500 clientes afectados. Deben reencuadrar la comunicación urgente.',
+        branchContext: '🔀 Su comunicación temprana sin datos generó pánico público. Ahora gestionan una crisis reputacional activa mientras aún analizan el incidente técnico.',
+        question: '¿Cómo reencuadran la situación ante clientes y medios?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Emitir un comunicado de actualización con los datos reales y un plan de acción concreto',
+            label: 'Transparente · Corrige con hechos y acción',
+            tier: 'best', points: 700,
+            consequence: 'El comunicado correctivo redujo la confusión. La transparencia recuperó algo de confianza.',
+            branchNote: 'Recuperación parcial → ronda 3 con presión mediática moderada' },
+          { text: 'Activar un call center dedicado para responder consultas mientras preparan la comunicación formal',
+            label: 'Operativa · Contiene el impacto mientras organizan la respuesta',
+            tier: 'good', points: 400,
+            consequence: 'El call center redujo la presión momentánea, pero sin comunicación central el relato se fragmentó.',
+            branchNote: 'Relato fragmentado → ronda 3 con narrativa dividida y medios activos' },
+          { text: 'Solicitar silencio mediático hasta tener todos los datos confirmados',
+            label: 'Restrictiva · Intenta cortar el flujo de información',
+            tier: 'ok', points: 150,
+            consequence: 'La solicitud de silencio generó más desconfianza. Los medios interpretaron esto como ocultamiento.',
+            branchNote: 'Percepción de ocultamiento → ronda 3 con narrativa negativa instalada' },
+          { text: 'Ignorar la presión mediática y enfocarse 100% en la respuesta técnica interna',
+            label: 'Enfocada técnicamente · Prioriza la solución sobre la imagen',
+            tier: 'poor', points: 50,
+            consequence: 'La ausencia de respuesta comunicacional fue interpretada como negligencia.',
+            branchNote: 'Sin respuesta comunicacional → ronda 3 con crisis reputacional grave' },
+        ]
       },
-      {
-        text: 'No notificar a los clientes para proteger la reputación del banco mientras se resuelve internamente',
-        label: 'Discreta · Prioriza la gestión interna primero',
-        tier: 'poor', points: 0,
-        consequence: 'No notificar incumple la regulación de protección de datos. Expone al banco a multas y daño reputacional mucho mayor si se descubre externamente.'
-      },
-    ],
-    impact: 'ALTO'
+      poor: {
+        status: 'DAÑO EXTENDIDO · HORA +45MIN',
+        title: 'El atacante tuvo tiempo — crisis ampliada',
+        narrative: 'La espera de 45 minutos fue catastrófica. El atacante tuvo acceso extendido y exportó datos sensibles de clientes y también documentos internos. Hay evidencias de que el sistema fue utilizado como puente hacia otras redes internas.',
+        update: '⚡ CRÍTICO: IT reporta 14.200 clientes afectados — el doble del escenario estándar. Hay accesos a sistemas de pagos. El regulador ya tiene conocimiento por una fuente externa.',
+        branchContext: '🔀 La demora máxima produjo el peor escenario posible. El regulador ya sabe. Están en modo gestión de crisis severa.',
+        question: '¿Cómo responden ante el regulador que ya tomó conocimiento por sus propios medios?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Contactar al regulador proactivamente antes de que los llamen — presentar un plan de acción inmediato',
+            label: 'Proactiva · Toma la iniciativa pese al mal inicio',
+            tier: 'best', points: 600,
+            consequence: 'La proactividad tardía fue valorada. El regulador inició auditoría pero con cooperación plena.',
+            branchNote: 'Cooperación regulatoria tardía → ronda 3 bajo supervisión formal' },
+          { text: 'Preparar un informe técnico completo y enviarlo al regulador dentro de las 24 horas',
+            label: 'Formal · Responde con documentación sólida',
+            tier: 'good', points: 350,
+            consequence: 'El informe llegó dentro del plazo. El regulador no cerró la investigación.',
+            branchNote: 'Investigación regulatoria abierta → ronda 3 con presión de cumplimiento' },
+          { text: 'Consultar con Legal antes de responder al regulador para proteger al banco jurídicamente',
+            label: 'Legal first · Prioriza el escudo jurídico',
+            tier: 'ok', points: 150,
+            consequence: 'La demora adicional para consultar a Legal empeoró la percepción del regulador.',
+            branchNote: 'Percepción de evasión regulatoria → multa provisional emitida en ronda 3' },
+          { text: 'No responder directamente al regulador — canalizar todo a través de los abogados del banco',
+            label: 'Defensiva · Usa el escudo legal como primera línea',
+            tier: 'poor', points: 0,
+            consequence: 'Canalizar todo a abogados fue visto como obstrucción. El regulador escaló la investigación.',
+            branchNote: 'Obstrucción regulatoria → ronda 3 con sanción provisional y proceso formal' },
+        ]
+      }
+    },
+    penalties: { poor: 120000, ok: 35000 }
   },
+
+  // ── RONDA 3: bifurca según tier acumulado de R1+R2 ──
   {
-    status: 'ANÁLISIS DE CAUSA · HORA +2H',
-    title: 'El vector de ataque',
-    narrative: 'El equipo de análisis encontró el email de phishing original. Era un mensaje muy convincente que simulaba ser de Microsoft, pidiendo actualización de contraseña. El empleado ingresó sus datos en un sitio falso idéntico al real.',
-    update: '⚡ NUEVA INFORMACIÓN: Se identificaron otros 3 empleados que recibieron el mismo email y podrían haber ingresado sus credenciales. Sus cuentas aún no fueron verificadas.',
-    question: '¿Qué medida de protección implementan de inmediato?',
-    options: [
-      {
-        text: 'Forzar cambio de contraseña en toda la empresa y activar doble verificación para todos',
-        label: 'Amplia · Protege a todos los empleados de una vez',
-        tier: 'best', points: 900,
-        consequence: 'Medida amplia y efectiva. El cambio masivo de contraseñas más el doble factor cierran cualquier acceso no autorizado activo o potencial.'
+    variants: {
+      // Camino fuerte (best+best o best+good)
+      strong: {
+        status: 'FORTALECIENDO LA DEFENSA · HORA +2H',
+        title: 'Cierre del vector de ataque',
+        narrative: 'La gestión hasta ahora fue sólida. El equipo forense identificó el vector exacto: un email de phishing que simulaba ser de Microsoft. Otros 3 empleados recibieron el mismo email y puede que hayan comprometido sus credenciales.',
+        update: '⚡ El análisis forense está completo. Tienen una ventana corta para implementar medidas preventivas antes de que cualquier acceso residual sea detectado o explotado nuevamente.',
+        branchContext: '🔀 La gestión efectiva les da una posición de ventaja. Ahora pueden actuar preventivamente.',
+        question: '¿Qué medida de protección implementan aprovechando su posición favorable?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Forzar cambio de contraseña y activar MFA para toda la empresa — aprovechar el momentum',
+            label: 'Amplia · Protege a todos y refuerza la cultura de seguridad',
+            tier: 'best', points: 900,
+            consequence: 'El cambio masivo + MFA cerró todos los vectores conocidos y posibles. Posición de seguridad robusta.',
+            branchNote: 'Seguridad máxima → ronda 4 abre con reconocimiento regulatorio positivo' },
+          { text: 'Bloquear las 4 cuentas sospechosas e implementar MFA solo para roles críticos',
+            label: 'Focalizada · Prioriza los riesgos identificados',
+            tier: 'good', points: 550,
+            consequence: 'Los casos confirmados fueron cubiertos. Riesgo residual por roles no críticos no cubiertos.',
+            branchNote: 'Cobertura parcial → ronda 4 con una alerta de acceso residual' },
+          { text: 'Bloquear todos los accesos externos hasta auditar manualmente cada cuenta',
+            label: 'Conservadora · Prioriza seguridad sobre operación',
+            tier: 'ok', points: 250,
+            consequence: 'El bloqueo total afectó operaciones por 6 horas. Seguro pero costoso operacionalmente.',
+            branchNote: 'Interrupción operativa documentada → ronda 4 con queja de directorio por impacto en negocio' },
+          { text: 'Cambiar solo la contraseña de P. Martínez y monitorear',
+            label: 'Mínima · Solo actúa sobre el caso confirmado',
+            tier: 'poor', points: 100,
+            consequence: 'Los otros 3 empleados potencialmente afectados quedaron expuestos.',
+            branchNote: 'Exposición residual → ronda 4 con un segundo incidente de acceso no autorizado' },
+        ]
       },
-      {
-        text: 'Revisar y bloquear preventivamente las 4 cuentas sospechosas identificadas',
-        label: 'Focalizada · Actúa sobre los casos conocidos',
-        tier: 'good', points: 500,
-        consequence: 'Las 4 cuentas fueron protegidas. Eficiente y menos disruptivo, aunque no cubre posibles afectados aún no identificados.'
+      // Camino mixto (good+good, best+ok, ok+best, etc.)
+      mixed: {
+        status: 'ANÁLISIS DE CAUSA · HORA +2H',
+        title: 'El vector de ataque — presión acumulada',
+        narrative: 'El equipo forense encontró el email de phishing original. Era un mensaje muy convincente simulando ser de Microsoft. Mientras analizan, el portal de noticias financieras publicó una nota sobre "incidente de ciberseguridad en entidad bancaria local".',
+        update: '⚡ Se identificaron 3 empleados más que recibieron el mismo email. El regulador bancario solicitó un informe preliminar. Tienen múltiples frentes abiertos simultáneamente.',
+        branchContext: '🔀 La gestión parcial de las rondas anteriores dejó vulnerabilidades abiertas. Ahora enfrentan presión técnica, mediática y regulatoria al mismo tiempo.',
+        question: '¿Qué frente priorizan con recursos y tiempo limitados?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Bloquear las 4 cuentas y activar MFA mientras Legal responde al regulador en paralelo',
+            label: 'Paralela · Ataca múltiples frentes simultáneamente',
+            tier: 'best', points: 850,
+            consequence: 'La gestión paralela fue efectiva. Cubrieron seguridad y cumplimiento al mismo tiempo.',
+            branchNote: 'Recuperación sólida → ronda 4 con situación estabilizada' },
+          { text: 'Responder primero al regulador — el riesgo legal es más urgente que el técnico residual',
+            label: 'Legal first · Prioriza el cumplimiento regulatorio',
+            tier: 'good', points: 450,
+            consequence: 'El regulador recibió el informe. Las cuentas residuales quedaron expuestas un tiempo más.',
+            branchNote: 'Cumplimiento logrado pero seguridad rezagada → ronda 4 con vulnerabilidad residual' },
+          { text: 'Enfocarse en las medidas técnicas — la seguridad es el problema raíz',
+            label: 'Técnica · Resuelve el problema de origen',
+            tier: 'ok', points: 200,
+            consequence: 'Las cuentas fueron aseguradas pero el regulador no recibió respuesta a tiempo.',
+            branchNote: 'Incumplimiento regulatorio → ronda 4 con sanción en proceso' },
+          { text: 'Priorizar comunicación pública — la reputación en este momento vale más',
+            label: 'Comunicacional · La imagen es el mayor activo',
+            tier: 'poor', points: 80,
+            consequence: 'La comunicación sin resolver los problemas técnicos o regulatorios fue criticada como superficial.',
+            branchNote: 'Problemas técnicos y regulatorios abiertos → ronda 4 con múltiples crisis activas' },
+        ]
       },
-      {
-        text: 'Bloquear temporalmente todos los accesos externos hasta revisar cada cuenta manualmente',
-        label: 'Conservadora · Prioriza la seguridad sobre la operación',
-        tier: 'ok', points: 250,
-        consequence: 'El bloqueo total detuvo cualquier acceso externo, pero afectó operaciones críticas por varias horas. Medida segura pero costosa operacionalmente.'
-      },
-      {
-        text: 'Cambiar solo la contraseña de P. Martínez y monitorear el sistema durante las próximas horas',
-        label: 'Mínima · Actúa solo sobre el caso confirmado',
-        tier: 'poor', points: 100,
-        consequence: 'Solo se protegió la cuenta confirmada. Los otros 3 empleados potencialmente afectados quedaron expuestos durante horas adicionales.'
-      },
-    ],
-    impact: 'ALTO'
+      // Camino débil (acumuló poor u ok predominantemente)
+      weak: {
+        status: 'CRISIS ESCALADA · HORA +2H',
+        title: 'El sistema se desbordó — triple amenaza',
+        narrative: 'Las decisiones previas dejaron ventanas abiertas. Ahora enfrentan: el regulador inició una auditoría formal, un portal de noticias publicó datos específicos del incidente (posible filtración interna), y el análisis forense muestra que puede haber un segundo vector de ataque aún activo.',
+        update: '⚡ CRÍTICO: Se detectó tráfico inusual saliente desde un servidor diferente al del incidente original. Puede haber un acceso paralelo aún activo. El board está convocando una reunión de emergencia.',
+        branchContext: '🔀 La gestión deficiente acumuló presiones que ahora estallan simultáneamente. Están en modo control de daños.',
+        question: '¿Cuál es su estrategia de control de daños ante la triple amenaza?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Aislar inmediatamente el servidor sospechoso y contratar forensics externos — foco en el riesgo mayor',
+            label: 'Técnica crítica · Elimina el vector activo primero',
+            tier: 'best', points: 700,
+            consequence: 'El aislamiento rápido detuvo el segundo vector. El daño adicional fue contenido.',
+            branchNote: 'Segunda contención exitosa → ronda 4 con daño limitado pero reputación afectada' },
+          { text: 'Presentarse ante el board con un plan de crisis completo — necesitan el respaldo ejecutivo',
+            label: 'Ejecutiva · Escala para obtener recursos y autoridad',
+            tier: 'good', points: 350,
+            consequence: 'El board aprobó recursos adicionales. El segundo vector quedó activo mientras tanto.',
+            branchNote: 'Recursos obtenidos pero exposición extendida → ronda 4 con daños mayores' },
+          { text: 'Emitir un comunicado público completo — transparencia radical para recuperar confianza',
+            label: 'Transparencia total · Exponer todo públicamente',
+            tier: 'ok', points: 150,
+            consequence: 'La transparencia radical fue valorada, pero reveló vulnerabilidades que el atacante explotó adicionalmente.',
+            branchNote: 'Vulnerabilidades expuestas públicamente → ronda 4 en situación crítica' },
+          { text: 'Contratar una firma de relaciones públicas para manejar la narrativa mediática',
+            label: 'PR crisis · Gestionar el relato externo',
+            tier: 'poor', points: 30,
+            consequence: 'El foco en PR mientras el segundo vector estaba activo fue visto como negligencia grave.',
+            branchNote: 'Segundo vector activo → ronda 4 con brecha adicional y pérdida de credibilidad total' },
+        ]
+      }
+    },
+    penalties: { poor: 80000, ok: 50000 }
   },
+
+  // ── RONDA 4: cierre, bifurca según el estado final acumulado ──
   {
-    status: 'CIERRE Y APRENDIZAJE · HORA +24H',
-    title: 'Lecciones aprendidas',
-    narrative: 'El incidente fue contenido. El reporte de análisis está completo. El banco manejó la crisis, pero el directorio quiere garantías de que esto no volverá a suceder.',
-    update: '⚡ NUEVA INFORMACIÓN: El CEO pregunta al comité: "¿Qué cambiamos estructuralmente para que esto no se repita?" Tienen 5 minutos para presentar una propuesta.',
-    question: '¿Cuál es el plan preventivo que presentan al directorio?',
-    options: [
-      {
-        text: 'Programa continuo de concientización + simulacros periódicos + doble verificación obligatoria para todos',
-        label: 'Integral · Aborda el factor humano y tecnológico',
-        tier: 'best', points: 1000,
-        consequence: 'Plan completo que ataca la raíz del problema. La combinación de educación continua, práctica y tecnología es la defensa más efectiva contra phishing.'
+    variants: {
+      // Finales fuertes: llegaron bien
+      strong: {
+        status: 'CIERRE Y APRENDIZAJE · HORA +24H',
+        title: 'Presentación al directorio — posición de fortaleza',
+        narrative: 'El incidente fue contenido. El regulador reconoció la gestión proactiva. Los clientes afectados fueron notificados dentro del plazo. El board está reunido y el CEO felicitó al equipo. Ahora quieren saber: ¿cómo aseguran que esto no se repita?',
+        update: '⚡ El CEO dice: "Manejaron bien la crisis. Ahora convénzanme de que estructuralmente estamos mejor parados. Tienen 5 minutos."',
+        branchContext: '🔀 Llegaron a esta instancia con credibilidad intacta. El board quiere capitalizar el aprendizaje.',
+        question: '¿Qué plan preventivo estructural presentan al directorio?',
+        impact: 'MEDIO',
+        options: [
+          { text: 'Programa integral: concientización continua + simulacros trimestrales + MFA obligatorio + SOC 24h',
+            label: 'Sistémica · Ataca el factor humano y tecnológico de raíz',
+            tier: 'best', points: 1000,
+            consequence: 'Plan completo aprobado. El banco emerge de la crisis con una postura de seguridad mejor que antes.',
+            branchNote: 'Resultado final óptimo — la crisis se convirtió en catalizador de mejora' },
+          { text: 'Capacitación obligatoria anual + implementación de MFA para toda la empresa',
+            label: 'Sólida · Combina educación y tecnología básica',
+            tier: 'good', points: 650,
+            consequence: 'Plan robusto aprobado. Cubre los vectores principales del incidente.',
+            branchNote: 'Resultado final bueno — mejora real aunque no sistémica' },
+          { text: 'Actualizar los sistemas de seguridad tecnológica con soluciones más avanzadas',
+            label: 'Tecnológica · Apuesta por herramientas',
+            tier: 'ok', points: 300,
+            consequence: 'Las herramientas ayudan, pero el ataque entró por error humano. Sin educación, el riesgo persiste.',
+            branchNote: 'Resultado final parcial — mejora tecnológica sin cambio cultural' },
+          { text: 'Implementar sanciones disciplinarias para empleados que cometan errores de seguridad',
+            label: 'Punitiva · Genera consecuencias claras',
+            tier: 'poor', points: 50,
+            consequence: 'Las sanciones generan miedo a reportar errores. Peor cultura de seguridad a largo plazo.',
+            branchNote: 'Resultado final negativo — se repite el próximo incidente sin reporte' },
+        ]
       },
-      {
-        text: 'Capacitación obligatoria anual sobre seguridad para todos los empleados',
-        label: 'Formativa · Invierte en educación del personal',
-        tier: 'good', points: 550,
-        consequence: 'La capacitación anual es un buen paso, pero sin práctica regular y tecnología de respaldo, el aprendizaje se diluye con el tiempo.'
+      // Llegaron con performance mixta
+      mixed: {
+        status: 'CIERRE BAJO PRESIÓN · HORA +24H',
+        title: 'Presentación al directorio — preguntas incómodas',
+        narrative: 'El incidente fue contenido, pero el camino fue turbulento. El regulador tiene una investigación abierta. Hay clientes insatisfechos. El board está reunido y el tono no es de celebración. El CEO dice que el banco sobrevivió, pero que hay que rendir cuentas.',
+        update: '⚡ El directorio pregunta: "¿Por qué no actuaron más rápido en la primera hora?" y "¿Qué garantías nos dan de que esto no se repite?" Tienen la oportunidad de reencuadrar la narrativa.',
+        branchContext: '🔀 La gestión inconsistente deja preguntas sin responder. Esta es su chance de recuperar credibilidad.',
+        question: '¿Cómo presentan las lecciones aprendidas ante un board crítico?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Reconocer los errores del proceso, presentar un análisis de causa raíz y un plan preventivo concreto',
+            label: 'Honesta · Responsabilidad + solución',
+            tier: 'best', points: 900,
+            consequence: 'La honestidad fue valorada por el board. El plan fue aprobado. La credibilidad del equipo se recuperó.',
+            branchNote: 'Recuperación de credibilidad — cierre con aprendizaje genuino' },
+          { text: 'Presentar el plan preventivo técnico sin profundizar en los errores del proceso',
+            label: 'Forward-looking · Foco en el futuro',
+            tier: 'good', points: 500,
+            consequence: 'El plan fue aprobado pero el board notó que no hubo autocrítica. Credibilidad parcialmente recuperada.',
+            branchNote: 'Cierre aceptable — pendiente de revisión en 6 meses' },
+          { text: 'Enfatizar los factores externos del ataque — era altamente sofisticado',
+            label: 'Defensiva · Mitiga la responsabilidad interna',
+            tier: 'ok', points: 200,
+            consequence: 'El board no aceptó la narrativa de víctima. Solicitaron un auditor externo.',
+            branchNote: 'Auditoría externa ordenada — cierre bajo supervisión adicional' },
+          { text: 'Señalar al empleado que cayó en el phishing como responsable principal',
+            label: 'Culpabilizadora · Desvía la responsabilidad',
+            tier: 'poor', points: 0,
+            consequence: 'Culpar al empleado fue considerado inaceptable por el board. El CISO perdió credibilidad total.',
+            branchNote: 'Resultado crítico — posible remoción del CISO' },
+        ]
       },
-      {
-        text: 'Actualizar los sistemas de seguridad tecnológica y comprar soluciones más avanzadas',
-        label: 'Tecnológica · Mejora las herramientas del banco',
-        tier: 'ok', points: 250,
-        consequence: 'Las herramientas tecnológicas ayudan, pero el ataque entró por un error humano. Sin educación, la tecnología sola no es suficiente.'
-      },
-      {
-        text: 'Implementar sanciones para empleados que cometan errores de seguridad en el futuro',
-        label: 'Disciplinaria · Genera consecuencias claras',
-        tier: 'poor', points: 50,
-        consequence: 'Las sanciones generan miedo a reportar errores, lo cual es el peor resultado posible. Una cultura de seguridad necesita que los empleados reporten incidentes, no que los oculten.'
-      },
-    ],
-    impact: 'MEDIO'
+      // Llegaron con mal historial
+      weak: {
+        status: 'POST-CRISIS SEVERA · HORA +24H',
+        title: 'Control de daños ante el directorio',
+        narrative: 'La crisis fue un desastre gestionable que escaló por las decisiones tomadas. El regulador impuso una multa provisional. Hay prensa negativa. El board convocó una reunión extraordinaria con el CEO, el CFO y el área legal.',
+        update: '⚡ El CFO presentó pérdidas estimadas de $2.3M en multas, remediación y pérdida de clientes. El CEO pregunta directamente: "¿Esta conducción puede llevar la remediación?"',
+        branchContext: '🔀 Las decisiones deficientes tienen costos reales. Esta ronda determina si el equipo puede sobrevivir institucionalmente a la crisis.',
+        question: '¿Cómo responden ante la pregunta de si pueden conducir la remediación?',
+        impact: 'ALTO',
+        options: [
+          { text: 'Asumir responsabilidad total, presentar un plan de remediación detallado con hitos y métricas',
+            label: 'Accountability · Responsabilidad + acción',
+            tier: 'best', points: 750,
+            consequence: 'El board decidió mantener al equipo bajo supervisión estricta. El plan de remediación fue aprobado.',
+            branchNote: 'Recuperación institucional mínima — el equipo sobrevive pero bajo escrutinio' },
+          { text: 'Proponer traer un CISO externo temporario mientras el equipo se enfoca en la remediación técnica',
+            label: 'Pragmática · Admite limitaciones y busca refuerzo',
+            tier: 'good', points: 400,
+            consequence: 'El board aceptó. La admisión de limitaciones fue vista positivamente.',
+            branchNote: 'Reestructuración parcial — el proceso de remediación inicia con más recursos' },
+          { text: 'Presentar las deficiencias como consecuencia del presupuesto insuficiente asignado a ciberseguridad',
+            label: 'Sistémica · Señala la causa raíz estructural',
+            tier: 'ok', points: 150,
+            consequence: 'El board rechazó la narrativa de presupuesto. La discusión se pospuso pero la desconfianza aumentó.',
+            branchNote: 'Cierre sin resolución — situación pendiente de revisión en 30 días' },
+          { text: 'Defender que el nivel de sofisticación del ataque superaba cualquier defensa razonable',
+            label: 'Defensiva · Desresponsabiliza al equipo',
+            tier: 'poor', points: 0,
+            consequence: 'El board no aceptó el argumento. La credibilidad del CISO llegó a cero.',
+            branchNote: 'Resultado crítico — remoción del equipo y auditoría externa total' },
+        ]
+      }
+    },
+    penalties: { poor: 90000, ok: 30000 }
   }
 ];
 
-// INVERSIONES estratégicas disponibles por ronda.
-// bonusType: 'pts' → suma puntos al confirmar decisión óptima (best)
-//            'shield' → reduce la siguiente penalización en bonusValue
-//            'info'   → desbloquea una notificación extra
-//            'multiplier' → aplica ×1.5 a los puntos de budget restante al final
-// wise: true → marcadas como inversiones estratégicamente correctas
+// ── INVERSIONES dinámicas según el camino ──
+// Incluyen beneficios que se adaptan al estado del juego
 const INVESTMENTS = [
-  // Ronda 1 — Primera respuesta
+  // Ronda 1
   [
-    { name: 'Contratar forensics externos', cost: 80000, benefit: '+200 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 200, wise: true },
-    { name: 'Activar SOC 24hs', cost: 50000, benefit: 'Reduce la siguiente penalización automática en $30,000', bonusType: 'shield', bonusValue: 30000 },
-    { name: 'Notificar al regulador proactivamente', cost: 30000, benefit: 'Desbloquea información estratégica del regulador bancario', bonusType: 'info' },
+    { name: 'Contratar forensics externos', cost: 80000,
+      benefit: '+200 pts si confirman la decisión óptima · Acorta el tiempo de análisis en ronda 2',
+      bonusType: 'pts', bonusValue: 200, wise: true },
+    { name: 'Activar SOC 24hs', cost: 50000,
+      benefit: 'Reduce la siguiente penalización en $30,000 · Disponible en todas las rondas',
+      bonusType: 'shield', bonusValue: 30000 },
+    { name: 'Notificar al regulador proactivamente', cost: 30000,
+      benefit: 'Desbloquea información estratégica + reduce presión regulatoria en ronda 2',
+      bonusType: 'info', infoKey: '0-2' },
   ],
-  // Ronda 2 — Comunicación con clientes
+  // Ronda 2
   [
-    { name: 'Agencia de comunicación de crisis', cost: 60000, benefit: '+200 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 200, wise: true },
-    { name: 'Call center dedicado', cost: 40000, benefit: 'Reduce la siguiente penalización automática en $25,000', bonusType: 'shield', bonusValue: 25000 },
-    { name: 'Monitoreo de reputación online', cost: 25000, benefit: 'Desbloquea alerta de impacto reputacional en tiempo real', bonusType: 'info' },
+    { name: 'Agencia de comunicación de crisis', cost: 60000,
+      benefit: '+200 pts si confirman la decisión óptima · Mejora el contexto de ronda 3',
+      bonusType: 'pts', bonusValue: 200, wise: true },
+    { name: 'Call center dedicado', cost: 40000,
+      benefit: 'Reduce la siguiente penalización en $25,000',
+      bonusType: 'shield', bonusValue: 25000 },
+    { name: 'Monitoreo de reputación online', cost: 25000,
+      benefit: 'Desbloquea alerta de impacto reputacional en tiempo real',
+      bonusType: 'info', infoKey: '1-2' },
   ],
-  // Ronda 3 — Medidas técnicas
+  // Ronda 3
   [
-    { name: 'Implementar MFA empresa completa', cost: 90000, benefit: '+250 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 250, wise: true },
-    { name: 'Pentesting externo', cost: 70000, benefit: '+150 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 150 },
-    { name: 'Capacitación urgente todos los empleados', cost: 45000, benefit: 'Reduce la siguiente penalización automática en $20,000', bonusType: 'shield', bonusValue: 20000 },
+    { name: 'Implementar MFA empresa completa', cost: 90000,
+      benefit: '+250 pts si confirman la decisión óptima · Refuerza la posición para ronda 4',
+      bonusType: 'pts', bonusValue: 250, wise: true },
+    { name: 'Pentesting externo', cost: 70000,
+      benefit: '+150 pts si confirman la decisión óptima · Identifica vectores residuales',
+      bonusType: 'pts', bonusValue: 150 },
+    { name: 'Capacitación urgente todos los empleados', cost: 45000,
+      benefit: 'Reduce la siguiente penalización en $20,000',
+      bonusType: 'shield', bonusValue: 20000 },
   ],
-  // Ronda 4 — Lecciones aprendidas
+  // Ronda 4
   [
-    { name: 'Programa anual de concientización', cost: 120000, benefit: 'Aplica ×1.5 a los puntos obtenidos por budget restante al final', bonusType: 'multiplier', wise: true },
-    { name: 'Plataforma de gestión de incidentes', cost: 85000, benefit: '+300 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 300 },
-    { name: 'Seguro de ciberseguridad', cost: 60000, benefit: '+200 pts al confirmar la decisión óptima en esta ronda', bonusType: 'pts', bonusValue: 200 },
+    { name: 'Programa anual de concientización', cost: 120000,
+      benefit: 'Aplica ×1.5 a los puntos obtenidos por budget restante al final',
+      bonusType: 'multiplier', wise: true },
+    { name: 'Plataforma de gestión de incidentes', cost: 85000,
+      benefit: '+300 pts si confirman la decisión óptima',
+      bonusType: 'pts', bonusValue: 300 },
+    { name: 'Seguro de ciberseguridad', cost: 60000,
+      benefit: '+200 pts si confirman la decisión óptima',
+      bonusType: 'pts', bonusValue: 200 },
   ],
 ];
 
-// Penalizaciones automáticas por tier de decisión (en $).
-// poor = decisión incorrecta, ok = decisión subóptima.
-// La penalización se aplica con un pequeño delay tras confirmar.
-const PENALTIES = [
-  { poor: 100000, ok: 40000 },  // Ronda 1
-  { poor: 120000, ok: 35000 },  // Ronda 2
-  { poor: 80000,  ok: 50000 },  // Ronda 3
-  { poor: 90000,  ok: 30000 },  // Ronda 4
-];
-
-// Notificaciones por ronda — aparecen como alertas en el panel lateral
-const NOTIFICATIONS = {
+// Notificaciones que se bifurcan según el camino tomado
+const BASE_NOTIFS = {
   start: [
-    { time: '10:15', text: 'Sistema de alertas activado. Se detectó actividad inusual en los servidores del banco.', type: 'alert' },
-    { time: '10:17', text: 'IT reporta intentos fallidos de inicio de sesión en múltiples cuentas desde la madrugada.', type: 'warn' },
-    { time: '10:19', text: 'Un empleado del área de Créditos reportó haber recibido un email extraño esta mañana.', type: 'info' },
+    { time: '10:15', text: 'Sistema de alertas activado. Actividad inusual detectada en los servidores del banco.', type: 'alert' },
+    { time: '10:17', text: 'IT reporta intentos fallidos de inicio de sesión desde la madrugada.', type: 'warn' },
+    { time: '10:19', text: 'Un empleado del área de Créditos reportó un email extraño recibido esta mañana.', type: 'info' },
   ],
-  byRound: [
-    // Round 1
-    [
-      { time: '10:23', text: 'Prensa: un periodista de Canal 13 llamó preguntando por "rumores de un hackeo al banco".', type: 'alert' },
-      { time: '10:28', text: '2 empleados más reportaron haber recibido el mismo email sospechoso antes de las 8am.', type: 'warn' },
-      { time: '10:31', text: 'El sistema de monitoreo detectó una descarga inusual de datos ocurrida a las 07:33am.', type: 'alert' },
-    ],
-    // Round 2
-    [
-      { time: '11:02', text: 'Legal confirma: la regulación bancaria y de protección de datos exige notificar al regulador en máximo 72 horas desde que se conoció la brecha.', type: 'warn' },
-      { time: '11:08', text: 'IT identificó el alcance: datos de 8.500 clientes descargados — nombres, emails y documentos de identidad.', type: 'alert' },
-      { time: '11:20', text: 'CEO aterrizó y está disponible por teléfono. Pide un resumen ejecutivo inmediato.', type: 'info' },
-      { time: '11:35', text: 'Redes sociales: clientes empiezan a preguntar sobre "problemas de seguridad" tras ver una publicación anónima en Twitter.', type: 'warn' },
-    ],
-    // Round 3
-    [
-      { time: '12:05', text: 'Análisis forense confirmó el origen: un email de phishing que simulaba ser de Microsoft. Altamente convincente.', type: 'warn' },
-      { time: '12:15', text: 'Se identificaron otros 3 empleados que recibieron el mismo email. No se sabe si ingresaron sus datos.', type: 'alert' },
-      { time: '12:28', text: 'Portal de noticias financieras publicó una nota sobre un "incidente de ciberseguridad en entidad bancaria local".', type: 'alert' },
-      { time: '12:40', text: 'El ente regulador bancario tomó conocimiento del incidente y solicitó un informe preliminar.', type: 'warn' },
-    ],
-    // Round 4
-    [
-      { time: '10:05 (día 2)', text: 'CEO convocó al comité para presentar las lecciones aprendidas ante el directorio completo esta tarde.', type: 'info' },
-      { time: '10:30 (día 2)', text: 'Clientes afectados empezaron a recibir las comunicaciones del banco. Respuesta inicial positiva por la transparencia.', type: 'info' },
-      { time: '11:00 (día 2)', text: 'El regulador bancario inició una auditoría formal del incidente. Solicitan acceso a los registros de respuesta.', type: 'alert' },
-      { time: '11:45 (día 2)', text: 'Nota de prensa del banco publicada. Cobertura mediática moderada — la respuesta proactiva redujo el impacto negativo.', type: 'info' },
-    ],
-  ]
+  r1_always: [
+    { time: '10:23', text: 'Prensa: un periodista de Canal 13 llamó preguntando por "rumores de hackeo al banco".', type: 'alert' },
+    { time: '10:28', text: '2 empleados más reportaron el mismo email sospechoso antes de las 8am.', type: 'warn' },
+    { time: '10:31', text: 'Sistema de monitoreo detectó descarga inusual de datos ocurrida a las 07:33am.', type: 'alert' },
+  ],
+  r2_best: [
+    { time: '11:00', text: 'FORTALEZA: Contención confirmada. El alcance fue limitado por la respuesta rápida. Solo 2.100 cuentas afectadas.', type: 'info' },
+    { time: '11:10', text: 'CEO aterrizó. Al recibir el resumen dijo: "Buen trabajo en la primera hora."', type: 'info' },
+    { time: '11:25', text: 'Regulador bancario: no hay notificaciones externas aún. Tienen ventana de acción proactiva.', type: 'warn' },
+  ],
+  r2_good: [
+    { time: '11:02', text: 'Legal: regulación exige notificación al regulador en máximo 72h desde que se conoció la brecha.', type: 'warn' },
+    { time: '11:08', text: 'IT: alcance confirmado — 8.500 clientes con datos exportados.', type: 'alert' },
+    { time: '11:35', text: 'Redes sociales: clientes preguntan sobre "problemas de seguridad" tras publicación anónima.', type: 'warn' },
+  ],
+  r2_ok: [
+    { time: '11:05', text: 'CRISIS REPUTACIONAL: la notificación prematura fue recogida por 3 portales de noticias.', type: 'alert' },
+    { time: '11:15', text: 'Call center desbordado: más de 200 llamadas de clientes sin información concreta para dar.', type: 'alert' },
+    { time: '11:30', text: 'Trending en redes sociales: "¿hackeo al banco?" con 18K interacciones en 20 minutos.', type: 'alert' },
+  ],
+  r2_poor: [
+    { time: '10:55', text: '⚠️ CRÍTICO: El atacante tuvo 45 min adicionales de acceso. Alcance extendido a 14.200 clientes.', type: 'alert' },
+    { time: '11:05', text: 'CRÍTICO: Se detectaron accesos a sistemas de pagos durante la ventana de demora.', type: 'alert' },
+    { time: '11:20', text: 'Regulador bancario: tomó conocimiento por fuente externa. Solicitan contacto inmediato.', type: 'alert' },
+  ],
+  r3_strong: [
+    { time: '12:00', text: 'POSITIVO: Forense completado. Vector identificado y cerrado. Sin accesos residuales detectados.', type: 'info' },
+    { time: '12:20', text: 'CEO transmite reconocimiento del equipo al board. Situación bajo control.', type: 'info' },
+  ],
+  r3_mixed: [
+    { time: '12:05', text: 'Forense confirmó el origen: email phishing simulando ser de Microsoft. Altamente convincente.', type: 'warn' },
+    { time: '12:15', text: '3 empleados adicionales con el mismo email. No se sabe si ingresaron sus datos.', type: 'alert' },
+    { time: '12:40', text: 'Regulador solicitó informe preliminar. Plazo: 4 horas.', type: 'warn' },
+  ],
+  r3_weak: [
+    { time: '12:00', text: '⚠️ CRÍTICO: Se detectó tráfico saliente inusual desde servidor secundario. Posible segundo vector activo.', type: 'alert' },
+    { time: '12:15', text: 'Portal de noticias publicó detalles específicos del incidente. Posible filtración interna.', type: 'alert' },
+    { time: '12:30', text: 'Board convocó reunión de emergencia. CFO está calculando pérdidas estimadas.', type: 'alert' },
+  ],
+  r4_always: [
+    { time: '10:05 (día 2)', text: 'CEO convocó al comité para presentar lecciones aprendidas al directorio esta tarde.', type: 'info' },
+    { time: '10:30 (día 2)', text: 'El simulacro entra en su fase final. Cada decisión en esta ronda define el cierre del incidente.', type: 'info' },
+  ],
 };
 
-// ─── BUDGET FUNCTIONS ─────────────────────────────────────────────────────────
-// fmt: formatea un número como $X,XXX (valor absoluto, separador de miles en-US).
+// ═══════════════════════════════════════════════════════
+// LÓGICA DE BIFURCACIONES
+// Determina qué variante de ronda se usa según el historial
+// ═══════════════════════════════════════════════════════
+function getVariantKey(roundIdx) {
+  if (roundIdx === 0) return 'default';
+
+  const prev = decisionPath[roundIdx - 1];
+  if (!prev) return 'default';
+
+  if (roundIdx === 1) {
+    // R2 bifurca directamente en el tier de R1
+    return prev.tier;
+  }
+
+  if (roundIdx === 2) {
+    // R3 bifurca según el estado acumulado de R1+R2
+    const r1 = decisionPath[0]?.tier;
+    const r2 = decisionPath[1]?.tier;
+    const strongTiers = new Set(['best', 'good']);
+    const weakTiers = new Set(['poor', 'ok']);
+    const strongCount = [r1, r2].filter(t => strongTiers.has(t)).length;
+    const weakCount = [r1, r2].filter(t => weakTiers.has(t)).length;
+    if (strongCount >= 2) return 'strong';
+    if (weakCount >= 2) return 'weak';
+    return 'mixed';
+  }
+
+  if (roundIdx === 3) {
+    // R4 bifurca según el estado global (3 rondas previas)
+    const tiers = decisionPath.slice(0, 3).map(d => d.tier);
+    const bestCount = tiers.filter(t => t === 'best').length;
+    const poorCount = tiers.filter(t => t === 'poor' || t === 'ok').length;
+    if (bestCount >= 2) return 'strong';
+    if (poorCount >= 2) return 'weak';
+    return 'mixed';
+  }
+
+  return 'default';
+}
+
+function getRound(n) {
+  const roundData = ROUND_TREE[n];
+  const key = getVariantKey(n);
+  return roundData.variants[key] || roundData.variants['default'] || roundData.variants['mixed'] || roundData.variants['strong'] || roundData.variants['weak'];
+}
+
+function getPenalties(n) {
+  return ROUND_TREE[n].penalties;
+}
+
+// ═══════════════════════════════════════════════════════
+// NOTIFICACIONES CONTEXTUALES
+// ═══════════════════════════════════════════════════════
+function getNotifsByRound(n) {
+  if (n === 0) return BASE_NOTIFS.r1_always;
+  if (n === 1) {
+    const prev = decisionPath[0]?.tier || 'good';
+    return BASE_NOTIFS[`r2_${prev}`] || BASE_NOTIFS.r2_good;
+  }
+  if (n === 2) {
+    const key = getVariantKey(2);
+    return BASE_NOTIFS[`r3_${key}`] || BASE_NOTIFS.r3_mixed;
+  }
+  if (n === 3) return BASE_NOTIFS.r4_always;
+  return [];
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════════
 function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US'); }
 
-// updateBudget: ajusta el estado del budget y actualiza el display en el topbar.
-// delta negativo = gasto. type 'penalty' suma a totalPenalties, 'investment' a totalInvested.
 function updateBudget(delta, type) {
   budget += delta;
-  if (type === 'penalty')    totalPenalties -= delta;
-  if (type === 'investment') totalInvested  -= delta;
-  const valEl = document.getElementById('budgetVal');
-  if (valEl) {
-    valEl.textContent = (budget < 0 ? '-' : '') + fmt(budget);
+  if (type === 'penalty') totalPenalties -= delta;
+  if (type === 'investment') totalInvested -= delta;
+  const el = document.getElementById('budgetVal');
+  if (el) {
+    el.textContent = (budget < 0 ? '-' : '') + fmt(budget);
     const fc = type === 'penalty' ? 'flash-red' : 'flash-amber';
-    valEl.classList.remove('flash-red', 'flash-amber');
-    void valEl.offsetWidth;
-    valEl.classList.add(fc);
-    setTimeout(() => valEl.classList.remove(fc), 1400);
+    el.classList.remove('flash-red', 'flash-amber');
+    void el.offsetWidth;
+    el.classList.add(fc);
+    setTimeout(() => el.classList.remove(fc), 1400);
   }
   showBudgetToast(delta, type);
 }
 
-// showBudgetToast: muestra el monto descontado/invertido como notificación flotante.
 function showBudgetToast(delta, type) {
   const toast = document.getElementById('budgetToast');
   if (!toast) return;
   toast.className = '';
   toast.textContent = (delta < 0 ? '−' : '+') + fmt(Math.abs(delta));
   void toast.offsetWidth;
-  toast.className = type === 'penalty' ? 'toast-red' : 'toast-amber';
+  toast.className = type === 'penalty' ? 'toast-red' : type === 'investment' ? 'toast-amber' : 'toast-green';
   setTimeout(() => { toast.className = ''; }, 2400);
 }
 
-// purchaseInvestment: ejecuta la compra de una inversión voluntaria.
-// Descuenta del budget, aplica efecto inmediato (shield/info) y actualiza la UI.
+function pushNotif(notif) {
+  const feed = document.getElementById('notifFeed');
+  const el = document.createElement('div');
+  el.className = `notif-item notif-${notif.type}`;
+  el.innerHTML = `<div class="notif-dot"></div><div style="flex:1"><div class="notif-time">${notif.time}</div>${notif.text}</div>`;
+  feed.insertBefore(el, feed.firstChild);
+  if (currentSbTab !== 'notif') {
+    unreadNotifs++;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = unreadNotifs;
+    badge.style.display = 'flex';
+  }
+}
+
+function loadNotifs(arr, delay = 0) {
+  arr.forEach((n, i) => setTimeout(() => pushNotif(n), delay + i * 1200));
+}
+
+function switchSbTab(tab) {
+  currentSbTab = tab;
+  ['info', 'notif', 'scores'].forEach(t => {
+    document.getElementById(`stab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`sp-${t}`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'notif') {
+    unreadNotifs = 0;
+    document.getElementById('notifBadge').style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// PATH TRACKER — visualiza el árbol de decisiones
+// ═══════════════════════════════════════════════════════
+function updatePathTracker() {
+  const flow = document.getElementById('ptFlow');
+  if (!flow) return;
+  if (decisionPath.length === 0) {
+    flow.innerHTML = '<span style="font-size:.72rem;color:var(--muted)">Aún sin decisiones</span>';
+    return;
+  }
+  flow.innerHTML = decisionPath.map((d, i) => {
+    const tierLabel = { best: 'Óptima', good: 'Buena', ok: 'Parcial', poor: 'Perdida' }[d.tier];
+    const dotColor = { best: 'var(--tier-best)', good: 'var(--tier-good)', ok: 'var(--tier-ok)', poor: 'var(--tier-poor)' }[d.tier];
+    const line = i < decisionPath.length - 1 ? `<div class="pt-line"></div>` : '';
+    return `
+      <div>
+        <div class="pt-node">
+          <div class="pt-dot" style="background:${dotColor}"></div>
+          <div class="pt-label pt-${d.tier}"><strong>R${i+1}</strong> · ${tierLabel}</div>
+          <span style="font-size:.65rem;color:var(--muted)">${d.points} pts</span>
+        </div>
+        ${line}
+        ${d.branchNote ? `<div style="font-size:.65rem;color:#7b3fb0;padding:.15rem 0 .15rem 1.2rem;line-height:1.4">↳ ${d.branchNote}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// INVERSIONES
+// ═══════════════════════════════════════════════════════
 function purchaseInvestment(roundIdx, invIdx) {
   const key = `${roundIdx}-${invIdx}`;
   if (investmentsDone[key]) return;
   const inv = INVESTMENTS[roundIdx][invIdx];
+  if (budget < inv.cost) {
+    showBudgetToast(0, 'penalty');
+    pushNotif({ time: 'INV.', text: `⚠ Presupuesto insuficiente para "${inv.name}". Budget disponible: ${fmt(budget)}`, type: 'warn' });
+    return;
+  }
   investmentsDone[key] = true;
-  if (inv.wise) wiseInvestments++;
   if (inv.bonusType === 'shield') penaltyShield += inv.bonusValue;
   if (inv.bonusType === 'info') {
     const msgs = {
-      '0-2': 'REGULADOR BANCARIO: Notificación proactiva recibida y registrada. Las entidades que notifican en menos de 24h históricamente reciben hasta un 40% de reducción en sanciones administrativas.',
-      '1-2': 'ALERTA REPUTACIONAL: Monitoreo detectó 3 publicaciones virales sobre el incidente. Una cuenta con 51K seguidores publicó "¿hackeo masivo al banco?" — 18K interacciones. Ventana de respuesta óptima: menos de 2 horas.',
+      '0-2': 'REGULADOR BANCARIO: Notificación proactiva registrada. Histórico: entidades que notifican en <24h reciben hasta un 40% de reducción en sanciones. Su ronda 2 tendrá más opciones regulatorias.',
+      '1-2': 'ALERTA REPUTACIONAL: Monitoreo detectó 3 publicaciones virales. Una cuenta con 51K seguidores publicó "¿hackeo masivo al banco?" con 18K interacciones. Ventana óptima de respuesta: menos de 2 horas.',
     };
-    pushNotif({ time: 'INV.', text: msgs[key] || 'Información estratégica desbloqueada por la inversión.', type: 'info' });
+    pushNotif({ time: 'INV.', text: msgs[key] || 'Información estratégica desbloqueada.', type: 'branch' });
   }
   updateBudget(-inv.cost, 'investment');
   const btn = document.getElementById(`invOpt-${roundIdx}-${invIdx}`);
@@ -709,54 +1070,9 @@ function purchaseInvestment(roundIdx, invIdx) {
   if (note) note.textContent = 'Budget disponible: ' + (budget < 0 ? '-' : '') + fmt(budget);
 }
 
-// ─── SIDEBAR TABS ────────────────────────────────────────────────────────────
-// Cambia entre los tres paneles del sidebar: SITUACIÓN / ALERTAS / EQUIPOS.
-// Cuando el usuario abre ALERTAS, resetea el contador de no leídas
-// y oculta el badge rojo. Patrón: toggle 'active' en tabs y paneles a la vez.
-function switchSbTab(tab) {
-  currentSbTab = tab;
-  ['info', 'notif', 'scores'].forEach(t => {
-    document.getElementById(`stab-${t}`).classList.toggle('active', t === tab);
-    document.getElementById(`sp-${t}`).classList.toggle('active', t === tab);
-  });
-  if (tab === 'notif') {
-    unreadNotifs = 0;
-    document.getElementById('notifBadge').style.display = 'none';
-  }
-}
-
-// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
-// pushNotif: agrega UNA alerta al panel ALERTAS. Usa insertBefore para que
-//   las nuevas aparezcan arriba. Si el usuario no está en ese tab, incrementa
-//   el badge rojo de no leídas.
-// loadNotifs: llama a pushNotif() varias veces con setTimeout, una por alerta,
-//   espaciadas 1.2s para simular que llegan en tiempo real.
-//   Llamada por: startCrisis() (alertas iniciales) y renderRound() (por ronda).
-function pushNotif(notif) {
-  const feed = document.getElementById('notifFeed');
-  const el = document.createElement('div');
-  el.className = `notif-item notif-${notif.type}`;
-  el.innerHTML = `<div class="notif-dot"></div><div style="flex:1"><div class="notif-time">${notif.time}</div>${notif.text}</div>`;
-  feed.insertBefore(el, feed.firstChild);
-
-  if (currentSbTab !== 'notif') {
-    unreadNotifs++;
-    const badge = document.getElementById('notifBadge');
-    badge.textContent = unreadNotifs;
-    badge.style.display = 'flex';
-  }
-}
-
-function loadNotifs(notifArray, delay = 0) {
-  notifArray.forEach((n, i) => {
-    setTimeout(() => pushNotif(n), delay + i * 1200);
-  });
-}
-
-// ─── GAME INIT ────────────────────────────────────────────────────────────────
-// Punto de entrada del juego. Oculta la intro, muestra la pantalla de juego,
-// y dispara todo lo demás: sidebar, primera ronda, timer, simulación y alertas.
-// Es la única función que llama directamente a todas las demás de inicio.
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
 function startCrisis() {
   document.getElementById('screenIntro').classList.remove('active');
   document.getElementById('screenGame').classList.add('active');
@@ -764,14 +1080,9 @@ function startCrisis() {
   renderRound(0);
   startTimer();
   simulateOtherTeams();
-  // Load initial notifications
-  loadNotifs(NOTIFICATIONS.start, 800);
+  loadNotifs(BASE_NOTIFS.start, 800);
 }
 
-// Inicia el countdown de 90 minutos (5400 segundos).
-// Cada segundo actualiza el texto del timer y cambia el color:
-//   blanco → amarillo (<20 min) → rojo parpadeante (<5 min).
-// Si llega a 0, llama a showFinal() automáticamente.
 function startTimer() {
   timerInt = setInterval(() => {
     timerSecs--;
@@ -785,18 +1096,13 @@ function startTimer() {
   }, 1000);
 }
 
-// Construye los elementos fijos del sidebar: los 4 puntos de rondas
-// (indicador de progreso) y la lista de equipos con sus puntajes.
-// Solo se llama una vez desde startCrisis(). Los puntos se actualizan
-// luego en nextRound() al ir completando rondas.
 function initSidebar() {
   const ri = document.getElementById('roundIndicator');
-  ri.innerHTML = ROUNDS.map((_, i) =>
-    `<div class="ri-dot" id="riDot${i}"></div><span style="font-size:0.7rem;color:var(--muted)">R${i+1}</span>`
+  ri.innerHTML = ROUND_TREE.map((_, i) =>
+    `<div class="ri-dot" id="riDot${i}"></div><span style="font-size:.7rem;color:var(--muted)">R${i+1}</span>`
   ).join('');
   document.getElementById('riDot0').classList.add('active');
-
-  document.getElementById('teamRows').innerHTML = TEAMS_CRISIS.map((t, i) => `
+  document.getElementById('teamRows').innerHTML = TEAMS.map((t, i) => `
     <div class="team-row" id="tRow${i}">
       <div class="tr-name">${t.name}</div>
       <div class="tr-decided" id="tDec${i}" style="display:none">✓ Decidió</div>
@@ -805,22 +1111,19 @@ function initSidebar() {
   `).join('');
 }
 
-// ─── ROUND RENDER ─────────────────────────────────────────────────────────────
-// Construye todo el HTML del área principal para la ronda n.
-// Inyecta la tarjeta de incidente, la tarjeta de decisión (con las opciones),
-// y el área vacía donde aparecerá el resultado (#revealArea).
-// También dispara las notificaciones de esa ronda con un delay de 3 segundos.
-// Llamada por: startCrisis() y nextRound().
+// ═══════════════════════════════════════════════════════
+// RENDER ROUND
+// ═══════════════════════════════════════════════════════
 function renderRound(n) {
   currentRound = n;
   decisionsThisRound = {};
-  document.getElementById('roundLabel').textContent = `RONDA ${n+1} DE ${ROUNDS.length}`;
-  const r = ROUNDS[n];
+  document.getElementById('roundLabel').textContent = `RONDA ${n+1} DE ${ROUND_TREE.length}`;
+  const r = getRound(n);
 
   const invSection = INVESTMENTS[n] ? `
     <div class="inv-card">
       <div class="inv-header">
-        <div class="inv-title">// INVERSIONES ESTRATÉGICAS DISPONIBLES · RONDA ${n+1}</div>
+        <div class="inv-title">// INVERSIONES ESTRATÉGICAS · RONDA ${n+1}</div>
         <div class="inv-budget-note" id="invBudgetNote">Budget disponible: ${(budget < 0 ? '-' : '') + fmt(budget)}</div>
       </div>
       <div class="inv-body">
@@ -829,14 +1132,17 @@ function renderRound(n) {
           const done = !!investmentsDone[key];
           return `<div class="inv-opt${done ? ' inv-done' : ''}" id="invOpt-${n}-${i}"${done ? '' : ` onclick="purchaseInvestment(${n},${i})"`}>
             <div class="inv-cost">${fmt(inv.cost)}</div>
-            <div class="inv-info">
-              <div class="inv-name">${inv.name}</div>
-              <div class="inv-benefit">${inv.benefit}</div>
-            </div>
+            <div class="inv-info"><div class="inv-name">${inv.name}</div><div class="inv-benefit">${inv.benefit}</div></div>
             <div class="inv-badge">${done ? '✓ ADQUIRIDO' : ''}</div>
           </div>`;
         }).join('')}
       </div>
+    </div>` : '';
+
+  const branchCtx = r.branchContext ? `
+    <div class="branch-context">
+      <div class="branch-context-label">// CONTEXTO DE BIFURCACIÓN — HERENCIA DE DECISIONES ANTERIORES</div>
+      <span class="branch-context-icon">🔀</span>${r.branchContext.replace('🔀 ', '')}
     </div>` : '';
 
   document.getElementById('gameMain').innerHTML = `
@@ -845,6 +1151,7 @@ function renderRound(n) {
       <div class="ic-body">
         <div class="ic-round">RONDA ${n+1} · ${r.impact === 'ALTO' ? '⚠ IMPACTO ALTO' : '◈ IMPACTO MEDIO'}</div>
         <div class="ic-title">${r.title}</div>
+        ${branchCtx}
         <div class="ic-narrative">${r.narrative}</div>
         ${r.update ? `<div class="ic-update"><div class="ic-update-label">// NUEVA INFORMACIÓN</div>${r.update}</div>` : ''}
       </div>
@@ -864,31 +1171,23 @@ function renderRound(n) {
                 <div class="do-label">${o.label}</div>
               </div>
               <div class="do-points" id="decPts${i}">+${o.points}</div>
-            </div>
-          `).join('')}
+            </div>`).join('')}
         </div>
       </div>
       <div class="dc-footer">
-        <div style="font-size:0.8rem;color:var(--muted)">Discutan en equipo — cada opción tiene un impacto diferente</div>
-        <button class="btn btn-dark" id="confirmBtn" onclick="confirmDecision(${n})" disabled style="opacity:0.4;cursor:default">Confirmar decisión →</button>
+        <div style="font-size:.8rem;color:var(--muted)">Esta decisión cambia el escenario de la ronda siguiente</div>
+        <button class="btn btn-dark" id="confirmBtn" onclick="confirmDecision(${n})" disabled style="opacity:.4;cursor:default">Confirmar decisión →</button>
       </div>
     </div>
     ${invSection}
     <div id="revealArea"></div>
   `;
 
-  TEAMS_CRISIS.forEach(t => { t.decided = false; });
+  TEAMS.forEach(t => { t.decided = false; });
   document.querySelectorAll('[id^=tDec]').forEach(el => el.style.display = 'none');
-
-  // Push round-specific notifications with a delay
-  if (NOTIFICATIONS.byRound[n]) {
-    loadNotifs(NOTIFICATIONS.byRound[n], 3000);
-  }
+  loadNotifs(getNotifsByRound(n), 3000);
 }
 
-// Marca visualmente la opción elegida y habilita el botón "Confirmar".
-// Guarda el índice en decisionsThisRound._selected para que confirmDecision()
-// sepa qué eligió el usuario. Si ya se confirmó, sale sin hacer nada.
 function selectDecision(round, idx) {
   if (decisionsThisRound._confirmed) return;
   document.querySelectorAll('.dec-opt').forEach(o => o.classList.remove('selected'));
@@ -900,52 +1199,43 @@ function selectDecision(round, idx) {
   btn.disabled = false;
 }
 
-// La función más compleja del juego. Cuando el usuario confirma:
-//   1. Revela el tier (color) de TODAS las opciones, no solo la elegida.
-//   2. Suma los puntos al puntaje total y actualiza las métricas del sidebar.
-//   3. Agrega la consecuencia al historial (panel SITUACIÓN).
-//   4. Renderiza el bloque de resultado (#revealArea) con el tier y la decisión óptima.
-//   5. Desactiva el botón confirmar para que no se pueda clickear dos veces.
 function confirmDecision(round) {
   const sel = decisionsThisRound._selected;
   if (sel === undefined) return;
   decisionsThisRound._confirmed = true;
 
-  const r = ROUNDS[round];
+  const r = getRound(round);
   const opt = r.options[sel];
-  const tier = TIER_CONFIG[opt.tier];
+  const tier = TIER[opt.tier];
 
-  // Reveal all option tiers
+  // Revelar todos los tiers
   document.querySelectorAll('.dec-opt').forEach((el, i) => {
     el.onclick = null;
     el.classList.remove('selected');
-    const t = TIER_CONFIG[r.options[i].tier];
+    const t = TIER[r.options[i].tier];
     el.classList.add(t.cssClass);
     const ptsEl = document.getElementById(`decPts${i}`);
     ptsEl.textContent = `+${r.options[i].points} pts`;
     ptsEl.style.display = 'block';
     ptsEl.style.color = t.color;
-    // Update label to show tier
     el.querySelector('.do-label').textContent = t.label + ' · ' + r.options[i].label;
   });
 
-  // Update metrics
+  // Actualizar métricas
   totalScore += opt.points;
   document.getElementById('metScore').textContent = totalScore;
-
   if (opt.tier === 'best') { bestDec++; document.getElementById('metBest').textContent = bestDec; }
   else if (opt.tier === 'good') { goodDec++; document.getElementById('metGood').textContent = goodDec; }
   else if (opt.tier === 'poor' || opt.tier === 'ok') {
-    if (opt.tier === 'poor') { poorDec++; document.getElementById('metPoor').textContent = poorDec; }
+    poorDec++; document.getElementById('metPoor').textContent = poorDec;
   }
-
-  TEAMS_CRISIS[0].score = totalScore;
+  TEAMS[0].score = totalScore;
   document.getElementById('tScore0').textContent = `${totalScore} pts`;
-  TEAMS_CRISIS[0].decided = true;
+  TEAMS[0].decided = true;
   document.getElementById('tDec0').style.display = 'block';
 
-  // ── Budget: penalización automática por decisión incorrecta/subóptima ──
-  const pen = PENALTIES[round];
+  // Penalizaciones
+  const pen = getPenalties(round);
   if (pen) {
     let penAmt = opt.tier === 'poor' ? pen.poor : opt.tier === 'ok' ? pen.ok : 0;
     if (penAmt > 0) {
@@ -955,7 +1245,8 @@ function confirmDecision(round) {
       if (penAmt > 0) setTimeout(() => updateBudget(-penAmt, 'penalty'), 700);
     }
   }
-  // ── Budget: bonus de inversiones si la decisión fue óptima (best) ──
+
+  // Bonus de inversiones
   if (opt.tier === 'best') {
     let bonusPts = 0;
     INVESTMENTS[round].forEach((inv, idx) => {
@@ -963,22 +1254,39 @@ function confirmDecision(round) {
     });
     if (bonusPts > 0) {
       totalScore += bonusPts;
-      TEAMS_CRISIS[0].score = totalScore;
+      TEAMS[0].score = totalScore;
       document.getElementById('metScore').textContent = totalScore;
       document.getElementById('tScore0').textContent = `${totalScore} pts`;
     }
   }
 
-  // Add to consequence history
+  // Registrar en el path
+  decisionPath.push({
+    round,
+    tier: opt.tier,
+    points: opt.points,
+    text: opt.text,
+    branchNote: opt.branchNote || null,
+  });
+
+  // Historial de consecuencias
   consequences.unshift({ tier: opt.tier, text: `R${round+1}: ${opt.consequence}` });
-  const cl = document.getElementById('consequencesList');
-  cl.innerHTML = consequences.map(c => {
-    const cfg = TIER_CONFIG[c.tier];
+  document.getElementById('consequencesList').innerHTML = consequences.map(c => {
+    const cfg = TIER[c.tier];
     return `<div class="cons-item ${cfg.consClass}">${c.text}</div>`;
   }).join('');
 
-  // Best option text
+  updatePathTracker();
+
+  // Alerta de bifurcación en el panel de notificaciones
+  if (opt.branchNote && round < 3) {
+    setTimeout(() => {
+      pushNotif({ time: `R${round+1}→R${round+2}`, text: `🔀 BIFURCACIÓN: ${opt.branchNote}`, type: 'branch' });
+    }, 1500);
+  }
+
   const bestOpt = r.options.find(o => o.tier === 'best');
+  const nextVariantHint = round < 3 ? buildNextVariantHint(opt.tier, round) : '';
 
   document.getElementById('revealArea').innerHTML = `
     <div class="consequence-reveal">
@@ -997,9 +1305,10 @@ function confirmDecision(round) {
           <div class="cr-item-text">${bestOpt.text}</div>
         </div>
       </div>
+      ${nextVariantHint}
       <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
-        ${round < ROUNDS.length - 1
-          ? `<button class="btn btn-dark" onclick="nextRound()">Siguiente ronda →</button>`
+        ${round < ROUND_TREE.length - 1
+          ? `<button class="btn btn-dark" onclick="nextRound()">Siguiente ronda → ${getNextRoundHint(opt.tier, round)}</button>`
           : `<button class="btn btn-accent" onclick="showFinal()">Ver resultado final →</button>`}
       </div>
     </div>
@@ -1009,8 +1318,32 @@ function confirmDecision(round) {
   document.getElementById('confirmBtn').style.opacity = '0.4';
 }
 
-// Avanza a la siguiente ronda. Marca el punto de la ronda actual como
-// 'done' (verde) y el siguiente como 'active'. Llama a renderRound(n+1).
+function buildNextVariantHint(tier, round) {
+  if (round >= 2) return '';
+  const nextKey = round === 0 ? tier : getVariantKey(round + 1);
+  const variantNames = {
+    best: '📗 Camino favorable — menor daño, más opciones',
+    good: '📘 Camino estándar — daños moderados, sin ventajas adicionales',
+    ok:   '📙 Camino complicado — presión adicional en la siguiente ronda',
+    poor: '📕 Camino crítico — escenario de daño extendido',
+    strong: '📗 Ruta de gestión sólida',
+    mixed:  '📘 Ruta mixta — múltiples frentes abiertos',
+    weak:   '📕 Ruta de control de daños',
+  };
+  const hint = variantNames[nextKey] || '';
+  if (!hint) return '';
+  return `<div class="cr-branch-preview">
+    <div class="cr-branch-label">// CÓMO ESTO CAMBIA LA SIGUIENTE RONDA</div>
+    ${hint}
+  </div>`;
+}
+
+function getNextRoundHint(tier, round) {
+  if (round >= 2) return '';
+  const arrows = { best: '(ruta favorable)', good: '(ruta estándar)', ok: '(ruta complicada)', poor: '(ruta crítica)' };
+  return `<span style="font-size:.7rem;opacity:.6;margin-left:.5rem">${arrows[tier] || ''}</span>`;
+}
+
 function nextRound() {
   const prev = document.getElementById(`riDot${currentRound}`);
   prev.classList.remove('active');
@@ -1020,21 +1353,16 @@ function nextRound() {
   renderRound(currentRound + 1);
 }
 
-// Simula que los otros 5 equipos van tomando decisiones a lo largo del juego.
-// Usa setInterval + setTimeout anidados: cada ~55–90 segundos el equipo i
-// "decide" y recibe puntos aleatorios según un tier simulado (70% chance buena).
-// El marcador del sidebar se actualiza en vivo. Es puramente visual/narrativo.
 function simulateOtherTeams() {
-  TEAMS_CRISIS.forEach((t, i) => {
+  TEAMS.forEach((t, i) => {
     if (i === 0) return;
-    let roundSim = 0;
+    let rnd = 0;
     const sim = setInterval(() => {
-      if (roundSim >= ROUNDS.length) { clearInterval(sim); return; }
+      if (rnd >= ROUND_TREE.length) { clearInterval(sim); return; }
       setTimeout(() => {
-        // Simulate tiered scoring for other teams
-        const tierRoll = Math.random();
-        const pts = tierRoll > 0.6 ? 700 + Math.floor(Math.random() * 200)
-                  : tierRoll > 0.3 ? 400 + Math.floor(Math.random() * 200)
+        const roll = Math.random();
+        const pts = roll > 0.6 ? 700 + Math.floor(Math.random() * 200)
+                  : roll > 0.3 ? 400 + Math.floor(Math.random() * 200)
                   : 100 + Math.floor(Math.random() * 200);
         t.score += pts;
         t.decided = true;
@@ -1042,49 +1370,79 @@ function simulateOtherTeams() {
         if (el) el.textContent = `${t.score} pts`;
         const decEl = document.getElementById(`tDec${i}`);
         if (decEl) decEl.style.display = 'block';
-        roundSim++;
-        setTimeout(() => {
-          const decEl2 = document.getElementById(`tDec${i}`);
-          if (decEl2) decEl2.style.display = 'none';
-        }, 3000);
+        rnd++;
+        setTimeout(() => { const d = document.getElementById(`tDec${i}`); if (d) d.style.display = 'none'; }, 3000);
       }, 55000 + i * 12000 + Math.random() * 25000);
     }, 5000);
   });
 }
 
-// Termina el juego. Calcula el bonus de budget, construye el balance sheet,
-// asigna puntajes a equipos simulados y arma el ranking final.
-// Llamada por: startTimer() (tiempo agotado) o el botón "Ver resultado final →".
+// ═══════════════════════════════════════════════════════
+// FINAL
+// ═══════════════════════════════════════════════════════
 function showFinal() {
   clearInterval(timerInt);
 
-  // ── Budget bonus: $1,000 restante = 1 pt. ×1.5 si se compró "Programa anual de concientización" ──
-  let budgetPts = Math.floor(budget / 1000); // puede ser negativo
+  let budgetPts = Math.floor(budget / 1000);
   const hasMultiplier = !!investmentsDone['3-0'];
   if (hasMultiplier && budget > 0) budgetPts = Math.floor(budgetPts * 1.5);
   totalScore += budgetPts;
 
-  TEAMS_CRISIS.forEach((t, i) => {
-    if (i > 0) t.score = Math.floor(Math.random() * 2200) + 400;
-  });
-  TEAMS_CRISIS[0].score = totalScore;
-  const sorted = [...TEAMS_CRISIS].sort((a, b) => b.score - a.score);
+  TEAMS.forEach((t, i) => { if (i > 0) t.score = Math.floor(Math.random() * 2200) + 400; });
+  TEAMS[0].score = totalScore;
+  const sorted = [...TEAMS].sort((a, b) => b.score - a.score);
 
+  // Determinar el resultado final narrativo
+  const endingKey = (() => {
+    const bests = decisionPath.filter(d => d.tier === 'best').length;
+    const poors = decisionPath.filter(d => d.tier === 'poor' || d.tier === 'ok').length;
+    if (bests >= 3) return 'triumph';
+    if (bests >= 2) return 'solid';
+    if (poors >= 3) return 'crisis';
+    return 'mixed';
+  })();
+
+  const endings = {
+    triumph: { eyebrow: '// GESTIÓN EJEMPLAR', title: 'La crisis que<br>los fortaleció', sub: 'Tomaron las decisiones correctas bajo presión. El banco emerge con una postura de seguridad mejor que antes y con credibilidad intacta ante reguladores y clientes.' },
+    solid:   { eyebrow: '// GESTIÓN SÓLIDA', title: 'Crisis<br>gestionada', sub: 'Manejaron bien la situación con algunos tropiezos. La organización superó el incidente y hay aprendizajes claros para mejorar el protocolo.' },
+    mixed:   { eyebrow: '// GESTIÓN IRREGULAR', title: 'Crisis contenida<br>con dificultades', sub: 'La gestión fue inconsistente. El incidente fue contenido, pero dejó marcas en la reputación y en la relación con el regulador.' },
+    crisis:  { eyebrow: '// GESTIÓN EN CRISIS', title: 'El incidente<br>escaló', sub: 'Las decisiones tomadas amplificaron el daño. El banco sobrevivió, pero el costo — económico, reputacional y regulatorio — fue mayor de lo necesario.' },
+  };
+
+  const ending = endings[endingKey];
+  document.getElementById('finalEyebrow').textContent = ending.eyebrow.replace('// ', '');
+  document.getElementById('finalTitle').innerHTML = ending.title;
+  document.getElementById('finalSub').textContent = ending.sub;
   document.getElementById('finalScoreNum').textContent = totalScore.toLocaleString();
 
-  // ── Balance presupuestario ──
+  // Path summary
+  document.getElementById('pathSummaryArea').innerHTML = `
+    <div class="path-summary">
+      <div class="ps-title">// ÁRBOL DE DECISIONES TOMADO</div>
+      <div class="ps-chain">
+        ${decisionPath.map((d, i) => {
+          const tierLabel = { best: '⭐⭐⭐ Óptima', good: '⭐⭐ Buena', ok: '⭐ Parcial', poor: '◻ Perdida' }[d.tier];
+          return `<div class="ps-node ps-node-${d.tier}">
+            <span class="ps-rnd">R${i+1}</span>
+            <span><strong>${tierLabel}</strong> · ${d.points} pts</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
   const budgetPos = budget >= 0;
   let bonusLine = '';
   if (budgetPts > 0) {
-    bonusLine = `<div class="bs-bonus-row">+${budgetPts.toLocaleString()} pts adicionales por gestión eficiente del presupuesto${hasMultiplier && budget > 0 ? ' (×1.5 aplicado por inversión en concientización)' : ''}</div>`;
+    bonusLine = `<div class="bs-bonus-row">+${budgetPts.toLocaleString()} pts adicionales por gestión eficiente del presupuesto${hasMultiplier && budget > 0 ? ' (×1.5 por inversión en concientización)' : ''}</div>`;
   } else if (budgetPts < 0) {
     bonusLine = `<div class="bs-bonus-row" style="background:var(--accent-light);border-color:var(--accent-border);color:var(--accent)">${budgetPts.toLocaleString()} pts por exceder el presupuesto asignado</div>`;
   } else {
-    bonusLine = `<div class="bs-bonus-row" style="opacity:0.65">Budget agotado — sin puntos adicionales de presupuesto</div>`;
+    bonusLine = `<div class="bs-bonus-row" style="opacity:.65">Budget agotado — sin puntos adicionales de presupuesto</div>`;
   }
+
   document.getElementById('budgetSheetArea').innerHTML = `
     <div class="budget-sheet">
-      <div class="bs-title">// BALANCE PRESUPUESTARIO DE LA CRISIS</div>
+      <div class="bs-title">// BALANCE PRESUPUESTARIO</div>
       <div class="bs-row"><span>Budget inicial del CISO</span><span class="bs-val bs-blue">$500,000</span></div>
       <div class="bs-row"><span>Total en inversiones estratégicas</span><span class="bs-val bs-red">−${fmt(totalInvested)}</span></div>
       <div class="bs-row"><span>Total en penalizaciones por decisiones</span><span class="bs-val bs-red">−${fmt(totalPenalties)}</span></div>
@@ -1094,32 +1452,28 @@ function showFinal() {
 
   document.getElementById('rankingList').innerHTML = sorted.map((t, i) => `
     <div class="rank-row">
-      <div class="rank-pos">${String(i+1).padStart(2,'0')}</div>
+      <div class="rank-pos">${String(i+1).padStart(2, '0')}</div>
       <div class="rank-name">${t.name}</div>
       <div class="rank-score">${t.score.toLocaleString()} pts</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   document.getElementById('screenGame').classList.remove('active');
   document.getElementById('screenFinal').classList.add('active');
 }
 
-// Vuelve todo a cero: timer, ronda, puntajes, decisiones, notificaciones.
-// Lleva de vuelta a la pantalla de intro. Llamada desde "Nueva sesión".
 function resetGame() {
   clearInterval(timerInt);
-  timerSecs = 5400;
-  currentRound = 0;
+  timerSecs = 5400; currentRound = 0;
   bestDec = 0; goodDec = 0; poorDec = 0; totalScore = 0;
-  consequences = []; decisionsThisRound = {};
-  unreadNotifs = 0;
+  consequences = []; decisionsThisRound = {}; unreadNotifs = 0;
   budget = 500000; totalInvested = 0; totalPenalties = 0;
-  penaltyShield = 0; wiseInvestments = 0; investmentsDone = {};
-  TEAMS_CRISIS.forEach(t => { t.score = 0; t.decided = false; });
+  penaltyShield = 0; investmentsDone = {}; decisionPath = [];
+  TEAMS.forEach(t => { t.score = 0; t.decided = false; });
   document.getElementById('notifFeed').innerHTML = '';
   document.getElementById('notifBadge').style.display = 'none';
   document.getElementById('budgetVal').textContent = '$500,000';
   document.getElementById('budgetSheetArea').innerHTML = '';
+  document.getElementById('pathSummaryArea').innerHTML = '';
   document.getElementById('screenFinal').classList.remove('active');
   document.getElementById('screenGame').classList.remove('active');
   document.getElementById('screenIntro').classList.add('active');
