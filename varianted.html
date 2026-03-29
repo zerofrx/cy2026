@@ -3,45 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Simulacro dinámico de crisis cibernética bancaria para el Comité de Crisis.">
 <title>Banco Ñandutí — Simulacro de Crisis SWIFT</title>
+
+<!-- Optimización de carga de fuentes -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="varianted.css">
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════ -->
-<!-- INTRO -->
-<!-- ════════════════════════════════════════════════════════ -->
+<!-- PANTALLA DE INICIO -->
 <div class="screen active" id="screenIntro">
-  <div class="topbar">
-    <div class="tb-brand">BANCO <span>ÑANDUTÍ</span> · SIMULACRO DE CRISIS</div>
-    <div class="tb-meta"><span>MODO FACILITADOR</span><span>6 EQUIPOS · 30 PERSONAS</span><span>ASUNCIÓN, PARAGUAY</span></div>
-  </div>
-  <div class="intro-layout">
+  <header class="topbar">
+    <h1 class="tb-brand">BANCO <span>ÑANDUTÍ</span> · SIMULACRO DE CRISIS</h1>
+    <div class="tb-meta" role="status"><span>MODO FACILITADOR</span><span>6 EQUIPOS · 30 PERSONAS</span><span>ASUNCIÓN, PARAGUAY</span></div>
+  </header>
+
+  <main class="intro-layout">
     <div class="intro-left">
       <div class="il-eyebrow">// ATAQUE SWIFT · CASO REAL RECREADO</div>
-      <div class="il-title">Un jueves de mayo.<br>9.000 pantallas<br>en negro.</div>
-      <div class="il-desc">Banco Ñandutí, el segundo banco más grande de Paraguay, está siendo atacado en este momento. El malware ya corre. Las transferencias SWIFT ya salieron. El BCP todavía no sabe nada. Tienen 60 minutos para gestionar la peor crisis cibernética de la historia bancaria paraguaya.</div>
-      <div class="il-facts">
+      <h2 class="il-title">Un jueves de mayo.<br>9.000 pantallas<br>en negro.</h2>
+      <p class="il-desc">Banco Ñandutí, el segundo banco más grande de Paraguay, está siendo atacado en este momento. El malware ya corre. Las transferencias SWIFT ya salieron. El BCP todavía no sabe nada. Tienen 60 minutos para gestionar la peor crisis cibernética de la historia bancaria paraguaya.</p>
+      <ul class="il-facts" style="list-style: none;">
         <div class="il-fact"><span class="il-fact-icon">▸</span>El ataque empezó meses antes — en una sucursal de Ciudad del Este</div>
         <div class="il-fact"><span class="il-fact-icon">▸</span>El malware fue una pantalla. El verdadero robo fue vía SWIFT</div>
         <div class="il-fact"><span class="il-fact-icon">▸</span>USD 9.8 millones salieron hacia cuentas en Hong Kong</div>
         <div class="il-fact"><span class="il-fact-icon">▸</span>Cada decisión afecta el presupuesto, el puntaje y la historia</div>
-      </div>
+      </ul>
     </div>
-    <div class="intro-right">
-      <div class="ir-title">El escenario de hoy</div>
-      <div class="scenario-box">
+
+    <section class="intro-right">
+      <h3 class="ir-title">El escenario de hoy</h3>
+      <article class="scenario-box">
         <div class="sp-label">// BRIEFING CONFIDENCIAL — 07:31hs · JUEVES</div>
         El SOC del banco acaba de activar la alerta máxima. Computadoras en las sucursales de Asunción no encienden. El sistema de monitoreo muestra que los discos de arranque están siendo borrados en cascada. Hay 9.000 terminales y 500 servidores afectados. El Gerente General está en reunión con el directorio. Nadie sabe todavía que, mientras tanto, el sistema SWIFT está ejecutando transferencias automáticamente.
-      </div>
-      <div class="ir-title" style="margin-bottom:.65rem;">Comité de crisis — ¿Quiénes son?</div>
-      <div class="roles-form">
+      </article>
+
+      <h3 class="ir-title" style="margin-bottom:.65rem;">Comité de crisis — ¿Quiénes son?</h3>
+      <form class="roles-form" onsubmit="event.preventDefault(); startCrisis();">
         <div class="rf-team-name-row">
-          <div style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.18rem;">NOMBRE DEL EQUIPO</div>
-          <input class="rf-team-name-input" id="inputTeamName" type="text" placeholder="ej. Equipo Rojo, Los Tigres, Grupo A…" maxlength="30">
+          <label for="inputTeamName" style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--muted);margin-bottom:.18rem;display:block;">NOMBRE DEL EQUIPO</label>
+          <input class="rf-team-name-input" id="inputTeamName" type="text" placeholder="ej. Equipo Rojo, Los Tigres, Grupo A…" maxlength="30" required>
         </div>
+        
         <div style="height:1px;background:var(--border);margin:.1rem 0 .3rem;"></div>
+        
         <div class="rf-inputs">
           <div class="rf-field">
             <div class="rf-field-label">CISO <span style="font-weight:400;color:var(--accent);font-size:.6rem">líder</span></div>
@@ -70,12 +79,12 @@
           <input class="rf-input" id="inputGM" type="text" placeholder="Nombre del participante" maxlength="30" style="width:100%">
         </div>
         <div style="font-size:.68rem;color:var(--muted);line-height:1.5;">Todos los campos son opcionales. Los nombres aparecerán en las alertas, decisiones y resultado final.</div>
-      </div>
-      <div style="display:flex;gap:.65rem;">
-        <button class="btn btn-dark" onclick="startCrisis()">INICIAR CRISIS →</button>
-      </div>
-    </div>
-  </div>
+        <div style="display:flex;gap:.65rem;margin-top:1.5rem;">
+          <button type="submit" class="btn btn-dark">INICIAR CRISIS →</button>
+        </div>
+      </form>
+    </section>
+  </main>
 </div>
 
 <!-- ════════════════════════════════════════════════════════ -->

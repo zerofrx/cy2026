@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .il-facts{display:flex;flex-direction:column;gap:.6rem;margin-bottom:2.5rem;}
 .il-fact{display:flex;gap:.75rem;align-items:flex-start;font-size:.78rem;color:#7a6e65;}
 .il-fact-icon{color:var(--accent);flex-shrink:0;margin-top:.1rem;}
-.intro-right{background:var(--surface);padding:3rem;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;}
+.intro-right{background:var(--surface);padding:3rem;display:flex;flex-direction:column;justify-content:flex-start;overflow-y:auto;}
 .ir-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1.25rem;}
 .scenario-box{background:var(--accent-light);border:1px solid var(--accent-border);border-left:3px solid var(--accent);border-radius:4px;padding:1.2rem;margin-bottom:1.5rem;font-size:.87rem;line-height:1.75;}
 .sp-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;color:var(--accent);margin-bottom:.5rem;}
